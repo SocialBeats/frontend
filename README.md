@@ -28,14 +28,14 @@ Follow these steps to get the local development environment up and running.
     ```
 
 2.  **Install dependencies:**
-    This project uses `npm`.
+    This project uses `pnpm`.
     ```bash
-    npm install
+    pnpm install
     ```
 
 3.  **Run the application:**
     ```bash
-    npm run dev
+    pnpm run dev
     ```
     The application will be available at `http://localhost:5173`.
 
