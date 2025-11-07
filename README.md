@@ -33,25 +33,7 @@ Follow these steps to get the local development environment up and running.
     npm install
     ```
 
-3.  **Set up Environment Variables:**
-    Create a copy of the `.env.example` file and name it `.env`.
-    ```bash
-    cp .env.example .env
-    ```
-    Edit the `.env` file and configure the microservice URLs.
-    ```.env
-    # Point to the base URL of your Microservice 1 (Users)
-    VITE_API_URL=http://localhost:8081/api/v1
-
-    # (Optional) Or add all URLs if you want to be more specific
-    VITE_USERS_API_URL=http://localhost:8081/api/v1
-    VITE_SOCIAL_API_URL=http://localhost:8082/api/v1
-    VITE_BEATS_API_URL=http://localhost:8083/api/v1
-    VITE_INTERACTIONS_API_URL=http://localhost:8084/api/v1
-    VITE_ANALYTICS_API_URL=http://localhost:8085/api/v1
-    ```
-
-4.  **Run the application:**
+3.  **Run the application:**
     ```bash
     npm run dev
     ```
