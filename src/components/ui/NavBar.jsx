@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import Avatar from './Avatar';
+import logo from '../../assets/logo-dark-no-fondo.png';
 import './NavBar.css';
 
 export default function NavBar() {
@@ -18,11 +19,11 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="sidebar">
+    <nav className="sidebar glass-panel">
       <div className="sidebar-content">
         {/* Logo */}
         <Link to="/app/dashboard" className="sidebar-logo">
-          <div className="logo-icon">S</div>
+          <img src={logo} alt="SocialBeats Logo" className="logo-image" />
           <span className="logo-text">SocialBeats</span>
         </Link>
 
@@ -39,7 +40,17 @@ export default function NavBar() {
             </Link>
           ))}
         </div>
+
+        {/* User Profile Snippet (Optional but good for design) */}
+        <div className="sidebar-user">
+          <Avatar size="sm" />
+          <div className="sidebar-user-info">
+            <span className="user-name">Usuario</span>
+            <span className="user-handle">@usuario</span>
+          </div>
+        </div>
       </div>
     </nav>
   );
 }
+
