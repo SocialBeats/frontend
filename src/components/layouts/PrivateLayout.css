@@ -1,0 +1,46 @@
+.private-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Wrapper for content and footer that respects sidebar */
+.private-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+.private-main {
+  flex: 1;
+  padding: 2rem;
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #888;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .private-content-wrapper {
+    margin-left: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .private-content-wrapper {
+    margin-left: 0;
+    margin-bottom: 70px;
+  }
+
+  .private-main {
+    padding: 1rem;
+  }
+}

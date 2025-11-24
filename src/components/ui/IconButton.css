@@ -1,0 +1,65 @@
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #888;
+}
+
+/* Sizes */
+.icon-btn-small {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+}
+
+.icon-btn-medium {
+  width: 40px;
+  height: 40px;
+  font-size: 1.25rem;
+}
+
+.icon-btn-large {
+  width: 48px;
+  height: 48px;
+  font-size: 1.5rem;
+}
+
+/* Variants */
+.icon-btn-ghost:hover:not(.icon-btn-disabled) {
+  background: rgba(79, 172, 254, 0.1);
+  color: #4facfe;
+}
+
+.icon-btn-filled {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.icon-btn-filled:hover:not(.icon-btn-disabled) {
+  background: #3a3a3a;
+}
+
+.icon-btn-primary {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.icon-btn-primary:hover:not(.icon-btn-disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+/* States */
+.icon-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn:active:not(.icon-btn-disabled) {
+  transform: scale(0.95);
+}
