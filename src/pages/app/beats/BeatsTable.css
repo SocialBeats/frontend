@@ -1,4 +1,15 @@
 /* BeatsTable.css */
+.beats-page-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  width: 100%;
+}
+
+.beats-page-header {
+  margin-bottom: 2rem;
+}
+
 .beats-page-layout {
   position: relative;
   width: 100%;
@@ -6,39 +17,69 @@
 
 .beats-table-container-wrapper {
   width: 100%;
-}
-
-.beats-table-container {
-  width: 100%;
-  color: var(--text-main);
-  font-family: var(--font-main);
   overflow-x: auto;
-  position: relative;
+  overflow-y: visible;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  
+  /* Styled scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+.beats-table-container-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.beats-table-container-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.beats-table-container-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.beats-table-container-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .beats-table-content {
-  min-width: 900px;
-  /* Force min-width to trigger scroll if needed */
+  display: inline-block;
+  min-width: 100%;
+  color: var(--text-main);
+  font-family: var(--font-main);
+}
+
+.beats-table-header-wrapper {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-main);
+  z-index: 10;
 }
 
 .beats-table-header {
   display: grid;
   /* Grid template is set inline in React */
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
   color: var(--text-muted);
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  position: sticky;
-  top: 0;
-  background-color: var(--bg-main);
-  z-index: 10;
   justify-items: center;
+}
+
+.beats-table-settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .beat-row-link {
