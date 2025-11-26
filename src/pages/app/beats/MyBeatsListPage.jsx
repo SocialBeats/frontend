@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "../../../components/ui/Card";
 import logo from "../../../assets/logo-dark-no-fondo.png";
-import { mockedBeats } from "./mockBeats";
+// import { mockedBeats } from "./mockBeats";
+import { getBeats } from "../../../services/beatsService";
 import "./MyBeatsListPage.css";
 
 const MyBeatsListPage = () => {
@@ -11,13 +12,22 @@ const MyBeatsListPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBeats = () => {
+    const fetchBeats = async () => {
       try {
-        // Simulate API call with mocks
-        setBeats(mockedBeats);
+        console.log('🔍 Fetching beats from API...');
+        const data = await getBeats();
+        console.log('✅ Beats fetched successfully:', data);
+        setBeats(data);
       } catch (err) {
+        console.error('❌ Error fetching beats:', err);
+        console.error('Error details:', {
+          message: err.message,
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          data: err.response?.data,
+          config: err.config
+        });
         setError("Error fetching beats. Please try again later.");
-        console.error(err);
       } finally {
         setLoading(false);
       }
