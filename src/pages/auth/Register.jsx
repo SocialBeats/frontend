@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import TopNavBar from '../../components/ui/TopNavBar';
 import logo from '../../assets/logo-dark-no-fondo.png';
 import { register } from '../../services/authService';
 import '../../styles/index.css';
@@ -73,8 +74,10 @@ export default function Register() {
         formData.password === formData.confirmPassword;
 
     return (
-        <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem' }}>
-            <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '500px', width: '100%' }}>
+        <>
+            <TopNavBar />
+            <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', paddingTop: '6rem' }}>
+                <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '500px', width: '100%' }}>
                 <div className="flex-center" style={{ flexDirection: 'column', marginBottom: '2rem' }}>
                     <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
                     <h2>Crear cuenta</h2>
@@ -157,5 +160,6 @@ export default function Register() {
                 </div>
             </Card>
         </div>
+        </>
     );
 }

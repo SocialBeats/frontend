@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import TopNavBar from '../../components/ui/TopNavBar';
 import logo from '../../assets/logo-dark-no-fondo.png';
 
 export default function Login() {
@@ -46,8 +47,10 @@ export default function Login() {
     };
 
     return (
-        <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem' }}>
-            <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '450px', width: '100%' }}>
+        <>
+            <TopNavBar />
+            <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', paddingTop: '6rem' }}>
+                <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '450px', width: '100%' }}>
                 <div className="flex-center" style={{ flexDirection: 'column', marginBottom: '2rem' }}>
                     <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
                     <h2>Bienvenido de nuevo</h2>
@@ -107,5 +110,6 @@ export default function Login() {
                 </div>
             </Card>
         </div>
+        </>
     );
 }
