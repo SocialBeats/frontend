@@ -61,7 +61,7 @@ export default function Register() {
             <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '500px', width: '100%' }}>
                 <div className="flex-center" style={{ flexDirection: 'column', marginBottom: '2rem' }}>
                     <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
-                    <h2>Crear Cuenta</h2>
+                    <h2>Crear cuenta</h2>
                     <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
                         Únete a la comunidad de productores musicales
                     </p>
@@ -70,7 +70,7 @@ export default function Register() {
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <Input
-                            label="Nombre de Usuario"
+                            label="Nombre de usuario"
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
@@ -102,7 +102,7 @@ export default function Register() {
                         />
 
                         <Input
-                            label="Confirmar Contraseña"
+                            label="Confirmar contraseña"
                             name="confirmPassword"
                             type="password"
                             value={formData.confirmPassword}
@@ -129,7 +129,7 @@ export default function Register() {
                     <p style={{ color: 'var(--text-muted)' }}>
                         ¿Ya tienes una cuenta?{' '}
                         <Link to="/login" style={{ fontWeight: '600' }}>
-                            Inicia Sesión
+                            Inicia sesión
                         </Link>
                     </p>
                 </div>

@@ -59,13 +59,13 @@ export default function Login() {
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <Input
-                            label="Usuario o Email"
+                            label="Usuario / Email"
                             name="identifier"
                             value={formData.identifier}
                             onChange={handleChange}
                             error={errors.identifier}
                             fullWidth
-                            placeholder="Ej. beatmaker23"
+                            placeholder="beat23 / beat23@email.com"
                         />
 
                         <Input
@@ -92,7 +92,7 @@ export default function Login() {
                             size="large"
                             style={{ marginTop: '0.5rem' }}
                         >
-                            Iniciar Sesión
+                            Iniciar sesión
                         </Button>
                     </div>
                 </form>
@@ -101,7 +101,7 @@ export default function Login() {
                     <p style={{ color: 'var(--text-muted)' }}>
                         ¿No tienes una cuenta?{' '}
                         <Link to="/register" style={{ fontWeight: '600' }}>
-                            Regístrate Gratis
+                            Regístrate gratis
                         </Link>
                     </p>
                 </div>
