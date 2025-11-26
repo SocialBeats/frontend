@@ -1,46 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
-
-const mockedBeats = [
-  {
-    _id: '1',
-    title: 'Summer Vibes',
-    artist: 'DJ Producer',
-    genre: 'Hip Hop',
-    bpm: 120,
-    key: 'C#',
-    formattedDuration: '3:00',
-    description: 'A chill summer beat perfect for relaxing',
-    tags: ['chill', 'summer', 'trap'],
-  },
-  {
-    _id: '2',
-    title: 'Chill Lo-Fi',
-    artist: 'BeatMaker',
-    genre: 'Lo-Fi',
-    bpm: 90,
-    key: 'A#',
-    formattedDuration: '2:30',
-    description: 'A relaxing lo-fi beat for studying or sleeping.',
-    tags: ['lofi', 'chill', 'relax'],
-  },
-  {
-    _id: '3',
-    title: 'Trap Banger',
-    artist: 'TrapGod',
-    genre: 'Trap',
-    bpm: 150,
-    key: 'G',
-    formattedDuration: '2:45',
-    description: 'A hard-hitting trap banger for your next hit.',
-    tags: ['trap', 'banger', 'hard'],
-  },
-];
+import IconButton from '../../../components/ui/IconButton';
+import Badge from '../../../components/ui/Badge';
+import logo from '../../../assets/logo-dark-no-fondo.png';
+import { mockedBeats } from './mockBeats';
+import './BeatDetailPage.css';
 
 const BeatDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [beat, setBeat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,55 +49,139 @@ const BeatDetailPage = () => {
     return <div>Beat not found.</div>;
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Card>
-        <div className="p-6">
-          <h1 className="text-4xl font-bold mb-4">{beat.title}</h1>
-          <p className="text-xl text-gray-500 mb-6">{beat.artist}</p>
+  const formatDuration = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
-            <div>
-              <span className="font-semibold">Genre:</span> {beat.genre}
-            </div>
-            <div>
-              <span className="font-semibold">BPM:</span> {beat.bpm}
-            </div>
-            <div>
-              <span className="font-semibold">Key:</span> {beat.key || 'N/A'}
-            </div>
-            <div>
-              <span className="font-semibold">Duration:</span> {beat.formattedDuration}
+  return (
+    <div className="beat-detail-page">
+      {/* Back Button */}
+      <div className="beat-detail-header">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="back-button"
+        >
+          <IconButton variant="ghost" size="medium">
+            ← Back
+          </IconButton>
+        </button>
+      </div>
+
+      <div className="beat-detail-content">
+        {/* Main Beat Info Section */}
+        <div className="beat-hero-section">
+          <div className="beat-cover-large">
+            <img 
+              src={logo} 
+              alt={beat.title}
+              className="beat-cover-image"
+            />
+            <div className="beat-cover-overlay">
+              <Button className="play-button-large" size="large">
+                <span className="play-icon-large">▶</span>
+                Play
+              </Button>
             </div>
           </div>
-
-          {beat.description && (
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-2">Description</h2>
-              <p>{beat.description}</p>
-            </div>
-          )}
-
-          {beat.tags && beat.tags.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold mb-2">Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {beat.tags.map((tag) => (
-                  <span key={tag} className="bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold">
-                    {tag}
-                  </span>
-                ))}
+          
+          <div className="beat-info-main">
+            <div className="beat-title-section">
+              <h1 className="beat-title-large">{beat.title}</h1>
+              <p className="beat-artist-large">{beat.artist}</p>
+              
+              {/* Tags */}
+              {beat.tags && beat.tags.length > 0 && (
+                <div className="tags-container-inline">
+                  {beat.tags.map((tag, index) => (
+                    <div key={tag} className="tag-item-inline" style={{ '--tag-index': index }}>
+                      <span className="tag-hash">#</span>
+                      <span className="tag-text">{tag}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="beat-stats">
+                <span className="stat-item">
+                  <span className="stat-icon">👁</span>
+                  {beat.stats?.plays?.toLocaleString() || '0'} plays
+                </span>
+                <span className="stat-item">
+                  <span className="stat-icon">💾</span>
+                  {beat.stats?.downloads?.toLocaleString() || '0'} downloads
+                </span>
+                <span className="stat-item">
+                  <span className="stat-icon">❤️</span>
+                  {beat.stats?.likes?.toLocaleString() || '0'} likes
+                </span>
               </div>
             </div>
-          )}
-
-          <div className="mt-8">
-            <Button>
-              Play
-            </Button>
           </div>
         </div>
-      </Card>
+
+        {/* Beat Details Grid */}
+        <div className="beat-details-grid">
+          <Card className="beat-info-card">
+            <div className="card-header">
+              <h2>Beat Information</h2>
+            </div>
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Genre</span>
+                <Badge variant="secondary">{beat.genre}</Badge>
+              </div>
+              <div className="info-item">
+                <span className="info-label">BPM</span>
+                <span className="info-value">{beat.bpm}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Key</span>
+                <span className="info-value">{beat.key}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Duration</span>
+                <span className="info-value">{formatDuration(beat.duration)}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Mood</span>
+                <Badge variant="outline">{beat.mood}</Badge>
+              </div>
+              <div className="info-item">
+                <span className="info-label">License</span>
+                <Badge variant={beat.license === 'Free' ? 'success' : 'default'}>
+                  {beat.license}
+                </Badge>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="beat-actions-card">
+            <div className="card-header">
+              <h2>Pricing & Actions</h2>
+            </div>
+            <div className="pricing-section">
+              <div className="price-display">
+                <span className="price-label">Price</span>
+                <span className="price-value">
+                  {beat.pricing?.isFree ? 'Free' : `$${beat.pricing?.price}`}
+                </span>
+              </div>
+              <div className="action-buttons">
+                <Button variant="primary" size="large" className="download-btn">
+                  💾 Download
+                </Button>
+                <Button variant="outline" size="large" className="like-btn">
+                  ❤️ Like
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+
+      </div>
     </div>
   );
 };
