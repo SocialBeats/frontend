@@ -1,0 +1,88 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Card from "../../../components/ui/Card";
+import logo from "../../../assets/logo-dark-no-fondo.png";
+import { mockedBeats } from "./mockBeats";
+import "./MyBeatsListPage.css";
+
+const MyBeatsListPage = () => {
+  const [beats, setBeats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBeats = () => {
+      try {
+        // Simulate API call with mocks
+        setBeats(mockedBeats);
+      } catch (err) {
+        setError("Error fetching beats. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBeats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex-center" style={{ minHeight: "50vh" }}>
+        <div className="text-xl text-muted">Loading beats...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-center" style={{ minHeight: "50vh" }}>
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="my-beats-page">
+      <div className="my-beats-header">
+        <h1 className="text-3xl font-bold">My Beats</h1>
+        <p className="text-muted">Browse and manage your beat collection</p>
+      </div>
+
+      <div className="beats-grid">
+        {beats.map((beat) => (
+          <Link
+            to={`/app/beats/${beat._id}`}
+            key={beat._id}
+            className="beat-card-link"
+          >
+            <Card className="beat-card" hover={true}>
+              <div className="beat-cover-container">
+                <img
+                  src={logo}
+                  alt={beat.title}
+                  className="beat-cover"
+                />
+                <div className="beat-overlay">
+                  <div className="play-button">
+                    <span className="play-icon">▶</span>
+                  </div>
+                </div>
+              </div>
+              <div className="beat-card-info">
+                <h3 className="beat-card-title">{beat.title}</h3>
+                <div className="beat-card-metadata">
+                  <span className="beat-card-genre">{beat.genre}</span>
+                  <span className="beat-card-separator">•</span>
+                  <span className="beat-card-duration">{Math.floor(beat.duration / 60)}:{(beat.duration % 60).toString().padStart(2, '0')}</span>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default MyBeatsListPage;

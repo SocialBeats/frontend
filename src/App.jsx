@@ -4,6 +4,7 @@ import PrivateLayout from './components/layouts/PrivateLayout';
 import Landing from './pages/Landing';
 import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
+import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
 import BeatDetailPage from './pages/app/beats/BeatDetailPage';
 import './styles/App.css';
 
@@ -23,9 +24,10 @@ function App() {
         <Route path="/app" element={<PrivateLayout />}>
           <Route index element={<Navigate to="/app/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="beats" element={<BeatsListPage />} />
+          {/* <Route path="beats" element={<BeatsListPage />} /> */}
+          <Route path="my-beats" element={<MyBeatsListPage />} />
           <Route path="beats/:id" element={<BeatDetailPage />} />
-          <Route path="explore" element={<Dashboard />} /> {/* TODO: Create Explore page */}
+          <Route path="explore" element={<BeatsListPage />} /> {/* TODO: Create Explore page */}
           <Route path="upload" element={<Dashboard />} /> {/* TODO: Create Upload page */}
           <Route path="library" element={<Dashboard />} /> {/* TODO: Create Library page */}
           <Route path="messages" element={<Dashboard />} /> {/* TODO: Create Messages page */}
