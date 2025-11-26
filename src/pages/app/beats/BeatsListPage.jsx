@@ -5,7 +5,7 @@ import IconButton from "../../../components/ui/IconButton";
 import Card from "../../../components/ui/Card";
 import logo from "../../../assets/logo-dark-no-fondo.png";
 import ColumnSelector from "./ColumnSelector";
-import { mockedBeats } from "./mockBeats";
+import { getBeats } from "../../../services/beatsService";
 import "./BeatsTable.css";
 
 const allColumns = [
@@ -74,27 +74,26 @@ const BeatsListPage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchBeats = () => {
+    const fetchBeats = async () => {
       try {
-        // Simulate API call with mocks
-        const data = mockedBeats;
+        const data = await getBeats();
 
         // Format data for display
         const formattedBeats = data.map((beat) => ({
           ...beat,
-          formattedDuration: formatDuration(beat.duration),
-          formattedPrice: beat.pricing.isFree
+          formattedDuration: formatDuration(beat.duration || 0),
+          formattedPrice: beat.pricing?.isFree
             ? "Free"
-            : `$${beat.pricing.price}`,
-          formattedPlays: beat.stats.plays.toLocaleString(),
-          formattedDownloads: beat.stats.downloads.toLocaleString(),
-          formattedLikes: beat.stats.likes.toLocaleString(),
-          formattedComments: beat.stats.comments.toLocaleString(),
-          formattedDate: new Intl.DateTimeFormat("en-US", {
+            : `$${beat.pricing?.price || 0}`,
+          formattedPlays: (beat.stats?.plays || 0).toLocaleString(),
+          formattedDownloads: (beat.stats?.downloads || 0).toLocaleString(),
+          formattedLikes: (beat.stats?.likes || 0).toLocaleString(),
+          formattedComments: (beat.stats?.comments || 0).toLocaleString(),
+          formattedDate: beat.createdAt ? new Intl.DateTimeFormat("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",
-          }).format(beat.createdAt),
+          }).format(new Date(beat.createdAt)) : "N/A",
         }));
         setBeats(formattedBeats);
       } catch (err) {

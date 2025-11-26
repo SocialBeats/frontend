@@ -33,7 +33,14 @@ export const getBeats = async (filters = {}) => {
 export const getBeatById = async (id) => {
   try {
     const { data } = await client.get(`/beats/${id}`);
-    return data;
+    // Extract the beats array from the API response structure
+    if (data.success && data.data) {
+      console.log('✅ Returning beats array:', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data; // fallback to raw data
+    }
   } catch (error) {
     console.error(`Error fetching beat with id ${id}:`, error);
     throw error;

@@ -5,7 +5,8 @@ import Button from '../../../components/ui/Button';
 import IconButton from '../../../components/ui/IconButton';
 import Badge from '../../../components/ui/Badge';
 import logo from '../../../assets/logo-dark-no-fondo.png';
-import { mockedBeats } from './mockBeats';
+// import { mockedBeats } from './mockBeats';
+import { getBeatById } from '../../../services/beatsService';
 import './BeatDetailPage.css';
 
 const BeatDetailPage = () => {
@@ -16,11 +17,11 @@ const BeatDetailPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchBeat = () => {
+    const fetchBeat = async () => {
       try {
-        const foundBeat = mockedBeats.find((b) => b._id === id);
-        if (foundBeat) {
-          setBeat(foundBeat);
+        const beatData = await getBeatById(id);
+        if (beatData) {
+          setBeat(beatData);
         } else {
           setError('Beat not found.');
         }
