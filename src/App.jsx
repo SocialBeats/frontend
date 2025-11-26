@@ -3,6 +3,8 @@ import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
 import Landing from './pages/Landing';
 import Feed from './pages/app/Feed';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboard from './pages/app/dashboards/CreateDashboard';
@@ -21,14 +23,18 @@ function App() {
           <Route path="/contact" element={<Landing />} />
         </Route>
 
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         {/* Private Routes - Only for authenticated users */}
         <Route path="/app" element={<PrivateLayout />}>
           {/* Redirección inicial al Feed */}
           <Route index element={<Navigate to="/app/feed" replace />} />
-          
+
           {/* Ruta principal: Feed */}
           <Route path="feed" element={<Feed />} />
-          
+
           {/* Rutas placeholder apuntando a Feed por ahora */}
           <Route path="explore" element={<Feed />} />
           <Route path="upload" element={<Feed />} />
