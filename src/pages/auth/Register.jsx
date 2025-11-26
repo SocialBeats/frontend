@@ -4,6 +4,7 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import logo from '../../assets/logo-dark-no-fondo.png';
+import { register } from '../../services/authService';
 import '../../styles/index.css';
 
 export default function Register() {
@@ -15,6 +16,7 @@ export default function Register() {
         confirmPassword: ''
     });
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,12 +46,26 @@ export default function Register() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-            console.log('Form submitted:', formData);
-            // Here would go the API call
-            navigate('/login');
+            setLoading(true);
+            try {
+                await register({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                });
+                console.log('Usuario registrado exitosamente');
+                navigate('/login');
+            } catch (error) {
+                console.error('Error en el registro:', error);
+                setErrors({ 
+                    submit: error.response?.data?.message || 'Error al registrar usuario' 
+                });
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -112,15 +128,21 @@ export default function Register() {
                             placeholder="••••••••"
                         />
 
+                        {errors.submit && (
+                            <div style={{ color: 'var(--error)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                                {errors.submit}
+                            </div>
+                        )}
+
                         <Button
                             type="submit"
                             variant="primary"
                             fullWidth
                             size="large"
-                            disabled={!isFormValid}
+                            disabled={!isFormValid || loading}
                             style={{ marginTop: '1rem' }}
                         >
-                            Registrarse
+                            {loading ? 'Registrando...' : 'Registrarse'}
                         </Button>
                     </div>
                 </form>
