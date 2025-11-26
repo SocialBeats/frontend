@@ -1,0 +1,215 @@
+/* BeatsTable.css */
+.beats-page-layout {
+  position: relative;
+  width: 100%;
+}
+
+.beats-table-container-wrapper {
+  width: 100%;
+}
+
+.beats-table-container {
+  width: 100%;
+  color: var(--text-main);
+  font-family: var(--font-main);
+  overflow-x: auto;
+  position: relative;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.beats-table-content {
+  min-width: 900px;
+  /* Force min-width to trigger scroll if needed */
+  display: flex;
+  flex-direction: column;
+}
+
+.beats-table-header {
+  display: grid;
+  /* Grid template is set inline in React */
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-main);
+  z-index: 10;
+  justify-items: center;
+}
+
+.beat-row-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.beats-table-row {
+  display: grid;
+  /* Grid template is set inline in React */
+  align-items: center;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  color: inherit;
+  background-color: transparent !important;
+  /* Override Card bg */
+  border-radius: 0 !important;
+  padding: 0.75rem 1rem !important;
+  /* Match header padding */
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.beat-row-link:hover .beats-table-row {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.beats-table-row:hover .beat-index {
+  display: none;
+}
+
+.beats-table-row:hover .beat-play-icon {
+  display: block;
+}
+
+/* Column Specific Styles */
+.col-index,
+.col-title,
+.col-artist,
+.col-bpm,
+.col-key,
+.col-duration,
+.col-price {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.col-index {
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.beat-play-icon {
+  display: none;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.col-title {
+  gap: 1rem;
+}
+
+.beat-cover-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  background-color: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.beat-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.beat-title-text {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+}
+
+.beat-artist-mobile {
+  display: none;
+}
+
+.col-artist,
+.col-bpm,
+.col-key,
+.col-duration {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.col-title,
+.col-artist,
+.col-bpm,
+.col-key,
+.col-duration,
+.col-price {
+  justify-content: center;
+}
+
+.col-artist {
+  color: var(--text-light);
+}
+
+.header-actions {
+  gap: 0.5rem;
+}
+
+.settings-icon-btn {
+  padding: 0.25rem;
+  color: var(--text-muted);
+}
+
+.settings-icon-btn:hover {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.column-selector-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  min-width: 220px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.beat-price-tag {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.col-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.col-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  /* We rely on horizontal scroll now, but can hide less important columns if desired.
+     For now, keeping them visible to use the scroll. */
+}
