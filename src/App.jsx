@@ -2,12 +2,17 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
 import Landing from './pages/Landing';
-import Dashboard from './pages/app/Dashboard';
+// import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
 import BeatDetailPage from './pages/app/beats/BeatDetailPage';
 import BeatFormPage from './pages/app/beats/BeatFormPage';
+import Feed from './pages/app/Feed';
 import './styles/App.css';
+import DashboardsPage from './pages/app/dashboards/DashboardsPage';
+import CreateDashboard from './pages/app/dashboards/CreateDashboard';
+import EditDashboard from './pages/app/dashboards/EditDashboard';
+import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 
 function App() {
   return (
@@ -16,25 +21,37 @@ function App() {
         {/* Public Routes - Accessible to everyone */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
-          <Route path="/pricing" element={<Landing />} /> {/* TODO: Create Pricing page */}
-          <Route path="/about" element={<Landing />} /> {/* TODO: Create About page */}
-          <Route path="/contact" element={<Landing />} /> {/* TODO: Create Contact page */}
+          <Route path="/pricing" element={<Landing />} />
+          <Route path="/about" element={<Landing />} />
+          <Route path="/contact" element={<Landing />} />
         </Route>
 
-        {/* Private Routes - Only for authenticated users (will be protected with auth) */}
+        {/* Private Routes - Only for authenticated users */}
         <Route path="/app" element={<PrivateLayout />}>
-          <Route index element={<Navigate to="/app/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
           {/* <Route path="beats" element={<BeatsListPage />} /> */}
           <Route path="my-beats" element={<MyBeatsListPage />} />
           <Route path="beats/new" element={<BeatFormPage />} />
           <Route path="beats/:id" element={<BeatDetailPage />} />
           <Route path="beats/:id/edit" element={<BeatFormPage />} />
-          <Route path="explore" element={<BeatsListPage />} /> {/* TODO: Create Explore page */}
-          <Route path="upload" element={<Dashboard />} /> {/* TODO: Create Upload page */}
-          <Route path="library" element={<Dashboard />} /> {/* TODO: Create Library page */}
-          <Route path="messages" element={<Dashboard />} /> {/* TODO: Create Messages page */}
-          <Route path="profile" element={<Dashboard />} /> {/* TODO: Create Profile page */}
+          {/* <Route path="explore" element={<BeatsListPage />} /> TODO: Create Explore page */}
+
+          {/* Redirección inicial al Feed */}
+          <Route index element={<Navigate to="/app/feed" replace />} />
+          
+          {/* Ruta principal: Feed */}
+          <Route path="feed" element={<Feed />} />
+          
+          {/* Rutas placeholder apuntando a Feed por ahora */}
+          <Route path="explore" element={<Feed />} />
+          <Route path="upload" element={<Feed />} />
+          <Route path="library" element={<Feed />} />
+          <Route path="messages" element={<Feed />} />
+          <Route path="profile" element={<Feed />} />
+
+          {/* Rutas del microservicio Dashboards */}
+          <Route path="/app/dashboards" element={<DashboardsPage />} />
+          <Route path="/app/dashboards/create" element={<CreateDashboard />} />
+          <Route path="/app/dashboards/view/:id" element={<ViewDashboard />} />
         </Route>
 
         {/* Catch all - redirect to landing */}

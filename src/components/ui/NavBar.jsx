@@ -10,13 +10,14 @@ export default function NavBar() {
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-    { path: '/app/dashboard', icon: '🏠', label: 'Inicio' },
+    { path: '/app/feed', icon: '🏠', label: 'Inicio' },
     { path: '/app/my-beats', icon: '🎵', label: 'Mis Beats' },
     { path: '/app/explore', icon: '🔍', label: 'Explorar' },
     { path: '/app/upload', icon: '⬆️', label: 'Subir' },
     { path: '/app/library', icon: '📚', label: 'Biblioteca' },
     { path: '/app/messages', icon: '💬', label: 'Mensajes' },
     { path: '/app/profile', icon: '👤', label: 'Perfil' },
+    { path: '/app/dashboards', icon: '📊', label: 'Dashboards' },
   ];
 
   return (

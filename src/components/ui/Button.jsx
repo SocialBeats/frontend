@@ -1,34 +1,25 @@
 import './Button.css';
 
-export default function Button({
-  children,
-  variant = 'primary',
-  size = 'medium',
-  fullWidth = false,
-  disabled = false,
+const Button = ({ 
+  children, 
+  onClick, 
+  variant = 'primary', 
   type = 'button',
-  onClick,
+  disabled = false,
   className = '',
-  ...props
-}) {
-  const classes = [
-    'btn',
-    `btn-${variant}`,
-    `btn-${size}`,
-    fullWidth ? 'btn-full-width' : '',
-    disabled ? 'btn-disabled' : '',
-    className
-  ].filter(Boolean).join(' ');
-
+  ...props 
+}) => {
   return (
     <button
       type={type}
-      className={classes}
       onClick={onClick}
       disabled={disabled}
+      className={`button button--${variant} ${className}`}
       {...props}
     >
       {children}
     </button>
   );
-}
+};
+
+export default Button;
