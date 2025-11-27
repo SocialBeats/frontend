@@ -46,11 +46,33 @@
   padding-left: 3rem;
 }
 
+.input-with-toggle {
+  padding-right: 3rem;
+}
+
 .input-icon {
   position: absolute;
   left: 1rem;
   color: #666;
   pointer-events: none;
+}
+
+.input-password-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.input-password-toggle:hover {
+  color: #fff;
 }
 
 .input-error {
