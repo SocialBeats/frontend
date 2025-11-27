@@ -6,6 +6,7 @@ import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
 import BeatDetailPage from './pages/app/beats/BeatDetailPage';
+import BeatFormPage from './pages/app/beats/BeatFormPage';
 import './styles/App.css';
 
 function App() {
@@ -26,7 +27,9 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           {/* <Route path="beats" element={<BeatsListPage />} /> */}
           <Route path="my-beats" element={<MyBeatsListPage />} />
+          <Route path="beats/new" element={<BeatFormPage />} />
           <Route path="beats/:id" element={<BeatDetailPage />} />
+          <Route path="beats/:id/edit" element={<BeatFormPage />} />
           <Route path="explore" element={<BeatsListPage />} /> {/* TODO: Create Explore page */}
           <Route path="upload" element={<Dashboard />} /> {/* TODO: Create Upload page */}
           <Route path="library" element={<Dashboard />} /> {/* TODO: Create Library page */}

@@ -9,14 +9,32 @@
   margin-bottom: 2.5rem;
 }
 
-.my-beats-header h1 {
-  margin-bottom: 0.5rem;
-  color: var(--text-main);
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
 }
 
-.my-beats-header p {
+.header-text h1 {
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  display: flex;
+}
+
+.header-text p {
   color: var(--text-muted);
   font-size: 1rem;
+}
+
+.create-beat-link {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.create-beat-btn {
+  white-space: nowrap;
+  font-weight: 600;
 }
 
 .beats-grid {
@@ -172,6 +190,18 @@
 
   .my-beats-header {
     margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .create-beat-btn {
+    width: 100%;
   }
 }
 

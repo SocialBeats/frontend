@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
 import logo from "../../../assets/logo-dark-no-fondo.png";
 // import { mockedBeats } from "./mockBeats";
 import { getBeats } from "../../../services/beatsService";
@@ -55,8 +56,17 @@ const MyBeatsListPage = () => {
   return (
     <div className="my-beats-page">
       <div className="my-beats-header">
-        <h1 className="text-3xl font-bold">My Beats</h1>
-        <p className="text-muted">Browse and manage your beat collection</p>
+        <div className="header-content">
+          <div className="header-text">
+            <h1 className="text-3xl font-bold">My Beats</h1>
+            <p className="text-muted">Browse and manage your beat collection</p>
+          </div>
+          <Link to="/app/beats/new" className="create-beat-link">
+            <Button variant="primary" size="large" className="create-beat-btn">
+              + Create Beat
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="beats-grid">

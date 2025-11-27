@@ -46,3 +46,57 @@ export const getBeatById = async (id) => {
     throw error;
   }
 };
+
+export const createBeat = async (beatData) => {
+  try {
+    console.log('📝 Creating new beat:', beatData);
+    const { data } = await client.post('/beats', beatData);
+    
+    if (data.success && data.data) {
+      console.log('✅ Beat created successfully:', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error creating beat:', error);
+    throw error;
+  }
+};
+
+export const updateBeat = async (id, beatData) => {
+  try {
+    console.log('✏️ Updating beat:', id, beatData);
+    const { data } = await client.put(`/beats/${id}`, beatData);
+    
+    if (data.success && data.data) {
+      console.log('✅ Beat updated successfully:', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error updating beat:', error);
+    throw error;
+  }
+};
+
+export const deleteBeat = async (id) => {
+  try {
+    console.log('🗑️ Deleting beat:', id);
+    const { data } = await client.delete(`/beats/${id}`);
+    
+    if (data.success) {
+      console.log('✅ Beat deleted successfully');
+      return data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error deleting beat:', error);
+    throw error;
+  }
+};

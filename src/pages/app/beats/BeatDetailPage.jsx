@@ -176,6 +176,14 @@ const BeatDetailPage = () => {
                 <Button variant="outline" size="large" className="like-btn">
                   ❤️ Like
                 </Button>
+                <button 
+                  onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
+                  className="edit-beat-link"
+                >
+                  <Button variant="secondary" size="large" className="edit-btn">
+                    ✏️ Edit Beat
+                  </Button>
+                </button>
               </div>
             </div>
           </Card>
