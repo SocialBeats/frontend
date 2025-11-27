@@ -4,9 +4,10 @@ import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import IconButton from '../../../components/ui/IconButton';
 import Badge from '../../../components/ui/Badge';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 import logo from '../../../assets/logo-dark-no-fondo.png';
 // import { mockedBeats } from './mockBeats';
-import { getBeatById } from '../../../services/beatsService';
+import { getBeatById, deleteBeat } from '../../../services/beatsService';
 import './BeatDetailPage.css';
 
 const BeatDetailPage = () => {
@@ -15,6 +16,8 @@ const BeatDetailPage = () => {
   const [beat, setBeat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchBeat = async () => {
@@ -54,6 +57,21 @@ const BeatDetailPage = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleDeleteBeat = async () => {
+    try {
+      setDeleting(true);
+      await deleteBeat(beat._id);
+      console.log('✅ Beat deleted successfully');
+      navigate(-1); // Redirigir a la lista de beats
+    } catch (err) {
+      console.error('🚨 Error deleting beat:', err);
+      setError('Error deleting beat. Please try again.');
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
   };
 
   return (
@@ -184,6 +202,15 @@ const BeatDetailPage = () => {
                     ✏️ Edit Beat
                   </Button>
                 </button>
+                <Button 
+                  variant="danger" 
+                  size="large" 
+                  className="delete-btn"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deleting}
+                >
+                  🗑️ {deleting ? 'Deleting...' : 'Delete Beat'}
+                </Button>
               </div>
             </div>
           </Card>
@@ -191,6 +218,18 @@ const BeatDetailPage = () => {
 
 
       </div>
+      
+      {/* Modal de confirmación para borrar */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteBeat}
+        title="Delete Beat"
+        message={`Are you sure you want to delete "${beat?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };
