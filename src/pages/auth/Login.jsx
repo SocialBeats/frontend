@@ -43,7 +43,7 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) {
             return;
         }
@@ -57,32 +57,15 @@ export default function Login() {
             navigate('/app/feed');
         } catch (error) {
             console.error('Login error:', error);
-            
+
             // Manejar errores específicos del backend
             const errorData = error.response?.data;
-            
-            if (errorData?.error === 'INVALID_CREDENTIALS') {
-                setErrors({
-                    identifier: 'Usuario o contraseña incorrectos',
-                    password: 'Usuario o contraseña incorrectos',
-                });
-            } else if (errorData?.error === 'MISSING_FIELDS') {
-                setErrorModal({
-                    show: true,
-                    message: 'Por favor completa todos los campos requeridos',
-                });
-            } else if (errorData?.error === 'EMPTY_FIELDS') {
-                setErrorModal({
-                    show: true,
-                    message: 'Los campos no pueden estar vacíos',
-                });
-            } else {
-                // Error genérico o de red
-                setErrorModal({
-                    show: true,
-                    message: 'Error al iniciar sesión. Por favor intenta de nuevo.',
-                });
-            }
+            const errorMessage = errorData?.message || errorData?.error || 'Error al iniciar sesión. Por favor intenta de nuevo.';
+
+            setErrorModal({
+                show: true,
+                message: errorMessage === 'INVALID_CREDENTIALS' ? 'Usuario o contraseña incorrectos' : errorMessage,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -93,72 +76,72 @@ export default function Login() {
             <TopNavBar />
             <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', paddingTop: '6rem' }}>
                 <Card className="glass-panel animate-fade-in" padding="large" style={{ maxWidth: '450px', width: '100%' }}>
-                <div className="flex-center" style={{ flexDirection: 'column', marginBottom: '2rem' }}>
-                    <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
-                    <h2>Bienvenido de nuevo</h2>
-                    <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                        Ingresa a tu cuenta para continuar
-                    </p>
-                </div>
-
-                <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <Input
-                            label="Usuario / Email"
-                            name="identifier"
-                            value={formData.identifier}
-                            onChange={handleChange}
-                            error={errors.identifier}
-                            fullWidth
-                            placeholder="beat23 / beat23@email.com"
-                        />
-
-                        <Input
-                            label="Contraseña"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            error={errors.password}
-                            fullWidth
-                            placeholder="••••••••"
-                        />
-
-                        <div style={{ textAlign: 'right' }}>
-                            <Link to="/forgot-password" style={{ fontSize: '0.875rem', color: 'var(--primary-light)' }}>
-                                ¿Olvidaste tu contraseña?
-                            </Link>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            fullWidth
-                            size="large"
-                            style={{ marginTop: '0.5rem' }}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                        </Button>
+                    <div className="flex-center" style={{ flexDirection: 'column', marginBottom: '2rem' }}>
+                        <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
+                        <h2>Bienvenido de nuevo</h2>
+                        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
+                            Ingresa a tu cuenta para continuar
+                        </p>
                     </div>
-                </form>
 
-                <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-muted)' }}>
-                        ¿No tienes una cuenta?{' '}
-                        <Link to="/register" style={{ fontWeight: '600' }}>
-                            Regístrate gratis
-                        </Link>
-                    </p>
-                </div>
-            </Card>
+                    <form onSubmit={handleSubmit}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <Input
+                                label="Usuario / Email"
+                                name="identifier"
+                                value={formData.identifier}
+                                onChange={handleChange}
+                                error={errors.identifier}
+                                fullWidth
+                                placeholder="beat23 / beat23@email.com"
+                            />
 
-            <ErrorModal
-                isOpen={errorModal.show}
-                onClose={() => setErrorModal({ show: false, message: '' })}
-                message={errorModal.message}
-            />
-        </div>
+                            <Input
+                                label="Contraseña"
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                error={errors.password}
+                                fullWidth
+                                placeholder="••••••••"
+                            />
+
+                            <div style={{ textAlign: 'right' }}>
+                                <Link to="/forgot-password" style={{ fontSize: '0.875rem', color: 'var(--primary-light)' }}>
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                fullWidth
+                                size="large"
+                                style={{ marginTop: '0.5rem' }}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                            </Button>
+                        </div>
+                    </form>
+
+                    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                        <p style={{ color: 'var(--text-muted)' }}>
+                            ¿No tienes una cuenta?{' '}
+                            <Link to="/register" style={{ fontWeight: '600' }}>
+                                Regístrate gratis
+                            </Link>
+                        </p>
+                    </div>
+                </Card>
+
+                <ErrorModal
+                    isOpen={errorModal.show}
+                    onClose={() => setErrorModal({ show: false, message: '' })}
+                    message={errorModal.message}
+                />
+            </div>
         </>
     );
 }
