@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../../services/authService';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import TopNavBar from '../../components/ui/TopNavBar';
+import ErrorModal from '../../components/ui/ErrorModal';
 import logo from '../../assets/logo-dark-no-fondo.png';
 
 export default function Login() {
@@ -13,6 +15,8 @@ export default function Login() {
         password: ''
     });
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorModal, setErrorModal] = useState({ show: false, message: '' });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -37,12 +41,50 @@ export default function Login() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
-            console.log('Login submitted:', formData);
-            // Here would go the API call
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsLoading(true);
+        setErrors({});
+
+        try {
+            await login(formData.identifier, formData.password);
+            // Login exitoso, redirigir al feed
             navigate('/app/feed');
+        } catch (error) {
+            console.error('Login error:', error);
+            
+            // Manejar errores específicos del backend
+            const errorData = error.response?.data;
+            
+            if (errorData?.error === 'INVALID_CREDENTIALS') {
+                setErrors({
+                    identifier: 'Usuario o contraseña incorrectos',
+                    password: 'Usuario o contraseña incorrectos',
+                });
+            } else if (errorData?.error === 'MISSING_FIELDS') {
+                setErrorModal({
+                    show: true,
+                    message: 'Por favor completa todos los campos requeridos',
+                });
+            } else if (errorData?.error === 'EMPTY_FIELDS') {
+                setErrorModal({
+                    show: true,
+                    message: 'Los campos no pueden estar vacíos',
+                });
+            } else {
+                // Error genérico o de red
+                setErrorModal({
+                    show: true,
+                    message: 'Error al iniciar sesión. Por favor intenta de nuevo.',
+                });
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -94,8 +136,9 @@ export default function Login() {
                             fullWidth
                             size="large"
                             style={{ marginTop: '0.5rem' }}
+                            disabled={isLoading}
                         >
-                            Iniciar sesión
+                            {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                         </Button>
                     </div>
                 </form>
@@ -109,6 +152,12 @@ export default function Login() {
                     </p>
                 </div>
             </Card>
+
+            <ErrorModal
+                isOpen={errorModal.show}
+                onClose={() => setErrorModal({ show: false, message: '' })}
+                message={errorModal.message}
+            />
         </div>
         </>
     );
