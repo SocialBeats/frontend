@@ -1,32 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
-import './CreateDashboard.css';
+import './CreateDashboards.css';
+import { CreateDashboard } from '../../../services/analytics/dashboards';
 
-const CreateDashboard = () => {
+
+const CreateDashboards = () => {
   const navigate = useNavigate();
   const [dashboardName, setDashboardName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!dashboardName.trim()) {
       alert('Por favor ingresa un nombre para el dashboard');
       return;
     }
 
     setIsCreating(true);
-    
+
     try {
-      // Aquí harás la llamada al backend cuando esté listo
-      // const response = await fetch('/api/dashboards', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: dashboardName })
-      // });
-      // const data = await response.json();
-      
+
+      // TODO: Llamar al servicio para crear el dashboard
+
       // Por ahora simulamos la creación
       const mockDashboard = {
         id: Date.now(), // ID temporal
@@ -34,12 +31,12 @@ const CreateDashboard = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-      
+
       console.log('Dashboard creado:', mockDashboard);
-      
+
       // Redirigir al dashboard creado
       navigate(`/app/dashboards/${mockDashboard.id}`);
-      
+
     } catch (error) {
       console.error('Error al crear dashboard:', error);
       alert('Error al crear el dashboard');
