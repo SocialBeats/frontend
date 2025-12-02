@@ -20,6 +20,7 @@ import EditPlaylist from './pages/app/beats-interaction/playlist/EditPlaylist';
 import UserPlaylists from './pages/app/beats-interaction/playlist/UserPlaylists';
 import MyPlaylists from './pages/app/beats-interaction/playlist/MyPlaylists';
 import PublicPlaylists from './pages/app/beats-interaction/playlist/PublicPlaylists';
+import PlaylistDetails from './pages/app/beats-interaction/playlist/PlaylistDetails';
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
           <Route path="/app/users/:id/playlists" element={<UserPlaylists />} />
           <Route path="/app/playlists/me" element={<MyPlaylists />} />
           <Route path="/app/playlists" element={<PublicPlaylists />} />
+          <Route path="/app/playlists/:id" element={<PlaylistDetails />} />
           <Route path="/app/playlists/create" element={<CreatePlaylist />} />
           <Route path="/app/playlists/:id/edit" element={<EditPlaylist />} />
 
