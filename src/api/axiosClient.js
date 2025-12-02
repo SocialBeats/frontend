@@ -7,7 +7,7 @@ const REFRESH_TOKEN_URL = `${BASE_URL}/auth/refresh`;
 
 export const client = createAxiosClient({
   options: {
-    withCredentials: true,
+    withCredentials: false, // Cambiado a false para evitar conflicto CORS
     baseURL: BASE_URL,
     timeout: 300000,
     headers: {
