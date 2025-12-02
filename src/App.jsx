@@ -17,6 +17,9 @@ import EditDashboard from './pages/app/dashboards/EditDashboard';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 import CreatePlaylist from './pages/app/beats-interaction/playlist/CreatePlaylist';
 import EditPlaylist from './pages/app/beats-interaction/playlist/EditPlaylist';
+import UserPlaylists from './pages/app/beats-interaction/playlist/UserPlaylists';
+import MyPlaylists from './pages/app/beats-interaction/playlist/MyPlaylists';
+import PublicPlaylists from './pages/app/beats-interaction/playlist/PublicPlaylists';
 
 function App() {
   return (
@@ -62,6 +65,9 @@ function App() {
           <Route path="/app/dashboards/view/:id" element={<ViewDashboard />} />
 
           {/* Rutas del microservicio Beats interaction */}
+          <Route path="/app/users/:id/playlists" element={<UserPlaylists />} />
+          <Route path="/app/playlists/me" element={<MyPlaylists />} />
+          <Route path="/app/playlists" element={<PublicPlaylists />} />
           <Route path="/app/playlists/create" element={<CreatePlaylist />} />
           <Route path="/app/playlists/:id/edit" element={<EditPlaylist />} />
 
