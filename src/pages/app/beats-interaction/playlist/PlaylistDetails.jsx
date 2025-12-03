@@ -5,6 +5,7 @@ import Card from "../../../../components/ui/Card";
 import IconButton from "../../../../components/ui/IconButton";
 import Button from "../../../../components/ui/Button";
 import logo from "../../../../assets/logo-dark-no-fondo.png";
+import ListComments from "../comment/ListComments";
 import "./PlaylistDetails.css";
 
 // --- Datos mock ---
@@ -153,6 +154,9 @@ const PlaylistDetails = () => {
           ))}
         </div>
       </div>
+
+      {/* Comments section */}
+      <ListComments isBeat={false} />
 
       {/* Delete modal */}
       <Modal
