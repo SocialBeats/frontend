@@ -19,6 +19,21 @@ const BeatDetailPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Audio Player State
+  const audioRef = React.useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   useEffect(() => {
     const fetchBeat = async () => {
       try {
@@ -78,38 +93,52 @@ const BeatDetailPage = () => {
     <div className="beat-detail-page">
       {/* Back Button */}
       <div className="beat-detail-header">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="back-button"
-        >
-          <IconButton variant="ghost" size="medium">
+        <div className="back-button-wrapper">
+          <IconButton
+            variant="ghost"
+            size="medium"
+            onClick={() => navigate(-1)}
+          >
             ← Back
           </IconButton>
-        </button>
+        </div>
       </div>
 
       <div className="beat-detail-content">
         {/* Main Beat Info Section */}
         <div className="beat-hero-section">
           <div className="beat-cover-large">
-            <img 
-              src={logo} 
+            <img
+              src={logo}
               alt={beat.title}
               className="beat-cover-image"
             />
             <div className="beat-cover-overlay">
-              <Button className="play-button-large" size="large">
-                <span className="play-icon-large">▶</span>
-                Play
+              <Button
+                className="play-button-large"
+                size="large"
+                onClick={togglePlay}
+              >
+                <span className="play-icon-large">{isPlaying ? '⏸' : '▶'}</span>
+                {isPlaying ? 'Pause' : 'Play'}
               </Button>
             </div>
+            {/* Hidden Audio Element */}
+            {beat && (
+              <audio
+                ref={audioRef}
+                src={`${import.meta.env.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`}
+                onEnded={() => setIsPlaying(false)}
+                onError={(e) => console.error("Audio playback error:", e)}
+              />
+            )}
           </div>
-          
+
           <div className="beat-info-main">
             <div className="beat-title-section">
               <h1 className="beat-title-large">{beat.title}</h1>
               <p className="beat-artist-large">{beat.artist}</p>
-              
+
               {/* Tags */}
               {beat.tags && beat.tags.length > 0 && (
                 <div className="tags-container-inline">
@@ -121,7 +150,7 @@ const BeatDetailPage = () => {
                   ))}
                 </div>
               )}
-              
+
               <div className="beat-stats">
                 <span className="stat-item">
                   <span className="stat-icon">👁</span>
@@ -194,17 +223,17 @@ const BeatDetailPage = () => {
                 <Button variant="outline" size="large" className="like-btn">
                   ❤️ Like
                 </Button>
-                <button 
+                <Button
+                  variant="secondary"
+                  size="large"
+                  className="edit-btn edit-beat-link"
                   onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
-                  className="edit-beat-link"
                 >
-                  <Button variant="secondary" size="large" className="edit-btn">
-                    ✏️ Edit Beat
-                  </Button>
-                </button>
-                <Button 
-                  variant="danger" 
-                  size="large" 
+                  ✏️ Edit Beat
+                </Button>
+                <Button
+                  variant="danger"
+                  size="large"
                   className="delete-btn"
                   onClick={() => setShowDeleteModal(true)}
                   disabled={deleting}
@@ -218,7 +247,7 @@ const BeatDetailPage = () => {
 
 
       </div>
-      
+
       {/* Modal de confirmación para borrar */}
       <ConfirmModal
         isOpen={showDeleteModal}

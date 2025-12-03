@@ -4,18 +4,19 @@ import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import IconButton from '../../../components/ui/IconButton';
-import { createBeat, updateBeat, getBeatById } from '../../../services/beatsService';
+import { createBeat, updateBeat, getBeatById, getPresignedUrl, uploadFileToS3 } from '../../../services/beatsService';
+import Waveform from '../../../components/ui/Waveform';
 import './BeatFormPage.css';
 
 const BeatFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
-  
+
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     artist: '',
@@ -36,8 +37,13 @@ const BeatFormPage = () => {
       currency: 'USD'
     }
   });
-  
+
   const [tagInput, setTagInput] = useState('');
+
+  // File Upload State
+  const [audioFile, setAudioFile] = useState(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Load beat data for editing
   useEffect(() => {
@@ -68,6 +74,10 @@ const BeatFormPage = () => {
               currency: beat.pricing?.currency || 'USD'
             }
           });
+
+          if (beat.audio?.s3Key) {
+            setAudioPreviewUrl(`${import.meta.env.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`);
+          }
         } catch (err) {
           setError('Error loading beat data');
           console.error(err);
@@ -81,7 +91,7 @@ const BeatFormPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name.startsWith('pricing.')) {
       const pricingField = name.split('.')[1];
       setFormData(prev => ({
@@ -125,6 +135,39 @@ const BeatFormPage = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/x-m4a', 'audio/aac'];
+    const validExtensions = ['mp3', 'wav', 'm4a', 'aac'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+    if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+      setError('Invalid file type. Please upload MP3, WAV, or M4A.');
+      return;
+    }
+
+    // Validate size (50MB limit)
+    if (file.size > 50 * 1024 * 1024) {
+      setError('File size too large. Maximum size is 50MB.');
+      return;
+    }
+
+    setAudioFile(file);
+    setAudioPreviewUrl(URL.createObjectURL(file));
+
+    // Auto-fill metadata if empty
+    if (!formData.title) {
+      const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
+      setFormData(prev => ({ ...prev, title: fileNameWithoutExt }));
+    }
+
+    // Reset error
+    setError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -141,6 +184,41 @@ const BeatFormPage = () => {
           price: formData.pricing.isFree ? 0 : parseFloat(formData.pricing.price) || 0
         }
       };
+
+      // 1. Handle File Upload if new file selected
+      if (audioFile) {
+        setUploadProgress(10); // Start progress
+
+        const extension = audioFile.name.split('.').pop().toLowerCase();
+
+        // Get Presigned URL
+        const presignedData = await getPresignedUrl({
+          extension,
+          mimetype: audioFile.type || 'audio/mpeg', // Fallback if type is empty
+          size: audioFile.size
+        });
+
+        setUploadProgress(40); // Got URL
+
+        // Upload to S3
+        await uploadFileToS3(presignedData.uploadUrl, audioFile);
+
+        setUploadProgress(80); // Uploaded
+
+        // Update beat data with new audio info
+        beatData.audio = {
+          s3Key: presignedData.s3Key,
+          filename: audioFile.name,
+          size: audioFile.size,
+          format: extension,
+          // Duration will be updated by backend or we need to extract it client-side
+          // For now backend might need to handle duration extraction or we rely on user input
+        };
+      } else if (!isEditing) {
+        setError('Please upload an audio file.');
+        setSaving(false);
+        return;
+      }
 
       let result;
       if (isEditing) {
@@ -190,12 +268,59 @@ const BeatFormPage = () => {
       {/* Form */}
       <form onSubmit={handleSubmit} className="beat-form">
         <div className="form-grid">
+          {/* Audio Upload Section */}
+          <Card className="form-section">
+            <div className="section-header">
+              <h2>Audio File</h2>
+            </div>
+
+            <div className="form-fields">
+              <div className="upload-container">
+                <div className="file-input-wrapper">
+                  <input
+                    type="file"
+                    id="audio-upload"
+                    accept=".mp3,.wav,.m4a,.aac"
+                    onChange={handleFileChange}
+                    className="file-input"
+                  />
+                  <label htmlFor="audio-upload" className="file-input-label">
+                    <Button type="button" variant="outline" onClick={() => document.getElementById('audio-upload').click()}>
+                      {audioFile ? 'Change File' : 'Select Audio File'}
+                    </Button>
+                    <span className="file-name">
+                      {audioFile ? audioFile.name : (isEditing ? 'Current file: ' + formData.audio.filename : 'No file selected')}
+                    </span>
+                  </label>
+                </div>
+
+                {audioPreviewUrl && (
+                  <div className="waveform-preview mt-4">
+                    <Waveform url={audioPreviewUrl} height={80} />
+                  </div>
+                )}
+
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <div className="upload-progress-bar mt-2">
+                    <div className="h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-full bg-blue-500 rounded transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">Uploading... {uploadProgress}%</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
           {/* Basic Information */}
           <Card className="form-section">
             <div className="section-header">
               <h2>Basic Information</h2>
             </div>
-            
+
             <div className="form-fields">
               <div className="field-group">
                 <label htmlFor="title">Title *</label>
@@ -277,7 +402,7 @@ const BeatFormPage = () => {
             <div className="section-header">
               <h2>Technical Details</h2>
             </div>
-            
+
             <div className="form-fields">
               <div className="field-row">
                 <div className="field-group">
@@ -376,7 +501,7 @@ const BeatFormPage = () => {
             <div className="section-header">
               <h2>Tags</h2>
             </div>
-            
+
             <div className="form-fields">
               <div className="tag-input-section">
                 <div className="tag-input-group">
@@ -390,7 +515,7 @@ const BeatFormPage = () => {
                     Add
                   </Button>
                 </div>
-                
+
                 <div className="tags-display">
                   {formData.tags.map((tag, index) => (
                     <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
@@ -414,7 +539,7 @@ const BeatFormPage = () => {
             <div className="section-header">
               <h2>Pricing</h2>
             </div>
-            
+
             <div className="form-fields">
               <div className="pricing-options">
                 <label className="checkbox-label">
@@ -442,7 +567,7 @@ const BeatFormPage = () => {
                         step="0.01"
                       />
                     </div>
-                    
+
                     <div className="field-group">
                       <label htmlFor="pricing.currency">Currency</label>
                       <select
@@ -474,7 +599,7 @@ const BeatFormPage = () => {
           >
             Cancel
           </Button>
-          
+
           <Button
             type="submit"
             variant="primary"
