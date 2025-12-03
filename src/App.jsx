@@ -12,7 +12,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
-import CreateDashboard from './pages/app/dashboards/CreateDashboard';
+import CreateDashboards from './pages/app/dashboards/CreateDashboards';
 import EditDashboard from './pages/app/dashboards/EditDashboard';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 import CreatePlaylist from './pages/app/beats-interaction/playlist/CreatePlaylist';
@@ -62,7 +62,7 @@ function App() {
 
           {/* Rutas del microservicio Dashboards */}
           <Route path="/app/dashboards" element={<DashboardsPage />} />
-          <Route path="/app/dashboards/create" element={<CreateDashboard />} />
+          <Route path="/app/dashboards/create" element={<CreateDashboards />} />
           <Route path="/app/dashboards/view/:id" element={<ViewDashboard />} />
 
           {/* Rutas del microservicio Beats interaction */}
