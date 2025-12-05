@@ -68,12 +68,6 @@ const BeatDetailPage = () => {
     return <div>Beat not found.</div>;
   }
 
-  const formatDuration = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
   const handleDeleteBeat = async () => {
     try {
       setDeleting(true);
@@ -160,10 +154,6 @@ const BeatDetailPage = () => {
                   <span className="stat-icon">💾</span>
                   {beat.stats?.downloads?.toLocaleString() || '0'} downloads
                 </span>
-                <span className="stat-item">
-                  <span className="stat-icon">❤️</span>
-                  {beat.stats?.likes?.toLocaleString() || '0'} likes
-                </span>
               </div>
             </div>
           </div>
@@ -181,26 +171,8 @@ const BeatDetailPage = () => {
                 <Badge variant="secondary">{beat.genre}</Badge>
               </div>
               <div className="info-item">
-                <span className="info-label">BPM</span>
-                <span className="info-value">{beat.bpm}</span>
-              </div>
-              <div className="info-item">
                 <span className="info-label">Key</span>
                 <span className="info-value">{beat.key}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Duration</span>
-                <span className="info-value">{formatDuration(beat.duration)}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Mood</span>
-                <Badge variant="outline">{beat.mood}</Badge>
-              </div>
-              <div className="info-item">
-                <span className="info-label">License</span>
-                <Badge variant={beat.license === 'Free' ? 'success' : 'default'}>
-                  {beat.license}
-                </Badge>
               </div>
             </div>
           </Card>
@@ -219,9 +191,6 @@ const BeatDetailPage = () => {
               <div className="action-buttons">
                 <Button variant="primary" size="large" className="download-btn">
                   💾 Download
-                </Button>
-                <Button variant="outline" size="large" className="like-btn">
-                  ❤️ Like
                 </Button>
                 <Button
                   variant="secondary"
