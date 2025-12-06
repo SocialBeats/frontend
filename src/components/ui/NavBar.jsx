@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
 import Button from './Button';
 import ConfirmModal from './ConfirmModal';
 import { logout } from '../../services/authService';
+import { getMyProfile } from '../../services/profileService';
 import logo from '../../assets/logo-dark-no-fondo.png';
 import './NavBar.css';
 
@@ -12,6 +13,21 @@ export default function NavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    // Cargar perfil del usuario
+    const loadProfile = async () => {
+      try {
+        const data = await getMyProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error('Error cargando perfil en NavBar:', error);
+      }
+    };
+    
+    loadProfile();
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
@@ -58,12 +74,16 @@ export default function NavBar() {
             ))}
           </div>
 
-          {/* User Profile Snippet (Optional but good for design) */}
+          {/* User Profile Snippet */}
           <div className="sidebar-user">
-            <Avatar size="sm" />
+            <Avatar 
+              size="sm" 
+              src={profile?.avatar || ''} 
+              alt={profile?.username || 'Usuario'}
+            />
             <div className="sidebar-user-info">
-              <span className="user-name">Usuario</span>
-              <span className="user-handle">@usuario</span>
+              <span className="user-name">{profile?.full_name || profile?.username || 'Usuario'}</span>
+              <span className="user-handle">@{profile?.username || 'usuario'}</span>
             </div>
           </div>
 
