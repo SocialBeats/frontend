@@ -5,6 +5,7 @@ import Landing from './pages/Landing';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Profile from './pages/app/profile/Profile';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboards from './pages/app/dashboards/CreateDashboards';
@@ -40,7 +41,7 @@ function App() {
           <Route path="upload" element={<Feed />} />
           <Route path="library" element={<Feed />} />
           <Route path="messages" element={<Feed />} />
-          <Route path="profile" element={<Feed />} />
+          <Route path="profile" element={<Profile />} />
 
           {/* Rutas del microservicio Dashboards */}
           <Route path="/app/dashboards" element={<DashboardsPage />} />
