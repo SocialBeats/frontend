@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
@@ -6,11 +6,25 @@ import Button from '../../components/ui/Button';
 import TopNavBar from '../../components/ui/TopNavBar';
 import ErrorModal from '../../components/ui/ErrorModal';
 import logo from '../../assets/logo-dark-no-fondo.png';
-import { register } from '../../services/authService';
+import { register, login, isAuthenticated } from '../../services/authService';
 import '../../styles/index.css';
 
 export default function Register() {
     const navigate = useNavigate();
+
+    // Redirigir si ya está autenticado
+    useEffect(() => {
+        if (isAuthenticated()) {
+            navigate('/app/feed', { replace: true });
+        }
+    }, [navigate]);
+
+    // Redirigir si ya está autenticado
+    useEffect(() => {
+        if (isAuthenticated()) {
+            navigate('/app/feed', { replace: true });
+        }
+    }, [navigate]);
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -54,13 +68,20 @@ export default function Register() {
         if (validateForm()) {
             setLoading(true);
             try {
+                // 1. Registrar usuario
                 await register({
                     username: formData.username,
                     email: formData.email,
                     password: formData.password,
                 });
+                
                 console.log('Usuario registrado exitosamente');
-                navigate('/login');
+                
+                // 2. Auto-login después del registro exitoso
+                await login(formData.username, formData.password);
+                
+                // 3. Redirigir al feed
+                navigate('/app/feed');
             } catch (error) {
                 console.error('Error en el registro:', error);
                 const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al registrar usuario';
