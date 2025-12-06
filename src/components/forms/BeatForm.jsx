@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { parseBlob } from 'music-metadata';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -73,7 +74,7 @@ const BeatForm = ({
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -90,6 +91,19 @@ const BeatForm = ({
     // Validate size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size too large. Maximum size is 50MB.');
+      return;
+    }
+
+    try {
+      // Deep validation using music-metadata
+      const metadata = await parseBlob(file);
+      if (!metadata.format.codec) {
+        setError('Invalid audio file content. Please upload a valid audio file.');
+        return;
+      }
+    } catch (err) {
+      console.error('Error parsing audio file:', err);
+      setError('Failed to verify audio file. Is it a valid audio file?');
       return;
     }
 
