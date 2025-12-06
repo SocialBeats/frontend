@@ -10,7 +10,8 @@ import './Profile.css';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingBasic, setIsEditingBasic] = useState(false);
+  const [isEditingTags, setIsEditingTags] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -104,13 +105,13 @@ export default function Profile() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitBasic = async (e) => {
     e.preventDefault();
     try {
       setSaving(true);
       await updateMyProfile(formData);
       setShowSuccessModal(true);
-      setIsEditing(false);
+      setIsEditingBasic(false);
       await loadProfile();
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar el perfil');
@@ -120,8 +121,24 @@ export default function Profile() {
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
+  const handleSubmitTags = async (e) => {
+    e.preventDefault();
+    try {
+      setSaving(true);
+      await updateMyProfile({ tags: formData.tags });
+      setShowSuccessModal(true);
+      setIsEditingTags(false);
+      await loadProfile();
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar las aptitudes');
+      setShowErrorModal(true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelBasic = () => {
+    setIsEditingBasic(false);
     setFormData({
       full_name: profile.full_name || '',
       about_me: profile.about_me || '',
@@ -140,6 +157,15 @@ export default function Profile() {
       },
       tags: profile.tags || [],
     });
+  };
+
+  const handleCancelTags = () => {
+    setIsEditingTags(false);
+    setFormData(prev => ({
+      ...prev,
+      tags: profile.tags || [],
+    }));
+    setTagInput('');
   };
 
   if (loading) {
@@ -166,9 +192,8 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
-      <form onSubmit={handleSubmit}>
-        {/* ========== BLOQUE PRINCIPAL - HERO ========== */}
-        <div className="profile-hero">
+      {/* ========== BLOQUE PRINCIPAL - HERO ========== */}
+      <div className="profile-hero">
           {/* Columna izquierda - Avatar y contacto */}
           <div className="profile-hero-left">
             <Avatar 
@@ -210,8 +235,8 @@ export default function Profile() {
               <div>
                 <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
               </div>
-              {!isEditing && (
-                <Button variant="secondary" onClick={() => setIsEditing(true)}>
+              {!isEditingBasic && (
+                <Button variant="secondary" onClick={() => setIsEditingBasic(true)}>
                   Editar perfil
                 </Button>
               )}
@@ -223,13 +248,13 @@ export default function Profile() {
                 name="about_me"
                 value={formData.about_me}
                 onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`profile-textarea ${!isEditing ? 'disabled' : ''}`}
+                disabled={!isEditingBasic}
+                className={`profile-textarea ${!isEditingBasic ? 'disabled' : ''}`}
                 placeholder="Cuéntanos sobre ti, tu experiencia..."
                 maxLength={500}
                 rows={5}
               />
-              {isEditing && (
+              {isEditingBasic && (
                 <span className="character-count">{formData.about_me.length}/500</span>
               )}
             </div>
@@ -262,55 +287,8 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ========== BLOQUE ESTUDIOS ========== */}
-        <div className="profile-section-block">
-          <h2>Estudios</h2>
-          <p className="mocked-text">Aquí podrás añadir tu formación académica, similar a LinkedIn. Próximamente disponible.</p>
-        </div>
-
-        {/* ========== BLOQUE APTITUDES ========== */}
-        <div className="profile-section-block">
-          <div className="section-header">
-            <h2>Aptitudes</h2>
-            {isEditing && <span className="tag-count">{formData.tags.length}/20</span>}
-          </div>
-          
-          {isEditing && (
-            <div className="tag-input-row">
-              <Input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Ej: Producer, Beatmaker..."
-                disabled={formData.tags.length >= 20}
-              />
-              <Button 
-                type="button"
-                onClick={handleAddTag}
-                disabled={!tagInput.trim() || formData.tags.length >= 20}
-                variant="secondary"
-              >
-                +
-              </Button>
-            </div>
-          )}
-
-          <div className="tags-row">
-            {formData.tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="tag-badge">
-                {tag}
-                {isEditing && (
-                  <button type="button" className="tag-remove" onClick={() => handleRemoveTag(index)}>×</button>
-                )}
-              </Badge>
-            ))}
-            {formData.tags.length === 0 && (
-              <p className="empty-text">No hay aptitudes agregadas</p>
-            )}
-          </div>
-        </div>
-
-        {/* ========== FORMULARIO EDICIÓN ========== */}
-        {isEditing && (
+        {/* ========== FORMULARIO EDICIÓN BÁSICA ========== */}
+        {isEditingBasic && (
           <div className="profile-section-block profile-edit-form">
             <h2>Editar información</h2>
             
@@ -362,16 +340,90 @@ export default function Profile() {
             </div>
 
             <div className="form-actions">
-              <Button type="button" variant="secondary" onClick={handleCancel} disabled={saving}>
+              <Button type="button" variant="secondary" onClick={handleCancelBasic} disabled={saving}>
                 Cancelar
               </Button>
-              <Button type="submit" variant="primary" disabled={saving}>
+              <Button type="button" variant="primary" onClick={handleSubmitBasic} disabled={saving}>
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </Button>
             </div>
           </div>
         )}
-      </form>
+
+        {/* ========== BLOQUE ESTUDIOS ========== */}
+        <div className="profile-section-block">
+          <h2>Estudios</h2>
+          <p className="mocked-text">Aquí podrás añadir tu formación académica, similar a LinkedIn. Próximamente disponible.</p>
+        </div>
+
+        {/* ========== BLOQUE APTITUDES ========== */}
+        <div className="profile-section-block">
+          <div className="section-header">
+            <h2>Aptitudes</h2>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              {isEditingTags && <span className="tag-count">{formData.tags.length}/20</span>}
+              {!isEditingTags && (
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Click en botón +, isEditingTags actual:', isEditingTags);
+                    setIsEditingTags(true);
+                  }}
+                  className="btn-add-section"
+                  aria-label="Editar aptitudes"
+                >
+                  +
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {isEditingTags && (
+            <div className="tag-input-row">
+              <Input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="Ej: Producer, Beatmaker..."
+                disabled={formData.tags.length >= 20}
+              />
+              <Button 
+                type="button"
+                onClick={handleAddTag}
+                disabled={!tagInput.trim() || formData.tags.length >= 20}
+                variant="secondary"
+              >
+                +
+              </Button>
+            </div>
+          )}
+
+          <div className="tags-row">
+            {formData.tags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="tag-badge">
+                {tag}
+                {isEditingTags && (
+                  <button type="button" className="tag-remove" onClick={() => handleRemoveTag(index)}>×</button>
+                )}
+              </Badge>
+            ))}
+            {formData.tags.length === 0 && (
+              <p className="empty-text">No hay aptitudes agregadas</p>
+            )}
+          </div>
+
+          {isEditingTags && (
+            <div className="form-actions">
+              <Button type="button" variant="secondary" onClick={handleCancelTags} disabled={saving}>
+                Cancelar
+              </Button>
+              <Button type="button" variant="primary" onClick={handleSubmitTags} disabled={saving}>
+                {saving ? 'Guardando...' : 'Guardar aptitudes'}
+              </Button>
+            </div>
+          )}
+        </div>
 
       <SuccessModal
         isOpen={showSuccessModal}

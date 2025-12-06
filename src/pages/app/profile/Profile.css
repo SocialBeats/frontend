@@ -251,10 +251,35 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
 }
 
 .section-header h2 {
   margin: 0;
+}
+
+.btn-add-section {
+  background: #667eea;
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: 600;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-add-section:hover {
+  background: #764ba2;
+  transform: scale(1.05);
 }
 
 .tag-count {
@@ -300,6 +325,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+  margin-bottom: 0.6rem;
 }
 
 .tag-remove {
