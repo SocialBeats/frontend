@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  Eye,
+  Download,
+  Edit,
+  Trash2,
+  Hash
+} from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import IconButton from '../../../components/ui/IconButton';
@@ -92,8 +102,9 @@ const BeatDetailPage = () => {
             variant="ghost"
             size="medium"
             onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
           >
-            ← Back
+            <ArrowLeft size={20} /> Back
           </IconButton>
         </div>
       </div>
@@ -113,7 +124,7 @@ const BeatDetailPage = () => {
                 size="large"
                 onClick={togglePlay}
               >
-                <span className="play-icon-large">{isPlaying ? '⏸' : '▶'}</span>
+                {isPlaying ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
                 {isPlaying ? 'Pause' : 'Play'}
               </Button>
             </div>
@@ -138,7 +149,7 @@ const BeatDetailPage = () => {
                 <div className="tags-container-inline">
                   {beat.tags.map((tag, index) => (
                     <div key={tag} className="tag-item-inline" style={{ '--tag-index': index }}>
-                      <span className="tag-hash">#</span>
+                      <Hash size={14} className="tag-hash" />
                       <span className="tag-text">{tag}</span>
                     </div>
                   ))}
@@ -147,11 +158,11 @@ const BeatDetailPage = () => {
 
               <div className="beat-stats">
                 <span className="stat-item">
-                  <span className="stat-icon">👁</span>
+                  <Eye size={16} className="stat-icon" />
                   {beat.stats?.plays?.toLocaleString() || '0'} plays
                 </span>
                 <span className="stat-item">
-                  <span className="stat-icon">💾</span>
+                  <Download size={16} className="stat-icon" />
                   {beat.stats?.downloads?.toLocaleString() || '0'} downloads
                 </span>
               </div>
@@ -189,25 +200,25 @@ const BeatDetailPage = () => {
                 </span>
               </div>
               <div className="action-buttons">
-                <Button variant="primary" size="large" className="download-btn">
-                  💾 Download
+                <Button variant="primary" size="large" className="download-btn gap-2">
+                  <Download size={20} /> Download
                 </Button>
                 <Button
                   variant="secondary"
                   size="large"
-                  className="edit-btn edit-beat-link"
+                  className="edit-btn edit-beat-link gap-2"
                   onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
                 >
-                  ✏️ Edit Beat
+                  <Edit size={20} /> Edit Beat
                 </Button>
                 <Button
                   variant="danger"
                   size="large"
-                  className="delete-btn"
+                  className="delete-btn gap-2"
                   onClick={() => setShowDeleteModal(true)}
                   disabled={deleting}
                 >
-                  🗑️ {deleting ? 'Deleting...' : 'Delete Beat'}
+                  <Trash2 size={20} /> {deleting ? 'Deleting...' : 'Delete Beat'}
                 </Button>
               </div>
             </div>

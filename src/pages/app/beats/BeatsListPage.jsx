@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Settings, Play } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import IconButton from "../../../components/ui/IconButton";
 import Card from "../../../components/ui/Card";
@@ -132,7 +133,7 @@ const BeatsListPage = () => {
   // Dynamic grid template with fixed widths for proper scroll behavior
   const getGridTemplate = () => {
     const activeCols = allColumns.filter((col) => visibleColumns[col.key]);
-    
+
     // Define fixed widths for each column type
     const colWidths = activeCols
       .map((col) => {
@@ -173,8 +174,8 @@ const BeatsListPage = () => {
   const gridStyle = { gridTemplateColumns: getGridTemplate() };
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="beats-page-container"
       style={fixedWidth ? { width: `${fixedWidth}px`, maxWidth: `${fixedWidth}px` } : {}}
     >
@@ -223,7 +224,7 @@ const BeatsListPage = () => {
                     onClick={() => setShowColumnSelector(!showColumnSelector)}
                     className="settings-icon-btn"
                   >
-                    ⚙️
+                    <Settings size={16} />
                   </IconButton>
                 </div>
               </div>
@@ -245,7 +246,7 @@ const BeatsListPage = () => {
                   >
                     <div className="col-index">
                       <span className="beat-index">{index + 1}</span>
-                      <span className="beat-play-icon">▶</span>
+                      <span className="beat-play-icon"><Play size={12} fill="currentColor" /></span>
                     </div>
                     <div className="col-title">
                       <div className="beat-info">

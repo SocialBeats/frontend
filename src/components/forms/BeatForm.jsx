@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { parseBlob } from 'music-metadata';
+import { UploadCloud, Music, X, Save, FileAudio, Trash2 } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import IconButton from '../ui/IconButton';
 import Input from '../ui/Input';
 import Waveform from '../ui/Waveform';
 import './BeatForm.css';
 
-const BeatForm = ({ 
-  initialData = null, 
-  onSubmit, 
-  onCancel, 
+const BeatForm = ({
+  initialData = null,
+  onSubmit,
+  onCancel,
   loading = false,
-  isEditing = false 
+  isEditing = false
 }) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
@@ -31,10 +33,11 @@ const BeatForm = ({
   const [tagInput, setTagInput] = useState('');
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(
-    initialData?.audio?.s3Key 
-      ? `${import.meta.env.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
+    initialData?.audio?.s3Key
+      ? `${import.meta.env.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}`
       : null
   );
+  const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
@@ -74,9 +77,8 @@ const BeatForm = ({
     }));
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const validateAndProcessFile = async (file) => {
+    if (!file) return false;
 
     // Validate file type
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/aac', 'audio/x-m4a'];
@@ -85,13 +87,13 @@ const BeatForm = ({
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
       setError('Invalid file type. Allowed: MP3, WAV, FLAC, AAC');
-      return;
+      return false;
     }
 
     // Validate size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size too large. Maximum size is 50MB.');
-      return;
+      return false;
     }
 
     try {
@@ -99,12 +101,12 @@ const BeatForm = ({
       const metadata = await parseBlob(file);
       if (!metadata.format.codec) {
         setError('Invalid audio file content. Please upload a valid audio file.');
-        return;
+        return false;
       }
     } catch (err) {
       console.error('Error parsing audio file:', err);
       setError('Failed to verify audio file. Is it a valid audio file?');
-      return;
+      return false;
     }
 
     setAudioFile(file);
@@ -117,6 +119,51 @@ const BeatForm = ({
     }
 
     setError(null);
+    return true;
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    await validateAndProcessFile(file);
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      await validateAndProcessFile(files[0]);
+    }
+  };
+
+  const handleClearFile = () => {
+    setAudioFile(null);
+    setAudioPreviewUrl(null);
+    setError(null);
+    // Reset file input
+    const fileInput = document.getElementById('audio-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   const handleSubmit = (e) => {
@@ -154,34 +201,68 @@ const BeatForm = ({
         {/* Audio Upload Section - Only for creation */}
         {!isEditing && (
           <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)</p>
+            <div className="section-header-with-icon">
+              <Music size={24} className="section-icon" />
+              <div className="section-header-text">
+                <h2>Audio File</h2>
+                <p className="section-description">
+                  Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)
+                </p>
+              </div>
             </div>
 
             <div className="form-fields">
               <div className="upload-container">
-                <div className="file-input-wrapper">
-                  <input
-                    type="file"
-                    id="audio-upload"
-                    accept=".mp3,.wav,.flac,.aac"
-                    onChange={handleFileChange}
-                    className="file-input"
-                  />
-                  <label htmlFor="audio-upload" className="file-input-label">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => document.getElementById('audio-upload').click()}
+                <input
+                  type="file"
+                  id="audio-upload"
+                  accept=".mp3,.wav,.flac,.aac"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+
+                {!audioFile ? (
+                  <div
+                    className={`audio-dropzone audio-dropzone-empty ${isDragActive ? 'audio-dropzone-active' : ''}`}
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('audio-upload').click()}
+                  >
+                    <div className="dropzone-content">
+                      <UploadCloud size={48} className="dropzone-icon" />
+                      <h3 className="dropzone-title">Drop your beat here</h3>
+                      <p className="dropzone-description">
+                        or click to browse files
+                      </p>
+                      <p className="dropzone-formats">
+                        MP3, WAV, FLAC, AAC • Max 50MB
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="audio-dropzone audio-dropzone-loaded">
+                    <div className="audio-file-info">
+                      <FileAudio size={24} className="file-icon" />
+                      <div className="file-details">
+                        <p className="file-name-loaded">{audioFile.name}</p>
+                        <p className="file-size">
+                          {(audioFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <IconButton
+                      variant="ghost"
+                      size="medium"
+                      onClick={handleClearFile}
+                      className="file-remove-btn"
+                      aria-label="Remove file"
                     >
-                      {audioFile ? 'Change File' : 'Select Audio File'}
-                    </Button>
-                    <span className="file-name">
-                      {audioFile ? audioFile.name : 'No file selected'}
-                    </span>
-                  </label>
-                </div>
+                      <X size={20} />
+                    </IconButton>
+                  </div>
+                )}
 
                 {audioPreviewUrl && (
                   <div className="waveform-preview mt-4">
@@ -348,8 +429,9 @@ const BeatForm = ({
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
                       className="tag-remove"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      ×
+                      <X size={14} />
                     </button>
                   </div>
                 ))}
@@ -455,8 +537,9 @@ const BeatForm = ({
           type="submit"
           variant="primary"
           disabled={loading || !formData.title || !formData.genre || (!isEditing && !audioFile)}
-          className="submit-button"
+          className="submit-button gap-2"
         >
+          <Save size={18} />
           {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Beat' : 'Create Beat')}
         </Button>
       </div>
