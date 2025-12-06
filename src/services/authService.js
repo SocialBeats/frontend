@@ -31,27 +31,27 @@ export function login(identifier, password) {
 
 /**
  * Cierra sesión y limpia los tokens
+ * @returns {Promise<void>}
  */
-export function logout() {
+export async function logout() {
   const refreshToken = getRefreshToken();
   const accessToken = getAccessToken();
   
-  // Limpiar tokens del localStorage
+  // Limpiar tokens del localStorage primero
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   
-  // Intentar revocar tokens en el backend (fire and forget)
+  // Intentar revocar tokens en el backend (best effort)
   if (refreshToken) {
-    client.post('/auth/logout', {
-      refreshToken,
-      accessToken,
-    }).catch(() => {
+    try {
+      await client.post('/auth/logout', {
+        refreshToken,
+        accessToken,
+      });
+    } catch (error) {
       // Ignorar errores, el usuario ya está deslogueado localmente
-    });
+    }
   }
-  
-  // Redirigir al login
-  window.location.href = '/login';
 }
 
 /**
@@ -98,8 +98,53 @@ export function getRefreshToken() {
 }
 
 /**
+ * Decodifica un JWT sin verificar la firma (solo para validar estructura)
+ * @param {string} token - JWT a decodificar
+ * @returns {Object|null} - Payload del token o null si es inválido
+ */
+function decodeJWT(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    return payload;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Valida que un token tenga estructura JWT válida
+ * @param {string} token - Token a validar
+ * @returns {boolean} - true si tiene estructura JWT válida
+ */
+function isValidJWTStructure(token) {
+  if (!token || typeof token !== 'string') return false;
+  
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  
+  // Intentar decodificar el payload
+  const payload = decodeJWT(token);
+  if (!payload) return false;
+  
+  // Validar que tenga campos básicos esperados (cualquier campo indica que es válido)
+  return typeof payload === 'object' && payload !== null && Object.keys(payload).length > 0;
+}
+
+/**
  * Verifica si el usuario está autenticado
+ * Valida que los tokens existan Y tengan estructura JWT válida
  */
 export function isAuthenticated() {
-  return !!getAccessToken() && !!getRefreshToken();
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+  
+  // Verificar que ambos tokens existan y tengan estructura JWT válida
+  const isValid = (
+    isValidJWTStructure(accessToken) && !!refreshToken
+  );
+  
+  return isValid;
 }

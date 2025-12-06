@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 import './CreateDashboards.css';
-import { CreateDashboard } from '../../../services/analytics/dashboards';
-
 
 const CreateDashboards = () => {
   const navigate = useNavigate();
@@ -108,4 +106,4 @@ const CreateDashboards = () => {
   );
 };
 
-export default CreateDashboard;
+export default CreateDashboards;
