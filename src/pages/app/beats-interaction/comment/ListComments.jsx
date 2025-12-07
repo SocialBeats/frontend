@@ -3,6 +3,7 @@ import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 // import { getBeatComments, getPlaylistComments } from "@/services/beats-interaction/commentService.js";
+import CreateComment from "./CreateComment";
 import "./ListComments.css";
 
 // --- Datos mock ----------------------------------------------------------
@@ -244,7 +245,7 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     setPage(totalPages);
   };
 
-  return (
+   return (
     <div className="comments-section">
       <Card className="comments-section-card">
         <div className="comments-section-header">
@@ -279,6 +280,15 @@ const ListComments = ({ isBeat = false, resourceId }) => {
             })}
           </div>
         )}
+
+        <CreateComment
+          isBeat={isBeat}
+          resourceId={resourceId}
+          // onCommentCreated={(newComment) => {
+          //   setComments((prev) => [newComment, ...prev]);
+          //   setTotalComments((prev) => prev + 1);
+          // }}
+        />
 
         {totalComments > 0 && (
           <div className="comments-footer">
