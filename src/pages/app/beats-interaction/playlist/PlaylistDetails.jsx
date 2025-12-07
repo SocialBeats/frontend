@@ -94,7 +94,11 @@ const PlaylistDetails = () => {
     <div
       ref={containerRef}
       className="playlist-details-page"
-      style={fixedWidth ? { width: `${fixedWidth}px`, maxWidth: `${fixedWidth}px` } : {}}
+      style={
+        fixedWidth
+          ? { width: `${fixedWidth}px`, maxWidth: `${fixedWidth}px` }
+          : {}
+      }
     >
       {/* Header */}
       <div className="playlist-details-header">
@@ -116,7 +120,9 @@ const PlaylistDetails = () => {
         </div>
 
         <div className="playlist-actions">
-          <Button onClick={() => navigate(`/app/playlists/${playlist._id}/edit`)}>
+          <Button
+            onClick={() => navigate(`/app/playlists/${playlist._id}/edit`)}
+          >
             Editar playlist
           </Button>
           <IconButton
@@ -166,7 +172,10 @@ const PlaylistDetails = () => {
       >
         <p>¿Seguro que quieres eliminar esta playlist?</p>
         <div className="modal-buttons">
-          <button className="modal-btn cancel" onClick={() => setDeleteModal(false)}>
+          <button
+            className="modal-btn cancel"
+            onClick={() => setDeleteModal(false)}
+          >
             Cancelar
           </button>
           <button className="modal-btn delete" onClick={deletePlaylist}>
