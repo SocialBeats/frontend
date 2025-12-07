@@ -220,21 +220,3 @@
   transition: 0.2s ease;
   font-weight: 500;
 }
-
-.comment-delete-modal .modal-btn.cancel {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.comment-delete-modal .modal-btn.cancel:hover {
-  background: #d1d5db;
-}
-
-.comment-delete-modal .modal-btn.delete {
-  background: #dc2626;
-  color: white;
-}
-
-.comment-delete-modal .modal-btn.delete:hover {
-  background: #b91c1c;
-}

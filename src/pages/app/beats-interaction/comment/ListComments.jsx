@@ -517,15 +517,18 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <div className="comment-delete-modal">
             <p>¿Seguro que quieres eliminar este comentario?</p>
             <div className="modal-buttons">
-              <button className="modal-btn cancel" onClick={closeDeleteModal}>
+              <Button
+                variant="primary"
+                onClick={closeDeleteModal}
+              >
                 Cancelar
-              </button>
-              <button
-                className="modal-btn delete"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={handleConfirmDelete}
               >
                 Borrar
-              </button>
+              </Button>
             </div>
           </div>
         </Modal>
