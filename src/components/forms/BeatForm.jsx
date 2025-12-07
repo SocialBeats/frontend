@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
 import {
   UploadCloud,
@@ -142,16 +142,27 @@ const BeatForm = ({
     await validateAndProcessFile(file);
   };
 
+  /* Global Drag & Drop Logic */
+  const dragCounter = useRef(0);
+
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragActive(true);
+    dragCounter.current += 1;
+
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragActive(true);
+    }
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragActive(false);
+    dragCounter.current -= 1;
+
+    if (dragCounter.current === 0) {
+      setIsDragActive(false);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -163,10 +174,14 @@ const BeatForm = ({
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
+    dragCounter.current = 0;
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      await validateAndProcessFile(files[0]);
+      // Only process if it's the creation mode or if we allow editing audio
+      if (!isEditing) {
+        await validateAndProcessFile(files[0]);
+      }
     }
   };
 
@@ -205,7 +220,14 @@ const BeatForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="beat-form">
+    <form
+      onSubmit={handleSubmit}
+      className="beat-form"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       {error && (
         <Card className="error-card">
           <p className="error-message">{error}</p>
@@ -239,10 +261,6 @@ const BeatForm = ({
                 {!audioFile ? (
                   <div
                     className={`audio-dropzone audio-dropzone-empty ${isDragActive ? 'audio-dropzone-active' : ''}`}
-                    onDragEnter={handleDragEnter}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
                     onClick={() => document.getElementById('audio-upload').click()}
                   >
                     <div className="dropzone-content">

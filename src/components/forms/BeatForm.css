@@ -310,9 +310,30 @@
 }
 
 .audio-dropzone-active {
-  border-color: var(--primary);
+  border-color: #8b5cf6;
   border-style: solid;
-  background: rgba(139, 92, 246, 0.1);
+  border-width: 2px;
+  background: rgba(139, 92, 246, 0.25);
+  box-shadow: 
+    0 0 0 4px rgba(139, 92, 246, 0.15),
+    inset 0 0 30px rgba(139, 92, 246, 0.2);
+  transform: scale(1.015);
+  backdrop-filter: blur(16px);
+}
+
+/* Animate Icon when parent is active */
+.audio-dropzone-active .dropzone-icon {
+  transform: scale(1.2) translateY(-5px);
+  color: #fff;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8));
+}
+
+/* Animate Text */
+.audio-dropzone-active .dropzone-title,
+.audio-dropzone-active .dropzone-description,
+.audio-dropzone-active .dropzone-formats {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .dropzone-content {
