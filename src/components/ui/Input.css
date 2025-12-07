@@ -1,3 +1,4 @@
+/* fileName: Input.css */
 .input-wrapper {
   display: flex;
   flex-direction: column;
@@ -9,91 +10,69 @@
 }
 
 .input-label {
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: #e5e5e5;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .input-container {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .input {
+  width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #2a2a2a;
-  border-radius: 12px;
+  border: 1px solid #2a2a2a; /* Borde sutil */
+  border-radius: 8px; /* Radio consistente */
   background-color: #1a1a1a;
   color: #fff;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
   font-family: inherit;
-  width: 100%;
+  transition: all 0.2s ease;
+}
+
+/* EL ARREGLO DEL ICONO: Forzamos el espacio a la izquierda */
+.input-with-icon {
+  padding-left: 2.75rem !important;
 }
 
 .input:focus {
   outline: none;
   border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+  background-color: #1a1a1a; /* Evita cambios de color al foco */
 }
 
 .input::placeholder {
   color: #666;
 }
 
-.input-with-icon {
-  padding-left: 3rem;
-}
-
-.input-with-toggle {
-  padding-right: 3rem;
-}
-
 .input-icon {
   position: absolute;
   left: 1rem;
-  color: #666;
+  /* Centrado vertical perfecto */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
   pointer-events: none;
-}
-
-.input-password-toggle {
-  position: absolute;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
+  z-index: 2;
 }
 
-.input-password-toggle:hover {
-  color: #fff;
-}
-
-.input-error {
-  border-color: #f5576c;
-}
-
-.input-error:focus {
-  border-color: #f5576c;
-  box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
-}
-
-.input-error-text {
-  color: #f5576c;
-  font-size: 0.75rem;
-}
-
-.input-helper-text {
-  color: #888;
-  font-size: 0.75rem;
-}
-
-.input-full-width {
-  width: 100%;
+/* Eliminar el fondo azul del autocompletado de Chrome */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover, 
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+  transition: background-color 5000s ease-in-out 0s;
 }

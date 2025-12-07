@@ -1,0 +1,74 @@
+/* fileName: Select.css */
+.select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.select-wrapper-full-width {
+  width: 100%;
+}
+
+.select-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e5e5e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.select-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  font-size: 0.95rem;
+  color: #fff;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Elimina estilo nativo */
+  
+  /* Flecha personalizada más clara y visible */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+/* ARREGLO DE ESPACIO PARA ICONO */
+.select-with-icon {
+  padding-left: 2.75rem !important;
+}
+
+.select:focus {
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+}
+
+/* Estilos para las opciones dentro del desplegable (Mejor esfuerzo para nativo) */
+.select option {
+  background-color: #1a1a1a;
+  color: #fff;
+  padding: 10px;
+}

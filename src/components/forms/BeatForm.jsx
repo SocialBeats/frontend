@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import { parseBlob } from 'music-metadata';
-import { UploadCloud, Music, X, Save, FileAudio, Trash2 } from 'lucide-react';
+import {
+  UploadCloud,
+  Music,
+  X,
+  Save,
+  FileAudio,
+  Type,
+  Music2,
+  Binary,
+  AlignLeft,
+  Hash,
+  Eye,
+  DollarSign
+} from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import IconButton from '../ui/IconButton';
 import Input from '../ui/Input';
+import Select from '../ui/Select';
+import Textarea from '../ui/Textarea';
 import Waveform from '../ui/Waveform';
 import './BeatForm.css';
 
@@ -29,8 +44,6 @@ const BeatForm = ({
     isPublic: initialData?.isPublic ?? true,
     isDownloadable: initialData?.isDownloadable ?? false,
   });
-
-  const [tagInput, setTagInput] = useState('');
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(
     initialData?.audio?.s3Key
@@ -39,6 +52,8 @@ const BeatForm = ({
   );
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
+
+  const [tagInput, setTagInput] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -274,167 +289,147 @@ const BeatForm = ({
           </Card>
         )}
 
-        {/* Audio Info - Only when editing */}
-        {isEditing && initialData?.audio && (
-          <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description text-muted">Audio files cannot be modified after creation</p>
-            </div>
-
-            <div className="form-fields">
-              <div className="audio-info">
-                <div className="audio-info-item">
-                  <span className="label">Filename:</span>
-                  <span className="value">{initialData.audio.filename}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Format:</span>
-                  <span className="value">{initialData.audio.format.toUpperCase()}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Size:</span>
-                  <span className="value">{(initialData.audio.size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-              </div>
-
-              {audioPreviewUrl && (
-                <div className="waveform-preview mt-4">
-                  <Waveform url={audioPreviewUrl} height={80} />
-                </div>
-              )}
-            </div>
-          </Card>
-        )}
-
-        {/* Basic Information */}
+        {/* Beat Metadata - Unified Section */}
         <Card className="form-section">
-          <div className="section-header">
-            <h2>Basic Information</h2>
+          <div className="section-header-with-icon">
+            <Music size={24} className="section-icon" />
+            <div className="section-header-text">
+              <h2>Beat Information</h2>
+              <p className="section-description">
+                Add details about your beat
+              </p>
+            </div>
           </div>
 
           <div className="form-fields">
+            {/* Title - Full Width */}
             <div className="field-group">
-              <label htmlFor="title">Title *</label>
               <Input
-                id="title"
+                label="Title"
+                icon={<Type size={16} />}
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Enter beat title"
-                maxLength={100}
+                fullWidth
                 required
               />
             </div>
 
-            <div className="field-group">
-              <label htmlFor="genre">Genre *</label>
-              <select
-                id="genre"
-                name="genre"
-                value={formData.genre}
-                onChange={handleInputChange}
-                className="genre-select"
-                required
-              >
-                <option value="">Select a genre</option>
-                <option value="Hip Hop">Hip Hop</option>
-                <option value="Trap">Trap</option>
-                <option value="R&B">R&B</option>
-                <option value="Pop">Pop</option>
-                <option value="Rock">Rock</option>
-                <option value="Electronic">Electronic</option>
-                <option value="Jazz">Jazz</option>
-                <option value="Reggaeton">Reggaeton</option>
-                <option value="Other">Other</option>
-              </select>
+            {/* Genre and Key - Grid Row */}
+            <div className="field-row">
+              <div className="field-group">
+                <Select
+                  label="Genre"
+                  icon={<Music2 size={16} />}
+                  name="genre"
+                  value={formData.genre}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                >
+                  <option value="">Select genre</option>
+                  <option value="Hip Hop">Hip Hop</option>
+                  <option value="Trap">Trap</option>
+                  <option value="R&B">R&B</option>
+                  <option value="Pop">Pop</option>
+                  <option value="Electronic">Electronic</option>
+                  <option value="Rock">Rock</option>
+                  <option value="Jazz">Jazz</option>
+                  <option value="Lo-Fi">Lo-Fi</option>
+                  <option value="Drill">Drill</option>
+                  <option value="Other">Other</option>
+                </Select>
+              </div>
+
+              <div className="field-group">
+                <Select
+                  label="Key"
+                  icon={<Binary size={16} />}
+                  name="key"
+                  value={formData.key}
+                  onChange={handleInputChange}
+                  fullWidth
+                >
+                  <option value="">Select key</option>
+                  <option value="C">C</option>
+                  <option value="C#">C#</option>
+                  <option value="D">D</option>
+                  <option value="D#">D#</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                  <option value="F#">F#</option>
+                  <option value="G">G</option>
+                  <option value="G#">G#</option>
+                  <option value="A">A</option>
+                  <option value="A#">A#</option>
+                  <option value="B">B</option>
+                  <option value="Cm">Cm</option>
+                  <option value="C#m">C#m</option>
+                  <option value="Dm">Dm</option>
+                  <option value="D#m">D#m</option>
+                  <option value="Em">Em</option>
+                  <option value="Fm">Fm</option>
+                  <option value="F#m">F#m</option>
+                  <option value="Gm">Gm</option>
+                  <option value="G#m">G#m</option>
+                  <option value="Am">Am</option>
+                  <option value="A#m">A#m</option>
+                  <option value="Bm">Bm</option>
+                </Select>
+              </div>
             </div>
 
+            {/* Description - Full Width */}
             <div className="field-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
+              <Textarea
+                label="Description"
+                icon={<AlignLeft size={16} />}
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Describe your beat..."
-                maxLength={500}
-                rows="4"
-                className="description-textarea"
+                placeholder="Describe your beat, its vibe, and intended use..."
+                fullWidth
+                rows={4}
               />
             </div>
-          </div>
-        </Card>
 
-        {/* Technical Details */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Technical Details</h2>
-          </div>
-
-          <div className="form-fields">
+            {/* Tags Section */}
             <div className="field-group">
-              <label htmlFor="key">Key</label>
-              <select
-                id="key"
-                name="key"
-                value={formData.key}
-                onChange={handleInputChange}
-                className="key-select"
-              >
-                <option value="">Select a key</option>
-                <option value="C">C</option>
-                <option value="C#">C#</option>
-                <option value="D">D</option>
-                <option value="D#">D#</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="F#">F#</option>
-                <option value="G">G</option>
-                <option value="G#">G#</option>
-                <option value="A">A</option>
-                <option value="A#">A#</option>
-                <option value="B">B</option>
-              </select>
-            </div>
-          </div>
-        </Card>
+              <label className="input-label">
+                <Hash size={16} className="label-icon" />
+                Tags
+              </label>
 
-        {/* Tags */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Tags</h2>
-            <p className="section-description">Add tags to help users discover your beat</p>
-          </div>
+              <div className="tag-input-section">
+                <div className="tag-input-group">
+                  <Input
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    placeholder="Add tag..."
+                    fullWidth
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                  />
+                  <Button type="button" onClick={handleAddTag} variant="outline">
+                    Add
+                  </Button>
+                </div>
 
-          <div className="form-fields">
-            <div className="tag-input-section">
-              <div className="tag-input-group">
-                <Input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="Add tag..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                />
-                <Button type="button" onClick={handleAddTag} variant="outline">
-                  Add
-                </Button>
-              </div>
-
-              <div className="tags-display">
-                {formData.tags.map((tag, index) => (
-                  <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
-                    <span className="tag-text">#{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="tag-remove"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
+                <div className="tags-display">
+                  {formData.tags.map((tag, index) => (
+                    <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
+                      <span className="tag-text">#{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="tag-remove"
+                        aria-label={`Remove ${tag}`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -455,6 +450,7 @@ const BeatForm = ({
                   checked={formData.isPublic}
                   onChange={handleInputChange}
                 />
+                <Eye size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
                 <span className="checkbox-text">Public (visible to everyone)</span>
               </label>
 
@@ -480,6 +476,7 @@ const BeatForm = ({
                       checked={formData.pricing.isFree}
                       onChange={handleInputChange}
                     />
+                    <DollarSign size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
                     <span className="checkbox-text">Free download</span>
                   </label>
                 </div>
@@ -502,17 +499,17 @@ const BeatForm = ({
 
                     <div className="field-group">
                       <label htmlFor="pricing.currency">Currency</label>
-                      <select
+                      <Select
                         id="pricing.currency"
                         name="pricing.currency"
                         value={formData.pricing.currency}
                         onChange={handleInputChange}
-                        className="currency-select"
+                        fullWidth
                       >
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
-                      </select>
+                      </Select>
                     </div>
                   </div>
                 )}

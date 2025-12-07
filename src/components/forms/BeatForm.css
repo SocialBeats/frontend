@@ -166,6 +166,11 @@
   gap: 1rem;
 }
 
+.tags-input-container {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
 .tag-input-group {
   display: flex;
   gap: 0.75rem;
@@ -193,10 +198,25 @@
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
-  animation: tagFadeIn 0.2s ease-out;
-  animation-delay: calc(var(--tag-index) * 0.05s);
-  opacity: 0;
-  animation-fill-mode: forwards;
+  opacity: 1;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Gradient variant classes for visual variety */
+.tag-chip-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.tag-chip-secondary {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.tag-chip-accent {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.tag-chip-emerald {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
 @keyframes tagFadeIn {

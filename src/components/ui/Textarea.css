@@ -1,0 +1,63 @@
+/* fileName: Textarea.css */
+.textarea-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.textarea-wrapper-full-width {
+  width: 100%;
+}
+
+.textarea-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e5e5e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.textarea-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  min-height: 120px;
+  background-color: #1a1a1a; /* Fondo oscuro corregido */
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.textarea-with-icon {
+  padding-left: 2.75rem !important;
+}
+
+/* Alineación del icono en textarea */
+.textarea-icon {
+  position: absolute;
+  left: 1rem;
+  top: 1rem; /* Alineado con la primera línea de texto */
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+}
+
+.textarea::placeholder {
+  color: #666;
+}
