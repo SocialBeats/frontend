@@ -4,6 +4,8 @@
 
 .comments-section-card {
   padding: 1.5rem;
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 .comments-section-header {
@@ -15,18 +17,21 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: #000000;
 }
 
 .comments-count {
   font-size: 0.85rem;
   opacity: 0.8;
   display: block;
+  color: #000000;
 }
 
 .comments-empty {
   font-size: 0.9rem;
   opacity: 0.8;
   text-align: center;
+  color: #000000;
 }
 
 .comments-list {
@@ -44,35 +49,36 @@
 .comment-item {
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  color: #000000;
   transition: background-color 0.15s ease, border-color 0.15s ease,
     transform 0.1s ease;
   text-align: left;
 }
 
 .comment-item:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.18);
+  background-color: #f1f1f1;
+  border-color: rgba(0, 0, 0, 0.35);
 }
 
 .comment-main-line {
   font-size: 0.95rem;
   display: block;
   text-align: left;
+  color: #000000;
 }
 
 .comment-author {
   font-weight: 600;
   font-size: 0.9rem;
   margin-right: 0.25rem;
-}
-
-.comment-separator {
-  margin-right: 0.25rem;
+  color: #000000;
 }
 
 .comment-text {
   font-size: 0.95rem;
+  color: #000000;
 }
 
 .comment-meta {
@@ -80,10 +86,22 @@
   font-size: 0.75rem;
   opacity: 0.7;
   text-align: left;
+  color: #000000;
 }
 
 .comments-footer {
   margin-top: 1rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comments-pagination-info {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.comments-pagination-buttons {
+  display: flex;
+  gap: 0.5rem;
 }

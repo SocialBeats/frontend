@@ -155,32 +155,28 @@ const MOCK_COMMENTS = [
 // --- Componente ----------------------------------------------------------
 const ListComments = ({ isBeat = false, resourceId }) => {
   const [comments, setComments] = useState([]);
-  const [showAll, setShowAll] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
+  const [totalComments, setTotalComments] = useState(0);
 
-  // MOCK DATA
   useEffect(() => {
-    setComments(MOCK_COMMENTS);
+    // Simula una respuesta paginada del backend usando MOCK_COMMENTS
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const pageItems = MOCK_COMMENTS.slice(startIndex, endIndex);
+    setComments(pageItems);
+    setTotalComments(MOCK_COMMENTS.length);
     /*
+    // Versión real con backend:
     async function fetchComments() {
       try {
         const response = isBeat
-          ? await getBeatComments(resourceId, { page: 1, limit: 50 })
-          : await getPlaylistComments(resourceId, { page: 1, limit: 50 });
+          ? await getBeatComments(resourceId, { page, limit })
+          : await getPlaylistComments(resourceId, { page, limit });
 
-        // Respuesta esperada del backend:
+        // Backend devuelve:
         // {
-        //   data: [
-        //     {
-        //       _id,
-        //       beatId,
-        //       playlistId,
-        //       authorId,
-        //       author: { _id, username, email, roles, createdAt, updatedAt, ... },
-        //       text,
-        //       createdAt,
-        //       updatedAt
-        //     }
-        //   ],
+        //   data: [...],
         //   page,
         //   limit,
         //   total
@@ -192,11 +188,12 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           items.map((item) => ({
             _id: item._id,
             text: item.text,
-            authorId: item.authorId,    // lo guardamos por si hace falta para permisos o filtros
-            author: item.author,        // objeto completo (sin password gracias al toJSON del modelo)
+            authorId: item.authorId,
+            author: item.author,
             createdAt: item.createdAt,
           }))
         );
+        setTotalComments(response.data.total ?? items.length);
       } catch (error) {
         console.error("Error cargando comentarios", error);
       }
@@ -206,41 +203,41 @@ const ListComments = ({ isBeat = false, resourceId }) => {
       fetchComments();
     }
     */
-  }, [isBeat, resourceId]);
+  }, [isBeat, resourceId, page, limit]);
 
-  const hasMoreThanThree = comments.length > 3;
-  const commentsToShow =
-    showAll || !hasMoreThanThree ? comments : comments.slice(0, 3);
+  const totalPages = totalComments > 0 ? Math.ceil(totalComments / limit) : 1;
+
+  const handlePrevPage = () => {
+    setPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setPage((prev) => Math.min(totalPages, prev + 1));
+  };
 
   return (
     <div className="comments-section">
       <Card className="comments-section-card">
         <div className="comments-section-header">
           <h2 className="comments-section-title">Comentarios</h2>
-          {comments.length > 0 && (
+          {totalComments > 0 && (
             <span className="comments-count">
-              {comments.length} comentario{comments.length !== 1 && "s"}
+              {totalComments} comentario{totalComments !== 1 && "s"}
             </span>
           )}
         </div>
 
-        {comments.length === 0 ? (
+        {totalComments === 0 ? (
           <p className="comments-empty">Todavía no hay comentarios.</p>
         ) : (
-          <div
-            className={
-              "comments-list" +
-              (showAll && hasMoreThanThree ? " comments-list--scroll" : "")
-            }
-          >
-            {commentsToShow.map((comment) => {
+          <div className="comments-list comments-list--scroll">
+            {comments.map((comment) => {
               const username = comment.author?.username || "Usuario anónimo";
 
               return (
                 <div key={comment._id} className="comment-item">
                   <div className="comment-main-line">
-                    <span className="comment-author">{username}</span>
-                    <span className="comment-separator">: </span>
+                    <span className="comment-author">{username}:</span>
                     <span className="comment-text">{comment.text}</span>
                   </div>
                   {comment.createdAt && (
@@ -254,15 +251,30 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           </div>
         )}
 
-        {hasMoreThanThree && (
+        {totalComments > 0 && (
           <div className="comments-footer">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowAll((prev) => !prev)}
-            >
-              {showAll ? "Ver menos" : "Ver más"}
-            </Button>
+            <span className="comments-pagination-info">
+              Página {page} de {totalPages}
+            </span>
+
+            <div className="comments-pagination-buttons">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handlePrevPage}
+                disabled={page === 1}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={page === totalPages}
+              >
+                Siguiente
+              </Button>
+            </div>
           </div>
         )}
       </Card>
