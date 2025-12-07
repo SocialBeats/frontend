@@ -484,8 +484,8 @@ const BeatForm = ({
                 {!formData.pricing.isFree && (
                   <div className="field-row">
                     <div className="field-group">
-                      <label htmlFor="pricing.price">Price</label>
                       <Input
+                        label="Price"
                         id="pricing.price"
                         name="pricing.price"
                         type="number"
@@ -498,8 +498,8 @@ const BeatForm = ({
                     </div>
 
                     <div className="field-group">
-                      <label htmlFor="pricing.currency">Currency</label>
                       <Select
+                        label="Currency"
                         id="pricing.currency"
                         name="pricing.currency"
                         value={formData.pricing.currency}

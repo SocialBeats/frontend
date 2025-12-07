@@ -30,9 +30,10 @@
 .input {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 1px solid #2a2a2a; /* Borde sutil */
-  border-radius: 8px; /* Radio consistente */
-  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
   color: #fff;
   font-size: 0.95rem;
   font-family: inherit;
@@ -44,15 +45,20 @@
   padding-left: 2.75rem !important;
 }
 
+.input:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
 .input:focus {
   outline: none;
-  border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
-  background-color: #1a1a1a; /* Evita cambios de color al foco */
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .input::placeholder {
-  color: #666;
+  color: #64748b;
 }
 
 .input-icon {
@@ -61,11 +67,18 @@
   /* Centrado vertical perfecto */
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: rgba(139, 92, 246, 0.6);
   pointer-events: none;
   display: flex;
   align-items: center;
   z-index: 2;
+  transition: color 0.2s ease;
+}
+
+/* Icono más brillante cuando hay focus/hover */
+.input-container:has(.input:hover) .input-icon,
+.input-container:has(.input:focus) .input-icon {
+  color: rgba(139, 92, 246, 0.9);
 }
 
 /* Eliminar el fondo azul del autocompletado de Chrome */
@@ -73,6 +86,6 @@
 .input:-webkit-autofill:hover, 
 .input:-webkit-autofill:focus {
   -webkit-text-fill-color: #fff;
-  -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset;
   transition: background-color 5000s ease-in-out 0s;
 }

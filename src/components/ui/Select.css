@@ -1,8 +1,10 @@
 /* fileName: Select.css */
+/* fileName: Select.css */
 .select-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative; /* Contexto para el dropdown absolute */
 }
 
 .select-wrapper-full-width {
@@ -16,6 +18,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .select-container {
@@ -30,45 +35,157 @@
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: rgba(139, 92, 246, 0.6);
   pointer-events: none;
   z-index: 2;
   display: flex;
   align-items: center;
+  transition: color 0.2s ease;
 }
 
-.select {
+/* Icono más brillante cuando hay hover/focus */
+.select-container:hover .select-icon,
+.select-container:has(.select-custom[aria-expanded="true"]) .select-icon {
+  color: rgba(139, 92, 246, 0.9);
+}
+
+/* Base de Custom Select */
+.select-custom {
   width: 100%;
-  padding: 0.875rem 2.5rem 0.875rem 1rem;
-  font-size: 0.95rem;
+  padding: 0.875rem 1rem;
+  min-height: 48px; /* Altura consistente */
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   color: #fff;
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  outline: none;
+  font-size: 0.95rem;
+  font-family: inherit;
   cursor: pointer;
-  appearance: none; /* Elimina estilo nativo */
-  
-  /* Flecha personalizada más clara y visible */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-/* ARREGLO DE ESPACIO PARA ICONO */
 .select-with-icon {
   padding-left: 2.75rem !important;
 }
 
-.select:focus {
-  border-color: #4facfe;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+.select-custom:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Estilos para las opciones dentro del desplegable (Mejor esfuerzo para nativo) */
-.select option {
-  background-color: #1a1a1a;
+.select-custom:focus,
+.select-custom[aria-expanded="true"] {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.select-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.select-placeholder {
+  color: #64748b;
+}
+
+/* Flecha animada */
+.select-arrow {
+  color: #9ca3af;
+  transition: transform 0.2s ease;
+  min-width: 16px;
+}
+
+.select-arrow-open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.select-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.1);
+  z-index: 100;
+  padding: 0.5rem;
+  list-style: none;
+  margin: 0;
+  
+  /* Animación de entrada */
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar bonito para el dropdown */
+.select-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 4px;
+}
+
+.select-option {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #e5e5e5;
+  transition: background-color 0.15s ease;
+  font-size: 0.95rem;
+}
+
+.select-option:hover {
+  background-color: rgba(139, 92, 246, 0.3);
   color: #fff;
-  padding: 10px;
+}
+
+.select-option.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.select-error {
+  border-color: #ef4444;
+}
+
+.select-error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.select-helper-text {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }

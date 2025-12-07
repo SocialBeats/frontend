@@ -117,47 +117,7 @@
   color: var(--text-primary, #1f2937);
 }
 
-/* Select inputs */
-.genre-select,
-.key-select,
-.currency-select {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  border: 1px solid var(--border-color, #d1d5db);
-  border-radius: 0.5rem;
-  background-color: var(--bg-primary, #ffffff);
-  color: var(--text-primary, #1f2937);
-  transition: border-color 0.2s;
-}
-
-.genre-select:focus,
-.key-select:focus,
-.currency-select:focus {
-  outline: none;
-  border-color: var(--primary-color, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Textarea */
-.description-textarea {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  border: 1px solid var(--border-color, #d1d5db);
-  border-radius: 0.5rem;
-  background-color: var(--bg-primary, #ffffff);
-  color: var(--text-primary, #1f2937);
-  resize: vertical;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
-
-.description-textarea:focus {
-  outline: none;
-  border-color: var(--primary-color, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
+/* Legacy Select and Textarea styles removed - now handled by component CSS */
 
 /* Tags */
 .tag-input-section {
