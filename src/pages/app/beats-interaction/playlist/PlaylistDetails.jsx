@@ -156,7 +156,7 @@ const PlaylistDetails = () => {
       </div>
 
       {/* Comments section */}
-      <ListComments isBeat={false} />
+      <ListComments isBeat={false} resourceId={playlist._id} />
 
       {/* Delete modal */}
       <Modal
