@@ -1,5 +1,4 @@
 FROM node:22.18.0 AS build
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -11,9 +10,12 @@ RUN npm run build
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
-
 COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 80
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY .env.example /app/.env
+
+EXPOSE 80
+ENTRYPOINT ["/entrypoint.sh"]
