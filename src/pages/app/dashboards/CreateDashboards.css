@@ -1,0 +1,137 @@
+.create-dashboard {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.create-dashboard__container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-dashboard__header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.create-dashboard__title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.create-dashboard__subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.create-dashboard__form {
+  margin-bottom: 2rem;
+}
+
+.create-dashboard__form-group {
+  margin-bottom: 1.5rem;
+}
+
+.create-dashboard__label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.create-dashboard__input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.create-dashboard__input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.create-dashboard__input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.create-dashboard__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.create-dashboard__info {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.create-dashboard__info h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.create-dashboard__info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.create-dashboard__info li {
+  padding: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .create-dashboard__container {
+    background: #1f2937;
+  }
+
+  .create-dashboard__title {
+    color: #f9fafb;
+  }
+
+  .create-dashboard__subtitle {
+    color: #9ca3af;
+  }
+
+  .create-dashboard__label {
+    color: #e5e7eb;
+  }
+
+  .create-dashboard__input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .create-dashboard__input:focus {
+    border-color: #60a5fa;
+  }
+
+  .create-dashboard__info {
+    background: #374151;
+    border-left-color: #60a5fa;
+  }
+
+  .create-dashboard__info h3 {
+    color: #f9fafb;
+  }
+
+  .create-dashboard__info li {
+    color: #d1d5db;
+  }
+}

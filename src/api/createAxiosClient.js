@@ -1,89 +1,120 @@
 import axios from 'axios';
+import { getAccessToken, refreshAccessToken, logout } from '@/services/authService';
 
 let failedQueue = [];
 let isRefreshing = false;
 
-const processQueue = (error) => {
+const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve();
+      prom.resolve(token);
     }
   });
 
   failedQueue = [];
 };
 
-export function createAxiosClient({
-  options,
-  refreshTokenUrl,
-  logout }) {
+export function createAxiosClient({ options }) {
   const client = axios.create(options);
 
-  client.interceptors.response.use(
-    (response) => {
-      // Any status code that lie within the range of 2xx cause this function to trigger
-      // Any cookie received will be stored in the browser
-      return response;
+  // Request interceptor: Añadir access token a cada request
+  client.interceptors.request.use(
+    (config) => {
+      const token = getAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
     },
     (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Response interceptor: Manejar errores y refresh token
+  client.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
       const originalRequest = error.config;
-      // In "axios": "^1.1.3" there is an issue with headers, and this is the workaround.
-      originalRequest.headers = JSON.parse(
-        JSON.stringify(originalRequest.headers || {})
-      );
 
-      // If error, process all the requests in the queue and logout the user.
-      const handleError = (error) => {
-        processQueue(error);
-        logout();
-        return Promise.reject(error);
-      };
+      // Normalizar headers para axios 1.x
+      if (originalRequest.headers) {
+        originalRequest.headers = JSON.parse(
+          JSON.stringify(originalRequest.headers || {})
+        );
+      }
 
-      // Refresh token conditions
+      // Caso 1: Token expirado o inválido (401 o 403) - Intentar refresh
+      // El gateway/backend devuelve 401 cuando el access token expiró o es inválido
       if (
-        error.response?.status === 401 &&
-        error.response?.data?.message === 'Token expired' &&
-        originalRequest?.url !== refreshTokenUrl &&
-        originalRequest?._retry !== true
+        (error.response?.status === 401 || error.response?.status === 403) &&
+        !originalRequest._retry &&
+        // No intentar refresh si es el endpoint de refresh o login
+        !originalRequest.url?.includes('/auth/refresh') &&
+        !originalRequest.url?.includes('/auth/login')
       ) {
-
+        // Si ya estamos refrescando, encolar la petición
         if (isRefreshing) {
-          return new Promise(function (resolve, reject) {
+          return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
-            .then(() => {
+            .then((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
               return client(originalRequest);
             })
             .catch((err) => {
               return Promise.reject(err);
             });
         }
-        isRefreshing = true;
+
         originalRequest._retry = true;
-        return client
-          .get(refreshTokenUrl, null,
-            { withCredentials: true }
-          )
-          .then((_res) => {
-            processQueue(null);
+        isRefreshing = true;
 
-            return client(originalRequest);
-          }, handleError)
-          .finally(() => {
-            isRefreshing = false;
-          });
+        try {
+          // Intentar refrescar el token
+          const newToken = await refreshAccessToken();
+          
+          // Procesar cola de peticiones fallidas
+          processQueue(null, newToken);
+          
+          // Reintentar la petición original con el nuevo token
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return client(originalRequest);
+        } catch (refreshError) {
+          // Si el refresh falla, procesar la cola con error y desloguear
+          processQueue(refreshError, null);
+          logout();
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
-      // Refresh token missing or expired => logout user...
-      else if (
-        error.response?.status === 401 && error.response?.data?.message !== 'Not logged in' && error.response?.data?.message !== 'No token provided'
+
+      // Caso 2: Error 401 en refresh endpoint - Token de refresh inválido
+      if (
+        error.response?.status === 401 &&
+        error.response?.data?.error === 'INVALID_REFRESH_TOKEN'
       ) {
-        return handleError(error);
+        // El refresh token expiró o es inválido, desloguear
+        logout();
+        return Promise.reject(error);
       }
 
-      // Any status codes that falls outside the range of 2xx cause this function to trigger
-      // Do something with response error
+      // Caso 3: Error 401 por falta de token (usuario no autenticado)
+      if (
+        error.response?.status === 401 &&
+        (error.response?.data?.message === 'Missing token' ||
+         error.response?.data?.error === 'AUTHENTICATION_REQUIRED')
+      ) {
+        // No hacer nada, dejar que el componente maneje el error
+        return Promise.reject(error);
+      }
+
+      // Cualquier otro error, rechazar
       return Promise.reject(error);
     }
   );

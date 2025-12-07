@@ -1,0 +1,238 @@
+/* MyBeatsListPage.css */
+.my-beats-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.my-beats-header {
+  margin-bottom: 2.5rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.header-text h1 {
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+  display: flex;
+}
+
+.header-text p {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.create-beat-link {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.create-beat-btn {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.beats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.beat-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.beat-card {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.beat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.beat-cover-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.beat-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.beat-card:hover .beat-cover {
+  transform: scale(1.05);
+}
+
+.beat-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.beat-card:hover .beat-overlay {
+  opacity: 1;
+}
+
+.play-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-button:hover {
+  transform: scale(1.1);
+  background-color: #fff;
+}
+
+.play-icon {
+  font-size: 1.5rem;
+  color: #000;
+  margin-left: 4px;
+}
+
+.beat-card-info {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.beat-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.beat-card-metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  justify-content: center;
+}
+
+.beat-card-genre {
+  color: var(--text-muted);
+}
+
+.beat-card-separator {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.beat-card-duration {
+  color: var(--text-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .beats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-beats-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .beats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .my-beats-header {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .create-beat-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-beats-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .beats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .beat-card-info {
+    padding: 0.75rem;
+  }
+
+  .beat-card-title {
+    font-size: 0.9rem;
+  }
+
+  .beat-card-artist {
+    font-size: 0.8rem;
+  }
+
+  .play-button {
+    width: 50px;
+    height: 50px;
+  }
+
+  .play-icon {
+    font-size: 1.25rem;
+  }
+}

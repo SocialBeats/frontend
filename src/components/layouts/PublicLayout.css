@@ -1,0 +1,12 @@
+.public-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.public-main {
+  flex: 1;
+  padding-top: 70px;
+  /* Height of TopNavBar */
+  width: 100%;
+}
