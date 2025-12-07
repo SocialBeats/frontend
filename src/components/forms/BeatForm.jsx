@@ -32,7 +32,7 @@ const BeatForm = ({
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(
     initialData?.audio?.s3Key 
-      ? `${import.meta.env.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
+      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
       : null
   );
   const [error, setError] = useState(null);

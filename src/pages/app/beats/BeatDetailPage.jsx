@@ -121,7 +121,7 @@ const BeatDetailPage = () => {
             {beat && (
               <audio
                 ref={audioRef}
-                src={`${import.meta.env.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`}
+                src={`${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`}
                 onEnded={() => setIsPlaying(false)}
                 onError={(e) => console.error("Audio playback error:", e)}
               />

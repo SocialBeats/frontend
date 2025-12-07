@@ -3,7 +3,6 @@ FROM node:22.18.0 AS build
 WORKDIR /app
 
 COPY package*.json ./
-COPY .env.example .env
 RUN npm install --omit-dev
 
 COPY . .
