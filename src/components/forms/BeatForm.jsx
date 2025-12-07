@@ -13,7 +13,8 @@ import {
   Hash,
   Eye,
   DollarSign,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -22,6 +23,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Textarea from '../ui/Textarea';
 import Waveform from '../ui/Waveform';
+import Toggle from '../ui/Toggle';
 import './BeatForm.css';
 
 const BeatForm = ({
@@ -388,47 +390,46 @@ const BeatForm = ({
 
         {/* Visibility & Pricing */}
         <Card className="form-section">
-          <div className="section-header">
-            <h2>Visibility & Pricing</h2>
+          <div className="section-header-with-icon">
+            <Eye size={24} className="section-icon" />
+            <div className="section-header-text">
+              <h2>Visibility & Pricing</h2>
+              <p className="section-description">Configure who can see and download your beat</p>
+            </div>
           </div>
 
           <div className="form-fields">
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onChange={handleInputChange}
-                />
-                <Eye size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
-                <span>Public (visible to everyone)</span>
-              </label>
+            <div className="toggle-row">
+              <Toggle
+                label="Public"
+                description="Visible to everyone"
+                icon={<Eye size={16} />}
+                checked={formData.isPublic}
+                onChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
+              />
 
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isDownloadable"
-                  checked={formData.isDownloadable}
-                  onChange={handleInputChange}
-                />
-                <span>Allow downloads</span>
-              </label>
+              <Toggle
+                label="Allow downloads"
+                description="Users can download this beat"
+                icon={<Download size={16} />}
+                checked={formData.isDownloadable}
+                onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
+              />
             </div>
 
             {formData.isDownloadable && (
               <>
-                <div className="checkbox-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="pricing.isFree"
-                      checked={formData.pricing.isFree}
-                      onChange={handleInputChange}
-                    />
-                    <DollarSign size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
-                    <span>Free download</span>
-                  </label>
+                <div className="toggle-row">
+                  <Toggle
+                    label="Free download"
+                    description="No charge for downloads"
+                    icon={<DollarSign size={16} />}
+                    checked={formData.pricing.isFree}
+                    onChange={(checked) => setFormData(prev => ({
+                      ...prev,
+                      pricing: { ...prev.pricing, isFree: checked }
+                    }))}
+                  />
                 </div>
 
                 {!formData.pricing.isFree && (
