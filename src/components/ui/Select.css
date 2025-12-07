@@ -107,7 +107,7 @@
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  z-index: 100;
+  z-index: 9999; /* Increased to ensure it appears above all elements */
   padding: 0.5rem;
   list-style: none;
   margin: 0;
