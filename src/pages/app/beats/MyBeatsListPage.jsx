@@ -4,7 +4,7 @@ import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
 import logo from "../../../assets/logo-dark-no-fondo.png";
 // import { mockedBeats } from "./mockBeats";
-import { getBeats } from "../../../services/beatsService";
+import { getMyBeats } from "../../../services/beatsService";
 import "./MyBeatsListPage.css";
 
 const MyBeatsListPage = () => {
@@ -16,7 +16,7 @@ const MyBeatsListPage = () => {
     const fetchBeats = async () => {
       try {
         console.log('🔍 Fetching beats from API...');
-        const data = await getBeats();
+        const data = await getMyBeats();
         console.log('✅ Beats fetched successfully:', data);
         setBeats(data);
       } catch (err) {
@@ -94,7 +94,6 @@ const MyBeatsListPage = () => {
                 <div className="beat-card-metadata">
                   <span className="beat-card-genre">{beat.genre}</span>
                   <span className="beat-card-separator">•</span>
-                  <span className="beat-card-duration">{Math.floor(beat.duration / 60)}:{(beat.duration % 60).toString().padStart(2, '0')}</span>
                 </div>
               </div>
             </Card>

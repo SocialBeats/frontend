@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../../services/authService';
+import { login, isAuthenticated } from '../../services/authService';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -10,6 +10,13 @@ import logo from '../../assets/logo-dark-no-fondo.png';
 
 export default function Login() {
     const navigate = useNavigate();
+
+    // Redirigir si ya está autenticado
+    useEffect(() => {
+        if (isAuthenticated()) {
+            navigate('/app/feed', { replace: true });
+        }
+    }, [navigate]);
     const [formData, setFormData] = useState({
         identifier: '', // username or email
         password: ''

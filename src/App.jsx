@@ -76,6 +76,7 @@ function App() {
         </Route>
 
         {/* Catch all - redirect to landing */}
+        {/* TODO: Implementar un panic route o página 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

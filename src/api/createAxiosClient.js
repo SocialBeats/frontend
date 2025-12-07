@@ -48,12 +48,14 @@ export function createAxiosClient({ options }) {
         );
       }
 
-      // Caso 1: Token expirado o inválido (403) - Intentar refresh
-      // El backend devuelve 403 con error "TOKEN_EXPIRED_OR_INVALID" cuando el access token expiró
+      // Caso 1: Token expirado o inválido (401 o 403) - Intentar refresh
+      // El gateway/backend devuelve 401 cuando el access token expiró o es inválido
       if (
-        error.response?.status === 403 &&
-        error.response?.data?.error === 'TOKEN_EXPIRED_OR_INVALID' &&
-        !originalRequest._retry
+        (error.response?.status === 401 || error.response?.status === 403) &&
+        !originalRequest._retry &&
+        // No intentar refresh si es el endpoint de refresh o login
+        !originalRequest.url?.includes('/auth/refresh') &&
+        !originalRequest.url?.includes('/auth/login')
       ) {
         // Si ya estamos refrescando, encolar la petición
         if (isRefreshing) {
