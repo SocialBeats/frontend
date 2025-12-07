@@ -5,7 +5,7 @@ import Button from "../../../../components/ui/Button";
 import IconButton from "../../../../components/ui/IconButton";
 import Modal from "../../../../components/ui/Modal";
 // import { getBeatComments, getPlaylistComments } from "@/services/beats-interaction/commentService.js";
-// import { deleteComment } from "@/services/beats-interaction/commentService.js";
+// import { deleteComment, updateComment } from "@/services/beats-interaction/commentService.js";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
 
@@ -165,12 +165,15 @@ const ListComments = ({ isBeat = false, resourceId }) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalComments, setTotalComments] = useState(MOCK_COMMENTS.length);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
 
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingText, setEditingText] = useState("");
+
   const safeLimit = limit <= 0 ? 1 : limit;
-  const totalPages =
-    totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
+  const totalPages = totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
 
   useEffect(() => {
     const startIndex = (page - 1) * safeLimit;
@@ -238,21 +241,10 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     setPage(value);
   };
 
-  const goFirstPage = () => {
-    setPage(1);
-  };
-
-  const goPrevPage = () => {
-    setPage((prev) => (prev <= 1 ? 1 : prev - 1));
-  };
-
-  const goNextPage = () => {
-    setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
-  };
-
-  const goLastPage = () => {
-    setPage(totalPages);
-  };
+  const goFirstPage = () => setPage(1);
+  const goPrevPage = () => setPage((prev) => (prev <= 1 ? 1 : prev - 1));
+  const goNextPage = () => setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
+  const goLastPage = () => setPage(totalPages);
 
   // --- delete handlers -------------------------------------------------------------------------
   const openDeleteModal = (comment) => {
@@ -274,10 +266,10 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     try {
       await deleteComment(commentToDelete._id);
 
-      // Volver a pedir comentarios al backend sería lo más correcto:
-      // await fetchComments();  // si tienes una función que encapsula la llamada
+      // Opción 1 (recomendado): volver a pedir la página actual al backend
+      // await fetchComments();
 
-      // O, si quieres actualizar solo el estado local:
+      // Opción 2: actualizar solo el estado local
       // setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
       // setTotalComments((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -285,6 +277,62 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     }
     */
     closeDeleteModal();
+  };
+
+  // --- edit handlers ---------------------------------------------------------------------------
+  const startEditing = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditingText(comment.text);
+  };
+
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditingText("");
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    const textTrimmed = editingText.trim();
+    if (!textTrimmed) return;
+
+    // MOCK: de momento solo log
+    console.log(
+      `Editar comentario con id "${commentId}" y nuevo texto "${textTrimmed}"`
+    );
+    setComments((prev) =>
+      prev.map((c) =>
+        c._id === commentId
+          ? {
+              ...c,
+              text: textTrimmed,
+            }
+          : c
+      )
+    );
+    cancelEditing();
+    //
+
+    /*
+    // Versión real con backend (PUT o PATCH):
+    try {
+      // Reemplazo completo del texto
+      // const response = await updateComment(commentId, { text: textTrimmed });
+
+      // const updatedComment = response.data.data;
+
+      // Opción 1: recargar página de comentarios
+      // await fetchComments();
+
+      // Opción 2: actualizar solo en memoria
+      // setComments((prev) =>
+      //   prev.map((c) => (c._id === updatedComment._id ? updatedComment : c))
+      // );
+
+      // cancelEditing();
+    } catch (error) {
+      console.error("Error editando comentario", error);
+      // Podrías mostrar un toast de error
+    }
+    */
   };
 
   return (
@@ -306,6 +354,7 @@ const ListComments = ({ isBeat = false, resourceId }) => {
             {comments.map((comment) => {
               const username = comment.author?.username || "Usuario anónimo";
               const isMyComment = comment.authorId === MOCK_CURRENT_USER_ID;
+              const isEditing = editingCommentId === comment._id;
 
               return (
                 <div key={comment._id} className="comment-item">
@@ -313,7 +362,17 @@ const ListComments = ({ isBeat = false, resourceId }) => {
                     <div className="comment-left">
                       <div className="comment-main-line">
                         <span className="comment-author">{username}:</span>
-                        <span className="comment-text">{comment.text}</span>
+                        {isEditing ? (
+                          <Input
+                            fullWidth
+                            value={editingText}
+                            onChange={(e) => setEditingText(e.target.value)}
+                            className="comment-edit-input"
+                            placeholder="Edita tu comentario..."
+                          />
+                        ) : (
+                          <span className="comment-text">{comment.text}</span>
+                        )}
                       </div>
 
                       {comment.createdAt && (
@@ -321,16 +380,46 @@ const ListComments = ({ isBeat = false, resourceId }) => {
                           {new Date(comment.createdAt).toLocaleString()}
                         </div>
                       )}
+
+                      {isEditing && (
+                        <div className="comment-edit-actions">
+                          <Button
+                            variant="primary"
+                            size="small"
+                            onClick={() => handleSaveEdit(comment._id)}
+                            disabled={!editingText.trim()}
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={cancelEditing}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      )}
                     </div>
+
                     <div className="comment-right">
                       {isMyComment && (
-                        <IconButton
-                          variant="ghost"
-                          onClick={() => openDeleteModal(comment)}
-                          title="Eliminar comentario"
-                        >
-                          🗑️
-                        </IconButton>
+                        <div className="comment-actions">
+                          <IconButton
+                            variant="ghost"
+                            onClick={() => startEditing(comment)}
+                            title="Editar comentario"
+                          >
+                            ✏️
+                          </IconButton>
+                          <IconButton
+                            variant="ghost"
+                            onClick={() => openDeleteModal(comment)}
+                            title="Eliminar comentario"
+                          >
+                            🗑️
+                          </IconButton>
+                        </div>
                       )}
                     </div>
                   </div>
