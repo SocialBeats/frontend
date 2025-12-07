@@ -2,11 +2,16 @@ import { useEffect, useState } from "react";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
+import IconButton from "../../../../components/ui/IconButton";
+import Modal from "../../../../components/ui/Modal";
 // import { getBeatComments, getPlaylistComments } from "@/services/beats-interaction/commentService.js";
+// import { deleteComment } from "@/services/beats-interaction/commentService.js";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
 
 // --- Datos mock ----------------------------------------------------------
+const MOCK_CURRENT_USER_ID = "u1";
+
 const MOCK_COMMENTS = [
   {
     _id: "c1",
@@ -160,9 +165,12 @@ const ListComments = ({ isBeat = false, resourceId }) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [totalComments, setTotalComments] = useState(MOCK_COMMENTS.length);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   const safeLimit = limit <= 0 ? 1 : limit;
-  const totalPages = totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
+  const totalPages =
+    totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
 
   useEffect(() => {
     const startIndex = (page - 1) * safeLimit;
@@ -203,6 +211,7 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     */
   }, [isBeat, resourceId, page, safeLimit]);
 
+  // --- pagination handlers ---------------------------------------------------------------------
   const handleLimitChange = (e) => {
     const value = parseInt(e.target.value, 10);
 
@@ -245,7 +254,40 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     setPage(totalPages);
   };
 
-   return (
+  // --- delete handlers -------------------------------------------------------------------------
+  const openDeleteModal = (comment) => {
+    setCommentToDelete(comment);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setCommentToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!commentToDelete) return;
+    // MOCK: por ahora solo log
+    console.log(`Eliminar comentario con id "${commentToDelete._id}"`);
+    /*
+    // Versión real con backend:
+    try {
+      await deleteComment(commentToDelete._id);
+
+      // Volver a pedir comentarios al backend sería lo más correcto:
+      // await fetchComments();  // si tienes una función que encapsula la llamada
+
+      // O, si quieres actualizar solo el estado local:
+      // setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
+      // setTotalComments((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Error eliminando comentario", error);
+    }
+    */
+    closeDeleteModal();
+  };
+
+  return (
     <div className="comments-section">
       <Card className="comments-section-card">
         <div className="comments-section-header">
@@ -263,18 +305,35 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <div className="comments-list comments-list--scroll">
             {comments.map((comment) => {
               const username = comment.author?.username || "Usuario anónimo";
+              const isMyComment = comment.authorId === MOCK_CURRENT_USER_ID;
 
               return (
                 <div key={comment._id} className="comment-item">
-                  <div className="comment-main-line">
-                    <span className="comment-author">{username}:</span>
-                    <span className="comment-text">{comment.text}</span>
-                  </div>
-                  {comment.createdAt && (
-                    <div className="comment-meta">
-                      {new Date(comment.createdAt).toLocaleString()}
+                  <div className="comment-row">
+                    <div className="comment-left">
+                      <div className="comment-main-line">
+                        <span className="comment-author">{username}:</span>
+                        <span className="comment-text">{comment.text}</span>
+                      </div>
+
+                      {comment.createdAt && (
+                        <div className="comment-meta">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div className="comment-right">
+                      {isMyComment && (
+                        <IconButton
+                          variant="ghost"
+                          onClick={() => openDeleteModal(comment)}
+                          title="Eliminar comentario"
+                        >
+                          🗑️
+                        </IconButton>
+                      )}
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -360,6 +419,27 @@ const ListComments = ({ isBeat = false, resourceId }) => {
             </div>
           </div>
         )}
+
+        <Modal
+          isOpen={deleteModalOpen}
+          onClose={closeDeleteModal}
+          title="Eliminar comentario"
+        >
+          <div className="comment-delete-modal">
+            <p>¿Seguro que quieres eliminar este comentario?</p>
+            <div className="modal-buttons">
+              <button className="modal-btn cancel" onClick={closeDeleteModal}>
+                Cancelar
+              </button>
+              <button
+                className="modal-btn delete"
+                onClick={handleConfirmDelete}
+              >
+                Borrar
+              </button>
+            </div>
+          </div>
+        </Modal>
       </Card>
     </div>
   );
