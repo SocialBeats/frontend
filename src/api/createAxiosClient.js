@@ -49,16 +49,14 @@ export function createAxiosClient({ options }) {
         );
       }
 
-      // ------------------------------------------------------------------
-      // CAMBIO PRINCIPAL: Adaptación a API Gateway (401)
-      // ------------------------------------------------------------------
-      // Antes: 403 && 'TOKEN_EXPIRED_OR_INVALID'
-      // Ahora: 401 && No es ruta auth && Tenemos refresh token
+      // Caso 1: Token expirado o inválido (401 o 403) - Intentar refresh
+      // El gateway/backend devuelve 401 cuando el access token expiró o es inválido
       if (
-        error.response?.status === 401 && 
+        (error.response?.status === 401 || error.response?.status === 403) &&
         !originalRequest._retry &&
-        !originalRequest.url.includes('/auth/') && // Evitar bucle infinito si falla login/refresh
-        getRefreshToken() // Solo intentamos si tenemos "llave de repuesto"
+        // No intentar refresh si es el endpoint de refresh o login
+        !originalRequest.url?.includes('/auth/refresh') &&
+        !originalRequest.url?.includes('/auth/login')
       ) {
         // Si ya estamos refrescando, encolar la petición (CÓDIGO ORIGINAL MANTENIDO)
         if (isRefreshing) {

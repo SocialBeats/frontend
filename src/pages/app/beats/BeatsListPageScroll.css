@@ -1,0 +1,13 @@
+.beats-list-scroll-container {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    width: 100%;
+  }
+  
+  .beat-list-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 900px;
+  }
+  
