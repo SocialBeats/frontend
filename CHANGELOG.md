@@ -1,3 +1,22 @@
+# Release v0.0.2
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+No fixes added.
+## Continuous integration (CI)
+- ci: add Dockerfile-dev
+
+## Other changes
+No other changes.
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v0.0.1...v0.0.2).
+
 # Release v0.0.1
 
 ## Features
