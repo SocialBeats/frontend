@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect, Children } from 'react';
+import { useState, useRef, useEffect, Children, forwardRef, useId } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './Select.css';
 
-export default function Select({
+const Select = forwardRef(({
     label,
     error,
     helperText,
@@ -13,11 +13,15 @@ export default function Select({
     value,
     onChange,
     name,
+    id,
     placeholder = "Select an option",
+    disabled,
     ...props
-}) {
+}, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
+    const internalId = useId();
+    const selectId = id || internalId;
 
     // Extract options from children
     const options = Children.toArray(children).reduce((acc, child) => {
@@ -57,9 +61,24 @@ export default function Select({
             onChange(event);
         }
         setIsOpen(false);
+        // Return focus to the trigger
+        if (ref && typeof ref !== 'function' && ref.current) {
+            ref.current.focus();
+        }
     };
 
-    const toggleOpen = () => !props.disabled && setIsOpen(!isOpen);
+    const toggleOpen = () => !disabled && setIsOpen(!isOpen);
+
+    const handleKeyDown = (e) => {
+        if (disabled) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleOpen();
+        }
+        if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
 
     const selectClasses = [
         'select-custom',
@@ -75,16 +94,21 @@ export default function Select({
             className={`select-wrapper ${fullWidth ? 'select-wrapper-full-width' : ''}`}
             ref={containerRef}
         >
-            {label && <label className="select-label">{label}</label>}
+            {label && <label htmlFor={selectId} className="select-label">{label}</label>}
 
             <div className="select-container" onClick={toggleOpen}>
                 {icon && <span className="select-icon">{icon}</span>}
 
                 <div
+                    id={selectId}
+                    ref={ref}
                     className={selectClasses}
-                    tabIndex={0}
+                    tabIndex={disabled ? -1 : 0}
                     role="combobox"
                     aria-expanded={isOpen}
+                    aria-haspopup="listbox"
+                    aria-disabled={disabled}
+                    onKeyDown={handleKeyDown}
                     {...props}
                 >
                     <span className={`select-value ${!selectedOption ? 'select-placeholder' : ''}`}>
@@ -98,7 +122,7 @@ export default function Select({
                 </div>
 
                 {isOpen && (
-                    <ul className="select-dropdown">
+                    <ul className="select-dropdown" role="listbox">
                         {options.map((option, index) => {
                             // Skip placeholder options typically used for "Select..."
                             if (option.value === "" && option.disabled) return null;
@@ -106,6 +130,8 @@ export default function Select({
                             return (
                                 <li
                                     key={index}
+                                    role="option"
+                                    aria-selected={option.value === value}
                                     className={`select-option ${option.value === value ? 'selected' : ''}`}
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -124,4 +150,8 @@ export default function Select({
             {helperText && !error && <span className="select-helper-text">{helperText}</span>}
         </div>
     );
-}
+});
+
+Select.displayName = 'Select';
+
+export default Select;

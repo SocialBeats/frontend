@@ -12,7 +12,8 @@ import {
   AlignLeft,
   Hash,
   Eye,
-  DollarSign
+  DollarSign,
+  FileText
 } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -52,12 +53,11 @@ const BeatForm = ({
   );
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
-
   const [tagInput, setTagInput] = useState('');
 
+  // ... (Toda la lógica de handlers se mantiene igual) ...
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (name.startsWith('pricing.')) {
       const pricingField = name.split('.')[1];
       setFormData(prev => ({
@@ -94,8 +94,6 @@ const BeatForm = ({
 
   const validateAndProcessFile = async (file) => {
     if (!file) return false;
-
-    // Validate file type
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/aac', 'audio/x-m4a'];
     const validExtensions = ['mp3', 'wav', 'flac', 'aac'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -104,118 +102,70 @@ const BeatForm = ({
       setError('Invalid file type. Allowed: MP3, WAV, FLAC, AAC');
       return false;
     }
-
-    // Validate size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size too large. Maximum size is 50MB.');
       return false;
     }
-
     try {
-      // Deep validation using music-metadata
       const metadata = await parseBlob(file);
       if (!metadata.format.codec) {
-        setError('Invalid audio file content. Please upload a valid audio file.');
+        setError('Invalid audio file content.');
         return false;
       }
     } catch (err) {
       console.error('Error parsing audio file:', err);
-      setError('Failed to verify audio file. Is it a valid audio file?');
+      setError('Failed to verify audio file.');
       return false;
     }
 
     setAudioFile(file);
     setAudioPreviewUrl(URL.createObjectURL(file));
 
-    // Auto-fill title if empty
     if (!formData.title) {
       const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
       setFormData(prev => ({ ...prev, title: fileNameWithoutExt }));
     }
-
     setError(null);
     return true;
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    await validateAndProcessFile(file);
+    await validateAndProcessFile(e.target.files[0]);
   };
 
-  /* Global Drag & Drop Logic */
   const dragCounter = useRef(0);
-
   const handleDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current += 1;
-
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      setIsDragActive(true);
-    }
+    e.preventDefault(); e.stopPropagation(); dragCounter.current += 1;
+    if (e.dataTransfer.items?.length > 0) setIsDragActive(true);
   };
-
   const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current -= 1;
-
-    if (dragCounter.current === 0) {
-      setIsDragActive(false);
-    }
+    e.preventDefault(); e.stopPropagation(); dragCounter.current -= 1;
+    if (dragCounter.current === 0) setIsDragActive(false);
   };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
   const handleDrop = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-    dragCounter.current = 0;
-
+    e.preventDefault(); e.stopPropagation(); setIsDragActive(false); dragCounter.current = 0;
     const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      // Only process if it's the creation mode or if we allow editing audio
-      if (!isEditing) {
-        await validateAndProcessFile(files[0]);
-      }
-    }
+    if (files?.length > 0 && !isEditing) await validateAndProcessFile(files[0]);
   };
 
   const handleClearFile = () => {
-    setAudioFile(null);
-    setAudioPreviewUrl(null);
-    setError(null);
-    // Reset file input
+    setAudioFile(null); setAudioPreviewUrl(null); setError(null);
     const fileInput = document.getElementById('audio-upload');
-    if (fileInput) {
-      fileInput.value = '';
-    }
+    if (fileInput) fileInput.value = '';
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (!isEditing && !audioFile) {
-      setError('Please upload an audio file.');
-      return;
-    }
-
-    // Prepare data
+    if (!isEditing && !audioFile) { setError('Please upload an audio file.'); return; }
     const submitData = {
       ...formData,
       pricing: {
         ...formData.pricing,
-        // If not downloadable, always free
         isFree: !formData.isDownloadable ? true : formData.pricing.isFree,
         price: (!formData.isDownloadable || formData.pricing.isFree) ? 0 : parseFloat(formData.pricing.price) || 0
       }
     };
-
     onSubmit(submitData, audioFile);
   };
 
@@ -235,16 +185,14 @@ const BeatForm = ({
       )}
 
       <div className="form-grid">
-        {/* Audio Upload Section - Only for creation */}
+        {/* Audio Upload Section */}
         {!isEditing && (
           <Card className="form-section">
             <div className="section-header-with-icon">
               <Music size={24} className="section-icon" />
               <div className="section-header-text">
                 <h2>Audio File</h2>
-                <p className="section-description">
-                  Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)
-                </p>
+                <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)</p>
               </div>
             </div>
 
@@ -266,12 +214,8 @@ const BeatForm = ({
                     <div className="dropzone-content">
                       <UploadCloud size={48} className="dropzone-icon" />
                       <h3 className="dropzone-title">Drop your beat here</h3>
-                      <p className="dropzone-description">
-                        or click to browse files
-                      </p>
-                      <p className="dropzone-formats">
-                        MP3, WAV, FLAC, AAC • Max 50MB
-                      </p>
+                      <p className="dropzone-description">or click to browse files</p>
+                      <p className="dropzone-formats">MP3, WAV, FLAC, AAC • Max 50MB</p>
                     </div>
                   </div>
                 ) : (
@@ -280,9 +224,7 @@ const BeatForm = ({
                       <FileAudio size={24} className="file-icon" />
                       <div className="file-details">
                         <p className="file-name-loaded">{audioFile.name}</p>
-                        <p className="file-size">
-                          {(audioFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="file-size">{(audioFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>
                     <IconButton
@@ -307,114 +249,105 @@ const BeatForm = ({
           </Card>
         )}
 
-        {/* Beat Metadata - Unified Section */}
+        {/* Beat Metadata */}
         <Card className="form-section">
           <div className="section-header-with-icon">
-            <Music size={24} className="section-icon" />
+            <FileText size={24} className="section-icon" />
             <div className="section-header-text">
               <h2>Beat Information</h2>
-              <p className="section-description">
-                Add details about your beat
-              </p>
+              <p className="section-description">Add details about your beat</p>
             </div>
           </div>
 
           <div className="form-fields">
-            {/* Title - Full Width */}
-            <div className="field-group">
-              <Input
-                label="Title"
-                icon={<Type size={16} />}
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter beat title"
-                fullWidth
-                required
-              />
-            </div>
+            {/* Title - Full Width Directo */}
+            <Input
+              label="Title"
+              icon={<Type size={16} />}
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Enter beat title"
+              fullWidth
+              required
+            />
 
             {/* Genre and Key - Grid Row */}
             <div className="field-row">
-              <div className="field-group">
-                <Select
-                  label="Genre"
-                  icon={<Music2 size={16} />}
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                >
-                  <option value="">Select genre</option>
-                  <option value="Hip Hop">Hip Hop</option>
-                  <option value="Trap">Trap</option>
-                  <option value="R&B">R&B</option>
-                  <option value="Pop">Pop</option>
-                  <option value="Electronic">Electronic</option>
-                  <option value="Rock">Rock</option>
-                  <option value="Jazz">Jazz</option>
-                  <option value="Lo-Fi">Lo-Fi</option>
-                  <option value="Drill">Drill</option>
-                  <option value="Other">Other</option>
-                </Select>
-              </div>
-
-              <div className="field-group">
-                <Select
-                  label="Key"
-                  icon={<Binary size={16} />}
-                  name="key"
-                  value={formData.key}
-                  onChange={handleInputChange}
-                  fullWidth
-                >
-                  <option value="">Select key</option>
-                  <option value="C">C</option>
-                  <option value="C#">C#</option>
-                  <option value="D">D</option>
-                  <option value="D#">D#</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="F#">F#</option>
-                  <option value="G">G</option>
-                  <option value="G#">G#</option>
-                  <option value="A">A</option>
-                  <option value="A#">A#</option>
-                  <option value="B">B</option>
-                  <option value="Cm">Cm</option>
-                  <option value="C#m">C#m</option>
-                  <option value="Dm">Dm</option>
-                  <option value="D#m">D#m</option>
-                  <option value="Em">Em</option>
-                  <option value="Fm">Fm</option>
-                  <option value="F#m">F#m</option>
-                  <option value="Gm">Gm</option>
-                  <option value="G#m">G#m</option>
-                  <option value="Am">Am</option>
-                  <option value="A#m">A#m</option>
-                  <option value="Bm">Bm</option>
-                </Select>
-              </div>
-            </div>
-
-            {/* Description - Full Width */}
-            <div className="field-group">
-              <Textarea
-                label="Description"
-                icon={<AlignLeft size={16} />}
-                name="description"
-                value={formData.description}
+              <Select
+                label="Genre"
+                icon={<Music2 size={16} />}
+                name="genre"
+                value={formData.genre}
                 onChange={handleInputChange}
-                placeholder="Describe your beat, its vibe, and intended use..."
                 fullWidth
-                rows={4}
-              />
+                required
+              >
+                <option value="">Select genre</option>
+                <option value="Hip Hop">Hip Hop</option>
+                <option value="Trap">Trap</option>
+                <option value="R&B">R&B</option>
+                <option value="Pop">Pop</option>
+                <option value="Electronic">Electronic</option>
+                <option value="Rock">Rock</option>
+                <option value="Jazz">Jazz</option>
+                <option value="Lo-Fi">Lo-Fi</option>
+                <option value="Drill">Drill</option>
+                <option value="Other">Other</option>
+              </Select>
+
+              <Select
+                label="Key"
+                icon={<Binary size={16} />}
+                name="key"
+                value={formData.key}
+                onChange={handleInputChange}
+                fullWidth
+              >
+                <option value="">Select key</option>
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+                <option value="Cm">Cm</option>
+                <option value="C#m">C#m</option>
+                <option value="Dm">Dm</option>
+                <option value="D#m">D#m</option>
+                <option value="Em">Em</option>
+                <option value="Fm">Fm</option>
+                <option value="F#m">F#m</option>
+                <option value="Gm">Gm</option>
+                <option value="G#m">G#m</option>
+                <option value="Am">Am</option>
+                <option value="A#m">A#m</option>
+                <option value="Bm">Bm</option>
+              </Select>
             </div>
+
+            {/* Description Directo */}
+            <Textarea
+              label="Description"
+              icon={<AlignLeft size={16} />}
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Describe your beat, its vibe, and intended use..."
+              fullWidth
+              rows={4}
+            />
 
             {/* Tags Section */}
-            <div className="field-group">
-              <label className="input-label">
+            {/* Aquí sí mantenemos un div porque tiene lógica compleja de inputs + chips */}
+            <div className="tag-wrapper-block">
+              <label className="input-label tag-label">
                 <Hash size={16} className="label-icon" />
                 Tags
               </label>
@@ -469,7 +402,7 @@ const BeatForm = ({
                   onChange={handleInputChange}
                 />
                 <Eye size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
-                <span className="checkbox-text">Public (visible to everyone)</span>
+                <span>Public (visible to everyone)</span>
               </label>
 
               <label className="checkbox-label">
@@ -479,11 +412,10 @@ const BeatForm = ({
                   checked={formData.isDownloadable}
                   onChange={handleInputChange}
                 />
-                <span className="checkbox-text">Allow downloads</span>
+                <span>Allow downloads</span>
               </label>
             </div>
 
-            {/* Pricing options only if downloadable */}
             {formData.isDownloadable && (
               <>
                 <div className="checkbox-group">
@@ -495,40 +427,37 @@ const BeatForm = ({
                       onChange={handleInputChange}
                     />
                     <DollarSign size={16} style={{ marginLeft: '0.5rem', color: 'var(--text-muted)' }} />
-                    <span className="checkbox-text">Free download</span>
+                    <span>Free download</span>
                   </label>
                 </div>
 
                 {!formData.pricing.isFree && (
                   <div className="field-row">
-                    <div className="field-group">
-                      <Input
-                        label="Price"
-                        id="pricing.price"
-                        name="pricing.price"
-                        type="number"
-                        value={formData.pricing.price}
-                        onChange={handleInputChange}
-                        placeholder="29.99"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
+                    <Input
+                      label="Price"
+                      id="pricing.price"
+                      name="pricing.price"
+                      type="number"
+                      value={formData.pricing.price}
+                      onChange={handleInputChange}
+                      placeholder="29.99"
+                      min="0"
+                      step="0.01"
+                      fullWidth
+                    />
 
-                    <div className="field-group">
-                      <Select
-                        label="Currency"
-                        id="pricing.currency"
-                        name="pricing.currency"
-                        value={formData.pricing.currency}
-                        onChange={handleInputChange}
-                        fullWidth
-                      >
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                      </Select>
-                    </div>
+                    <Select
+                      label="Currency"
+                      id="pricing.currency"
+                      name="pricing.currency"
+                      value={formData.pricing.currency}
+                      onChange={handleInputChange}
+                      fullWidth
+                    >
+                      <option value="USD">USD ($)</option>
+                      <option value="EUR">EUR (€)</option>
+                      <option value="GBP">GBP (£)</option>
+                    </Select>
                   </div>
                 )}
               </>
@@ -537,7 +466,6 @@ const BeatForm = ({
         </Card>
       </div>
 
-      {/* Submit Buttons */}
       <div className="form-actions">
         <Button
           type="button"

@@ -1,20 +1,19 @@
-/* fileName: Textarea.css */
+/* Textarea.css */
 .textarea-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-.textarea-wrapper-full-width {
   width: 100%;
 }
 
 .textarea-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #e5e5e5;
+  color: var(--text-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  margin-left: 4px;
 }
 
 .textarea-container {
@@ -27,11 +26,11 @@
   width: 100%;
   padding: 0.875rem 1rem;
   min-height: 120px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-glass);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: #fff;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
   font-size: 0.95rem;
   font-family: inherit;
   line-height: 1.5;
@@ -39,39 +38,34 @@
   transition: all 0.2s ease;
 }
 
-.textarea-with-icon {
-  padding-left: 2.75rem !important;
-}
+.textarea-with-icon { padding-left: var(--icon-space); }
 
-/* Alineación del icono en textarea */
 .textarea-icon {
   position: absolute;
   left: 1rem;
-  top: 1rem; /* Alineado con la primera línea de texto */
-  color: rgba(139, 92, 246, 0.6);
+  top: 1rem;
+  color: var(--primary-soft);
   pointer-events: none;
   z-index: 2;
   transition: color 0.2s ease;
 }
 
-/* Icono más brillante cuando hay hover/focus */
-.textarea-container:has(.textarea:hover) .textarea-icon,
-.textarea-container:has(.textarea:focus) .textarea-icon {
-  color: rgba(139, 92, 246, 0.9);
-}
-
 .textarea:hover {
-  border-color: rgba(139, 92, 246, 0.6);
-  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-soft);
+  background-color: var(--glass-bg-hover);
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
+  background-color: var(--bg-glass);
 }
 
-.textarea::placeholder {
-  color: #64748b;
+.textarea-container:focus-within .textarea-icon,
+.textarea:hover ~ .textarea-icon {
+  color: var(--primary);
 }
+
+.textarea-error { border-color: var(--text-error); }
+.textarea-error-text { color: var(--text-error); font-size: 0.75rem; margin-top: 0.25rem; }

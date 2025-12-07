@@ -36,6 +36,23 @@
 
   /* Fonts */
   --font-main: 'Outfit', system-ui, sans-serif;
+
+  --input-height: 48px;
+  --icon-space: 2.75rem; /* Espacio para el icono a la izquierda */
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  
+  /* Colores de estado derivados de tu paleta */
+  --primary-soft: rgba(139, 92, 246, 0.6); /* Versión transparente de tu --primary */
+  --primary-glow: rgba(139, 92, 246, 0.2);
+  --text-error: #ef4444;
+
+  /* --- TOKENS SEMÁNTICOS NUEVOS --- */
+  --primary-border-light: rgba(139, 92, 246, 0.3);
+  --primary-bg-subtle: rgba(139, 92, 246, 0.15);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.2);
+  --bg-surface-faint: rgba(255, 255, 255, 0.02);
+  --bg-error-subtle: rgba(239, 68, 68, 0.1);
 }
 
 * {
