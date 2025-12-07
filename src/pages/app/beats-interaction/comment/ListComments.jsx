@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../../../components/ui/Card";
+import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 // import { getBeatComments, getPlaylistComments } from "@/services/beats-interaction/commentService.js";
 import "./ListComments.css";
@@ -8,7 +9,7 @@ import "./ListComments.css";
 const MOCK_COMMENTS = [
   {
     _id: "c1",
-    text: "Esta playlist está brutal para concentrarse 👌",
+    text: "Esta playlist está brutal para concentrarse 👌. Esta durísima me gusta mucho, alargo el texto para ver como se comporta pasados ciertos caracteressss.",
     authorId: "u1",
     author: {
       _id: "u1",
@@ -156,31 +157,27 @@ const MOCK_COMMENTS = [
 const ListComments = ({ isBeat = false, resourceId }) => {
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(5);
-  const [totalComments, setTotalComments] = useState(0);
+  const [limit, setLimit] = useState(5);
+  const [totalComments, setTotalComments] = useState(MOCK_COMMENTS.length);
+
+  const safeLimit = limit <= 0 ? 1 : limit;
+  const totalPages = totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
 
   useEffect(() => {
-    // Simula una respuesta paginada del backend usando MOCK_COMMENTS
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
+    const startIndex = (page - 1) * safeLimit;
+    const endIndex = startIndex + safeLimit;
     const pageItems = MOCK_COMMENTS.slice(startIndex, endIndex);
+
     setComments(pageItems);
     setTotalComments(MOCK_COMMENTS.length);
+
     /*
     // Versión real con backend:
     async function fetchComments() {
       try {
         const response = isBeat
-          ? await getBeatComments(resourceId, { page, limit })
-          : await getPlaylistComments(resourceId, { page, limit });
-
-        // Backend devuelve:
-        // {
-        //   data: [...],
-        //   page,
-        //   limit,
-        //   total
-        // }
+          ? await getBeatComments(resourceId, { page, limit: safeLimit })
+          : await getPlaylistComments(resourceId, { page, limit: safeLimit });
 
         const items = response.data.data || [];
 
@@ -203,16 +200,48 @@ const ListComments = ({ isBeat = false, resourceId }) => {
       fetchComments();
     }
     */
-  }, [isBeat, resourceId, page, limit]);
+  }, [isBeat, resourceId, page, safeLimit]);
 
-  const totalPages = totalComments > 0 ? Math.ceil(totalComments / limit) : 1;
+  const handleLimitChange = (e) => {
+    const value = parseInt(e.target.value, 10);
 
-  const handlePrevPage = () => {
-    setPage((prev) => Math.max(1, prev - 1));
+    if (Number.isNaN(value) || value <= 0) {
+      setLimit(1);
+      setPage(1);
+      return;
+    }
+
+    setLimit(value);
+    setPage(1);
   };
 
-  const handleNextPage = () => {
-    setPage((prev) => Math.min(totalPages, prev + 1));
+  const handlePageInputChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+
+    if (Number.isNaN(value)) return;
+
+    if (value < 1 || value > totalPages) {
+      setPage(1);
+      return;
+    }
+
+    setPage(value);
+  };
+
+  const goFirstPage = () => {
+    setPage(1);
+  };
+
+  const goPrevPage = () => {
+    setPage((prev) => (prev <= 1 ? 1 : prev - 1));
+  };
+
+  const goNextPage = () => {
+    setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
+  };
+
+  const goLastPage = () => {
+    setPage(totalPages);
   };
 
   return (
@@ -253,26 +282,70 @@ const ListComments = ({ isBeat = false, resourceId }) => {
 
         {totalComments > 0 && (
           <div className="comments-footer">
-            <span className="comments-pagination-info">
-              Página {page} de {totalPages}
-            </span>
-
-            <div className="comments-pagination-buttons">
+            <div className="comments-pagination-buttons comments-pagination-buttons-left">
               <Button
-                variant="secondary"
-                size="sm"
-                onClick={handlePrevPage}
+                variant="primary"
+                size="small"
+                onClick={goFirstPage}
                 disabled={page === 1}
               >
-                Anterior
+                {"<<"}
               </Button>
               <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleNextPage}
+                variant="primary"
+                size="small"
+                onClick={goPrevPage}
+                disabled={page === 1}
+              >
+                {"<"}
+              </Button>
+            </div>
+
+            <div className="comments-pagination-center">
+              <div className="comments-pagination-line">
+                <span>Página</span>
+                <div className="comments-input-wrapper">
+                  <Input
+                    type="number"
+                    value={page}
+                    onChange={handlePageInputChange}
+                    min={1}
+                    className="comments-input"
+                  />
+                </div>
+                <span>de {totalPages}</span>
+              </div>
+
+              <div className="comments-pagination-line">
+                <span>Comentarios por página:</span>
+                <div className="comments-input-wrapper">
+                  <Input
+                    type="number"
+                    value={limit}
+                    onChange={handleLimitChange}
+                    min={1}
+                    className="comments-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="comments-pagination-buttons comments-pagination-buttons-right">
+              <Button
+                variant="primary"
+                size="small"
+                onClick={goNextPage}
                 disabled={page === totalPages}
               >
-                Siguiente
+                {">"}
+              </Button>
+              <Button
+                variant="primary"
+                size="small"
+                onClick={goLastPage}
+                disabled={page === totalPages}
+              >
+                {">>"}
               </Button>
             </div>
           </div>
