@@ -17,7 +17,7 @@ export default function Avatar({
   return (
     <div className={classes} {...props}>
       {src ? (
-        <img src={src} alt={alt} className="avatar-image" />
+        <img src={src} alt={alt} className="avatar-image" crossOrigin="anonymous" />
       ) : (
         <span className="avatar-fallback">
           {fallback || alt.charAt(0).toUpperCase()}

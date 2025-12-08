@@ -5,6 +5,7 @@ import Button from './Button';
 import ConfirmModal from './ConfirmModal';
 import { logout } from '../../services/authService';
 import { getMyProfile } from '../../services/profileService';
+import { useProfileContext } from '../../contexts/ProfileContext';
 import logo from '../../assets/logo-dark-no-fondo.png';
 import './NavBar.css';
 
@@ -14,9 +15,10 @@ export default function NavBar() {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [profile, setProfile] = useState(null);
+  const { profileVersion } = useProfileContext();
 
   useEffect(() => {
-    // Cargar perfil del usuario
+    // Cargar perfil del usuario (se re-ejecuta cuando profileVersion cambia)
     const loadProfile = async () => {
       try {
         const data = await getMyProfile();
@@ -27,7 +29,7 @@ export default function NavBar() {
     };
     
     loadProfile();
-  }, []);
+  }, [profileVersion]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -78,7 +80,7 @@ export default function NavBar() {
           {/* User Profile Snippet */}
           <div className="sidebar-user">
             <Avatar 
-              size="sm" 
+              size="medium" 
               src={profile?.avatar || ''} 
               alt={profile?.username || 'Usuario'}
             />

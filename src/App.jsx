@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
+import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
 // import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
@@ -20,7 +21,8 @@ import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <ProfileProvider>
+        <Routes>
         {/* Public Routes - Accessible to everyone */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
@@ -66,6 +68,7 @@ function App() {
         {/* TODO: Implementar un panic route o página 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ProfileProvider>
     </BrowserRouter>
   );
 }

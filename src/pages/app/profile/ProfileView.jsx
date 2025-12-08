@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
+import { useProfileContext } from '@/contexts/ProfileContext';
+import { updateMyProfile } from '@/services/profileService';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -28,6 +30,8 @@ export default function ProfileView() {
   };
 
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
+  const { notifyProfileUpdate } = useProfileContext();
+  
 
   const handleSuccess = async () => {
     setShowSuccessModal(true);
@@ -86,6 +90,45 @@ export default function ProfileView() {
     }
   };
 
+  const handleAvatarUpdate = async (avatarUrl) => {
+    try {
+      await updateMyProfile({ avatar: avatarUrl });
+      await loadProfile(); // Recargar el perfil para mostrar el nuevo avatar
+      notifyProfileUpdate(); // Notificar a NavBar y otros componentes
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar el avatar');
+      setShowErrorModal(true);
+      throw error; // Re-throw para que ProfileHero maneje el estado
+    }
+  };
+
+  // Handlers para certificaciones
+  const handleAddCertification = async (certification) => {
+    try {
+      const currentCerts = profile.certifications || [];
+      const newCerts = [...currentCerts, certification];
+      await updateMyProfile({ certifications: newCerts });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al añadir certificación');
+      setShowErrorModal(true);
+      throw error;
+    }
+  };
+
+  const handleRemoveCertification = async (index) => {
+    try {
+      const currentCerts = profile.certifications || [];
+      const newCerts = currentCerts.filter((_, i) => i !== index);
+      await updateMyProfile({ certifications: newCerts });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
+      setShowErrorModal(true);
+      throw error;
   const handleStudiesSubmit = async (updatedStudies) => {
     try {
       await handleSubmitStudies(updatedStudies);
@@ -140,6 +183,13 @@ export default function ProfileView() {
         onInputChange={handleInputChange}
         onSubmitAbout={handleAboutSubmit}
         onCancelAbout={handleCancelAbout}
+        onAvatarUpdate={handleAvatarUpdate}
+        onAddCertification={handleAddCertification}
+        onRemoveCertification={handleRemoveCertification}
+        onCertificationError={(message) => {
+          setErrorMessage(message);
+          setShowErrorModal(true);
+        }}
       />
 
       {/* Edit Form - only if own profile */}
