@@ -138,10 +138,28 @@ export default function ProfileView() {
     
     try {
       setSaving(true);
-      await updateMyProfile(formData);
+      const updatedProfile = await updateMyProfile(formData);
+      setProfile(updatedProfile);
+      setFormData({
+        full_name: updatedProfile.full_name || '',
+        about_me: updatedProfile.about_me || '',
+        contact: {
+          phone: updatedProfile.contact?.phone || '',
+          city: updatedProfile.contact?.city || '',
+          country: updatedProfile.contact?.country || '',
+          website: updatedProfile.contact?.website || '',
+          social_media: {
+            instagram: updatedProfile.contact?.social_media?.instagram || '',
+            twitter: updatedProfile.contact?.social_media?.twitter || '',
+            youtube: updatedProfile.contact?.social_media?.youtube || '',
+            soundcloud: updatedProfile.contact?.social_media?.soundcloud || '',
+            spotify: updatedProfile.contact?.social_media?.spotify || '',
+          },
+        },
+        tags: updatedProfile.tags || [],
+      });
       setShowSuccessModal(true);
       setIsEditingBasic(false);
-      await loadProfile();
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar el perfil');
       setShowErrorModal(true);
@@ -156,10 +174,14 @@ export default function ProfileView() {
     
     try {
       setSaving(true);
-      await updateMyProfile({ tags: formData.tags });
+      const updatedProfile = await updateMyProfile({ tags: formData.tags });
+      setProfile(updatedProfile);
+      setFormData(prev => ({
+        ...prev,
+        tags: updatedProfile.tags || [],
+      }));
       setShowSuccessModal(true);
       setIsEditingTags(false);
-      await loadProfile();
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar las aptitudes');
       setShowErrorModal(true);
