@@ -48,7 +48,7 @@ export default function ProfileView() {
 
   useEffect(() => {
     loadProfile();
-  }, [username]);
+  }, [username, currentUsername]);
 
   const loadProfile = async () => {
     try {
