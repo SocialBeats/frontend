@@ -1,0 +1,485 @@
+/* =============================================
+   PROFILE PAGE - LINKEDIN STYLE
+   Ocupa TODA la pantalla sin márgenes externos
+============================================= */
+
+.profile-page {
+  /* CLAVE: Escapar del padding del PrivateLayout */
+  margin: -2rem;
+  padding: 0;
+  min-height: calc(100vh + 4rem);
+  background: #0f172a;
+}
+
+/* =============================================
+   BLOQUE HERO PRINCIPAL
+   3 columnas: Avatar | Content+Beats | Certs
+============================================= */
+
+.profile-hero {
+  display: grid;
+  grid-template-columns: 200px 1fr 220px;
+  gap: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  margin: 1rem;
+  overflow: hidden;
+}
+
+/* Columna izquierda - Avatar */
+.profile-hero-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.profile-username {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  margin: 0.5rem 0 0;
+}
+
+.profile-completion {
+  margin: 0.25rem 0;
+}
+
+.profile-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.profile-contact-list .contact-item {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.9);
+  margin: 0;
+}
+
+.profile-social-icons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.social-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.social-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Columna central - Nombre + About + Beats */
+.profile-hero-center {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem;
+  gap: 1rem;
+}
+
+.profile-name-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.profile-fullname {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.profile-aka {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0.25rem 0 0;
+}
+
+.profile-about-section {
+  flex: 1;
+}
+
+.profile-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  background: #0f172a;
+  resize: none;
+  min-height: 100px;
+  transition: all 0.2s;
+}
+
+.profile-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+.profile-textarea.disabled {
+  background: #1e293b;
+  cursor: default;
+  color: #94a3b8;
+  border-color: transparent;
+}
+
+.character-count {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+/* Beats preview - 3 cuadrados */
+.profile-beats-preview {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.beat-preview-card {
+  width: 80px;
+  height: 80px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.beat-preview-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.beat-icon {
+  font-size: 2rem;
+}
+
+/* Columna derecha - Certificaciones */
+.profile-hero-right {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1rem;
+  background: #0f172a;
+  border-left: 1px solid #334155;
+}
+
+.certs-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.certs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.cert-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  transition: all 0.2s;
+}
+
+.cert-item:hover {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.certs-note {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0.75rem 0 0;
+  text-align: center;
+}
+
+/* =============================================
+   BLOQUES DE SECCIÓN (Estudios, Aptitudes)
+============================================= */
+
+.profile-section-block {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  margin: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.profile-section-block h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 0.75rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.btn-add-section {
+  background: #667eea;
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: 600;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-add-section:hover {
+  background: #764ba2;
+  transform: scale(1.05);
+}
+
+.tag-count {
+  font-size: 0.75rem;
+  color: #64748b;
+  background: #334155;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+}
+
+.mocked-text {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0;
+}
+
+.empty-text {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Tags input y lista */
+.tag-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tag-input-row > div {
+  flex: 1;
+}
+
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.25rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.tag-remove:hover {
+  opacity: 1;
+}
+
+/* =============================================
+   FORMULARIO DE EDICIÓN
+============================================= */
+
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-edit-form h2 {
+  margin-bottom: 0.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #334155;
+}
+
+/* =============================================
+   LOADING & ERROR
+============================================= */
+
+.profile-loading,
+.profile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.profile-loading p,
+.profile-error p {
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #334155;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+
+@media (max-width: 900px) {
+  .profile-hero {
+    grid-template-columns: 180px 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .profile-hero-right {
+    grid-column: 1 / -1;
+    border-left: none;
+    border-top: 1px solid #334155;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .certs-title {
+    width: 100%;
+  }
+  
+  .certs-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-page {
+    margin: -1rem;
+    min-height: calc(100vh + 2rem);
+  }
+  
+  .profile-hero {
+    grid-template-columns: 1fr;
+    margin: 0.5rem;
+  }
+  
+  .profile-hero-left {
+    padding: 1.25rem;
+  }
+  
+  .profile-hero-center {
+    padding: 1rem;
+  }
+  
+  .profile-fullname {
+    font-size: 1.5rem;
+  }
+  
+  .profile-beats-preview {
+    justify-content: center;
+  }
+  
+  .beat-preview-card {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .profile-section-block {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}
