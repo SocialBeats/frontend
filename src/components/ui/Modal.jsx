@@ -30,7 +30,7 @@ const Modal = ({ isOpen, onClose, children, title, showCloseButton = true, size 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className={`modal-content ${typeof size === 'string' ? `modal-${size}` : ''}`}
+        className={`modal-content modal-${size}`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
