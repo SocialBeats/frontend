@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
 import Button from '@/components/ui/Button';
@@ -61,10 +61,12 @@ export default function Profile() {
   };
 
   // Show error from useProfileData
-  if (error) {
-    setErrorMessage(error);
-    setShowErrorModal(true);
-  }
+  useEffect(() => {
+    if (error) {
+      setErrorMessage(error);
+      setShowErrorModal(true);
+    }
+  }, [error]);
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
@@ -69,10 +69,12 @@ export default function ProfileView() {
   };
 
   // Show error from useProfileData
-  if (error) {
-    setErrorMessage(error);
-    setShowErrorModal(true);
-  }
+  useEffect(() => {
+    if (error) {
+      setErrorMessage(error);
+      setShowErrorModal(true);
+    }
+  }, [error]);
 
   if (loading) {
     return (
