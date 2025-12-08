@@ -10,15 +10,16 @@ import ErrorModal from '@/components/ui/ErrorModal';
 import ProfileHero from '@/components/profile/ProfileHero';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
+import ProfileStudiesSection from '@/components/profile/ProfileStudiesSection';
 import './Profile.css';
 
-const MAX_TAGS = 20;
-const MAX_ABOUT_ME_LENGTH = 500;
+export const MAX_TAGS = 20;
+export const MAX_ABOUT_ME_LENGTH = 500;
 
 export default function ProfileView() {
   const { username } = useParams();
   const navigate = useNavigate();
-  
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,6 +32,7 @@ export default function ProfileView() {
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
   const { notifyProfileUpdate } = useProfileContext();
   
+
   const handleSuccess = async () => {
     setShowSuccessModal(true);
     await loadProfile();
@@ -57,6 +59,7 @@ export default function ProfileView() {
     handleCancelBasic,
     handleCancelAbout,
     handleCancelTags,
+    handleSubmitStudies,
   } = useProfileForm(profile, isOwnProfile, handleSuccess);
 
   // Handle form submission errors
@@ -126,6 +129,12 @@ export default function ProfileView() {
       setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
       setShowErrorModal(true);
       throw error;
+  const handleStudiesSubmit = async (updatedStudies) => {
+    try {
+      await handleSubmitStudies(updatedStudies);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar los estudios');
+      setShowErrorModal(true);
     }
   };
 
@@ -195,11 +204,12 @@ export default function ProfileView() {
         />
       )}
 
-      {/* Estudios Section */}
-      <div className="profile-section-block">
-        <h2>Estudios</h2>
-        <p className="mocked-text">Aquí podrás añadir tu formación académica, similar a LinkedIn. Próximamente disponible.</p>
-      </div>
+      {/* Studies Section */}
+      <ProfileStudiesSection
+        studies={formData.studies}
+        isOwnProfile={isOwnProfile}
+        onUpdateStudies={handleStudiesSubmit}
+      />
 
       {/* Skills Section */}
       <ProfileSkillsSection

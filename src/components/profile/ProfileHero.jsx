@@ -4,6 +4,7 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
+import { MAX_ABOUT_ME_LENGTH } from '@/pages/app/profile/ProfileView';
 
 /**
  * ProfileHero component - displays the main profile header section
@@ -86,14 +87,14 @@ export default function ProfileHero({
           />
         </div>
         <h2 className="profile-username">{profile.username}</h2>
-        
+
         {/* Badge de completitud - solo si es tu perfil */}
         {isOwnProfile && (
           <div className="profile-completion">
             <Badge variant="warning">Completa tu perfil</Badge>
           </div>
         )}
-        
+
         {/* Info de contacto */}
         <div className="profile-contact-list">
           <p className="contact-item">{profile.email}</p>
@@ -129,7 +130,7 @@ export default function ProfileHero({
         </div>
 
         {/* About Me */}
-        <div 
+        <div
           className={`profile-about-section ${isOwnProfile && !isEditingAbout ? 'clickable' : ''}`}
           onClick={() => {
             if (isOwnProfile && !isEditingAbout) {
@@ -145,7 +146,7 @@ export default function ProfileHero({
             disabled={!isEditingAbout || !isOwnProfile}
             className={`profile-textarea ${(!isEditingAbout || !isOwnProfile) ? 'disabled' : ''}`}
             placeholder={isOwnProfile ? "Cuéntanos sobre ti, tu experiencia..." : "Sin descripción"}
-            maxLength={500}
+            maxLength={MAX_ABOUT_ME_LENGTH}
             rows={5}
             onClick={(e) => {
               if (isEditingAbout) {
@@ -155,11 +156,11 @@ export default function ProfileHero({
           />
           {isEditingAbout && isOwnProfile && (
             <div className="about-edit-controls">
-              <span className="character-count">{formData.about_me.length}/500</span>
+              <span className="character-count">{formData.about_me.length}/{MAX_ABOUT_ME_LENGTH}</span>
               <div className="about-buttons">
-                <Button 
-                  type="button" 
-                  variant="secondary" 
+                <Button
+                  type="button"
+                  variant="secondary"
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -169,9 +170,9 @@ export default function ProfileHero({
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="primary" 
+                <Button
+                  type="button"
+                  variant="primary"
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
