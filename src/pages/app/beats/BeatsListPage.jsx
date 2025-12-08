@@ -252,18 +252,18 @@ const BeatsListPage = () => {
                       <div className="beat-info">
                         <span className="beat-title-text">{beat.title}</span>
                         <span className="beat-artist-mobile">
-                          {beat.artist}
+                          {beat.createdBy?.username || "Unknown"}
                         </span>
                       </div>
                     </div>
                     {visibleColumns.artist && (
-                      <div className="col-artist">{beat.artist}</div>
+                      <div className="col-artist">{beat.createdBy?.username || "Unknown"}</div>
                     )}
                     {visibleColumns.genre && (
                       <div className="col-genre">{beat.genre}</div>
                     )}
                     {visibleColumns.bpm && (
-                      <div className="col-bpm">{beat.bpm}</div>
+                      <div className="col-bpm">{beat.bpm || "N/A"}</div>
                     )}
                     {visibleColumns.key && (
                       <div className="col-key">{beat.key}</div>
@@ -297,10 +297,10 @@ const BeatsListPage = () => {
                       </div>
                     )}
                     {visibleColumns.mood && (
-                      <div className="col-mood">{beat.mood}</div>
+                      <div className="col-mood">{beat.mood || "N/A"}</div>
                     )}
                     {visibleColumns.license && (
-                      <div className="col-license">{beat.license}</div>
+                      <div className="col-license">{beat.license || "N/A"}</div>
                     )}
                     {visibleColumns.createdAt && (
                       <div className="col-created">{beat.formattedDate}</div>
