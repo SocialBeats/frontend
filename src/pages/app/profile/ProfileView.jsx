@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMyProfile, getProfileByUsername, updateMyProfile } from '@/services/profileService';
-import { getCurrentUsername } from '@/services/authService';
-import Input from '@/components/ui/Input';
+import { useProfileData } from '@/hooks/use-profile-data';
+import { useProfileForm } from '@/hooks/use-profile-form';
 import Button from '@/components/ui/Button';
-import Avatar from '@/components/ui/Avatar';
-import Badge from '@/components/ui/Badge';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
+import ProfileHero from '@/components/profile/ProfileHero';
+import ProfileEditForm from '@/components/profile/ProfileEditForm';
+import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
 import './Profile.css';
 
 const MAX_TAGS = 20;
@@ -16,107 +16,14 @@ const MAX_ABOUT_ME_LENGTH = 500;
 export default function ProfileView() {
   const { username } = useParams();
   const navigate = useNavigate();
-  const currentUsername = getCurrentUsername();
   
-  const [profile, setProfile] = useState(null);
-  const [isEditingBasic, setIsEditingBasic] = useState(false);
-  const [isEditingTags, setIsEditingTags] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    full_name: '',
-    about_me: '',
-    contact: {
-      phone: '',
-      city: '',
-      country: '',
-      website: '',
-      social_media: {
-        instagram: '',
-        twitter: '',
-        youtube: '',
-        soundcloud: '',
-        spotify: '',
-      },
-    },
-    tags: [],
-  });
 
-  const [tagInput, setTagInput] = useState('');
-
-  useEffect(() => {
-    loadProfile();
-  }, [username, currentUsername]);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      
-      // Si es el username del usuario actual, redirigir a /app/profile
-      if (username && username === currentUsername) {
-        navigate('/app/profile', { replace: true });
-        return;
-      }
-      
-      // Cargar perfil (propio o de otro usuario)
-      let data;
-      if (username) {
-        // Ver perfil de otro usuario
-        data = await getProfileByUsername(username);
-        setIsOwnProfile(false);
-      } else {
-        // Ver tu propio perfil
-        data = await getMyProfile();
-        setIsOwnProfile(true);
-      }
-      
-      setProfile(data);
-      setFormData({
-        full_name: data.full_name || '',
-        about_me: data.about_me || '',
-        contact: {
-          phone: data.contact?.phone || '',
-          city: data.contact?.city || '',
-          country: data.contact?.country || '',
-          website: data.contact?.website || '',
-          social_media: {
-            instagram: data.contact?.social_media?.instagram || '',
-            twitter: data.contact?.social_media?.twitter || '',
-            youtube: data.contact?.social_media?.youtube || '',
-            soundcloud: data.contact?.social_media?.soundcloud || '',
-            spotify: data.contact?.social_media?.spotify || '',
-          },
-        },
-        tags: data.tags || [],
-      });
-    } catch (error) {
-      setErrorMessage(error.response?.status === 404 
-        ? 'Usuario no encontrado' 
-        : 'Error al cargar el perfil');
-      setShowErrorModal(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleContactChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      contact: { ...prev.contact, [name]: value },
-    }));
-  };
-
+  // Use custom hooks for data and form management
+  const handleRedirect = () => {
+    navigate('/app/profile', { replace: true });
   const handleAddTag = (e) => {
     e.preventDefault();
     if (tagInput.trim() && formData.tags.length < MAX_TAGS) {
@@ -128,79 +35,58 @@ export default function ProfileView() {
     }
   };
 
-  const handleRemoveTag = (indexToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter((_, index) => index !== indexToRemove),
-    }));
+  const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
+  
+  const handleSuccess = async () => {
+    setShowSuccessModal(true);
+    await loadProfile();
   };
 
-  const handleSubmitBasic = async (e) => {
-    e.preventDefault();
-    if (!isOwnProfile) return;
-    
+  const {
+    formData,
+    isEditingBasic,
+    isEditingTags,
+    saving,
+    tagInput,
+    setTagInput,
+    setIsEditingBasic,
+    setIsEditingTags,
+    handleInputChange,
+    handleContactChange,
+    handleAddTag,
+    handleRemoveTag,
+    handleSubmitBasic,
+    handleSubmitTags,
+    handleCancelBasic,
+    handleCancelTags,
+  } = useProfileForm(profile, isOwnProfile, handleSuccess);
+
+  // Handle form submission errors
+  const handleBasicSubmit = async (e) => {
     try {
-      setSaving(true);
-      await updateMyProfile(formData);
-      setShowSuccessModal(true);
-      setIsEditingBasic(false);
-      await loadProfile();
+      await handleSubmitBasic(e);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar el perfil');
       setShowErrorModal(true);
-    } finally {
-      setSaving(false);
     }
   };
 
-  const handleSubmitTags = async (e) => {
-    e.preventDefault();
-    if (!isOwnProfile) return;
-    
+  const handleTagsSubmit = async (e) => {
     try {
-      setSaving(true);
-      await updateMyProfile({ tags: formData.tags });
-      setShowSuccessModal(true);
-      setIsEditingTags(false);
-      await loadProfile();
+      await handleSubmitTags(e);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar las aptitudes');
       setShowErrorModal(true);
-    } finally {
-      setSaving(false);
     }
   };
 
-  const handleCancelBasic = () => {
-    setIsEditingBasic(false);
-    setFormData({
-      full_name: profile.full_name || '',
-      about_me: profile.about_me || '',
-      contact: {
-        phone: profile.contact?.phone || '',
-        city: profile.contact?.city || '',
-        country: profile.contact?.country || '',
-        website: profile.contact?.website || '',
-        social_media: {
-          instagram: profile.contact?.social_media?.instagram || '',
-          twitter: profile.contact?.social_media?.twitter || '',
-          youtube: profile.contact?.social_media?.youtube || '',
-          soundcloud: profile.contact?.social_media?.soundcloud || '',
-          spotify: profile.contact?.social_media?.spotify || '',
-        },
-      },
-      tags: profile.tags || [],
-    });
-  };
-
-  const handleCancelTags = () => {
-    setIsEditingTags(false);
-    setFormData(prev => ({
-      ...prev,
-      tags: profile.tags || [],
-    }));
-    setTagInput('');
-  };
+  // Show error from useProfileData
+  useEffect(() => {
+    if (error) {
+      setErrorMessage(error);
+      setShowErrorModal(true);
+    }
+  }, [error]);
 
   if (loading) {
     return (
@@ -226,239 +112,48 @@ export default function ProfileView() {
 
   return (
     <div className="profile-page">
-      {/* ========== BLOQUE PRINCIPAL - HERO ========== */}
-      <div className="profile-hero">
-        {/* Columna izquierda - Avatar y contacto */}
-        <div className="profile-hero-left">
-          <Avatar 
-            src={profile.avatar || ''} 
-            alt={profile.username}
-            size="xlarge"
-          />
-          <h2 className="profile-username">{profile.username}</h2>
-          
-          {/* Badge de completitud - solo si es tu perfil */}
-          {isOwnProfile && (
-            <div className="profile-completion">
-              <Badge variant="warning">Completa tu perfil</Badge>
-            </div>
-          )}
-          
-          {/* Info de contacto */}
-          <div className="profile-contact-list">
-            <p className="contact-item">{profile.email}</p>
-            {formData.contact.phone && (
-              <p className="contact-item">{formData.contact.phone}</p>
-            )}
-            {(formData.contact.city || formData.contact.country) && (
-              <p className="contact-item">
-                {formData.contact.city}{formData.contact.city && formData.contact.country && ', '}{formData.contact.country}
-              </p>
-            )}
-          </div>
+      {/* Hero Section */}
+      <ProfileHero
+        profile={profile}
+        formData={formData}
+        isOwnProfile={isOwnProfile}
+        isEditingBasic={isEditingBasic}
+        onEditClick={() => setIsEditingBasic(true)}
+        onInputChange={handleInputChange}
+      />
 
-          {/* Redes sociales */}
-          <div className="profile-social-icons">
-            <span className="social-icon spotify" title="Spotify">🎵</span>
-            <span className="social-icon soundcloud" title="SoundCloud">☁️</span>
-          </div>
-        </div>
-
-        {/* Columna central - Nombre + About Me + Beats */}
-        <div className="profile-hero-center">
-          {/* Header con nombre */}
-          <div className="profile-name-header">
-            <div>
-              <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
-            </div>
-            {isOwnProfile && !isEditingBasic && (
-              <Button variant="secondary" onClick={() => setIsEditingBasic(true)}>
-                Editar perfil
-              </Button>
-            )}
-          </div>
-
-          {/* About Me */}
-          <div className="profile-about-section">
-            <textarea
-              name="about_me"
-              value={formData.about_me}
-              onChange={handleInputChange}
-              disabled={!isEditingBasic || !isOwnProfile}
-              className={`profile-textarea ${(!isEditingBasic || !isOwnProfile) ? 'disabled' : ''}`}
-              placeholder={isOwnProfile ? "Cuéntanos sobre ti, tu experiencia..." : "Sin descripción"}
-              maxLength={MAX_ABOUT_ME_LENGTH}
-              rows={5}
-            />
-            {isEditingBasic && isOwnProfile && (
-              <span className="character-count">{formData.about_me.length}/{MAX_ABOUT_ME_LENGTH}</span>
-            )}
-          </div>
-
-          {/* Beats destacados - Grid de 3 */}
-          <div className="profile-beats-preview">
-            {[1, 2, 3].map((beat) => (
-              <div key={beat} className="beat-preview-card">
-                <span className="beat-icon">🎵</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Columna derecha - Certificaciones */}
-        <div className="profile-hero-right">
-          <h3 className="certs-title">Certificaciones</h3>
-          <div className="certs-list">
-            <div className="cert-item">
-              <span>🏆</span> Curso en Producción
-            </div>
-            <div className="cert-item">
-              <span>🎓</span> Curso en Teoría Musical
-            </div>
-            <div className="cert-item">
-              <span>🎹</span> Curso Electrónica
-            </div>
-          </div>
-          <p className="certs-note">Archivos desde S3</p>
-        </div>
-      </div>
-
-      {/* ========== FORMULARIO EDICIÓN BÁSICA (solo si es tu perfil) ========== */}
+      {/* Edit Form - only if own profile */}
       {isOwnProfile && isEditingBasic && (
-        <div className="profile-section-block profile-edit-form">
-          <h2>Editar información</h2>
-          
-          <Input
-            label="Nombre completo"
-            name="full_name"
-            value={formData.full_name}
-            onChange={handleInputChange}
-            fullWidth
-            placeholder="Ej: Juan Pérez"
-          />
-
-          <div className="form-row">
-            <Input
-              label="Teléfono"
-              name="phone"
-              value={formData.contact.phone}
-              onChange={handleContactChange}
-              fullWidth
-              placeholder="+34 600 000 000"
-            />
-            <Input
-              label="Ciudad"
-              name="city"
-              value={formData.contact.city}
-              onChange={handleContactChange}
-              fullWidth
-              placeholder="Ej: Madrid"
-            />
-          </div>
-
-          <div className="form-row">
-            <Input
-              label="País"
-              name="country"
-              value={formData.contact.country}
-              onChange={handleContactChange}
-              fullWidth
-              placeholder="Ej: España"
-            />
-            <Input
-              label="Sitio web"
-              name="website"
-              value={formData.contact.website}
-              onChange={handleContactChange}
-              fullWidth
-              placeholder="https://..."
-            />
-          </div>
-
-          <div className="form-actions">
-            <Button type="button" variant="secondary" onClick={handleCancelBasic} disabled={saving}>
-              Cancelar
-            </Button>
-            <Button type="button" variant="primary" onClick={handleSubmitBasic} disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar cambios'}
-            </Button>
-          </div>
-        </div>
+        <ProfileEditForm
+          formData={formData}
+          saving={saving}
+          onInputChange={handleInputChange}
+          onContactChange={handleContactChange}
+          onSubmit={handleBasicSubmit}
+          onCancel={handleCancelBasic}
+        />
       )}
 
-      {/* ========== BLOQUE ESTUDIOS ========== */}
+      {/* Estudios Section */}
       <div className="profile-section-block">
         <h2>Estudios</h2>
         <p className="mocked-text">Aquí podrás añadir tu formación académica, similar a LinkedIn. Próximamente disponible.</p>
       </div>
 
-      {/* ========== BLOQUE APTITUDES ========== */}
-      <div className="profile-section-block">
-        <div className="section-header">
-          <h2>Aptitudes</h2>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {isEditingTags && <span className="tag-count">{formData.tags.length}/{MAX_TAGS}</span>}
-            {isOwnProfile && !isEditingTags && (
-              <button 
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsEditingTags(true);
-                }}
-                className="btn-add-section"
-                aria-label="Editar aptitudes"
-              >
-                +
-              </button>
-            )}
-          </div>
-        </div>
-        
-        {isEditingTags && isOwnProfile && (
-          <div className="tag-input-row">
-            <Input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              placeholder="Ej: Producer, Beatmaker..."
-              disabled={formData.tags.length >= MAX_TAGS}
-            />
-            <Button 
-              type="button"
-              onClick={handleAddTag}
-              disabled={!tagInput.trim() || formData.tags.length >= MAX_TAGS}
-              variant="secondary"
-            >
-              +
-            </Button>
-          </div>
-        )}
-
-        <div className="tags-row">
-          {formData.tags.map((tag, index) => (
-            <Badge key={index} variant="secondary" className="tag-badge">
-              {tag}
-              {isEditingTags && isOwnProfile && (
-                <button type="button" className="tag-remove" onClick={() => handleRemoveTag(index)}>×</button>
-              )}
-            </Badge>
-          ))}
-          {formData.tags.length === 0 && (
-            <p className="empty-text">No hay aptitudes agregadas</p>
-          )}
-        </div>
-
-        {isEditingTags && isOwnProfile && (
-          <div className="form-actions">
-            <Button type="button" variant="secondary" onClick={handleCancelTags} disabled={saving}>
-              Cancelar
-            </Button>
-            <Button type="button" variant="primary" onClick={handleSubmitTags} disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar aptitudes'}
-            </Button>
-          </div>
-        )}
-      </div>
+      {/* Skills Section */}
+      <ProfileSkillsSection
+        formData={formData}
+        isOwnProfile={isOwnProfile}
+        isEditingTags={isEditingTags}
+        saving={saving}
+        tagInput={tagInput}
+        onTagInputChange={(e) => setTagInput(e.target.value)}
+        onEditClick={() => setIsEditingTags(true)}
+        onAddTag={handleAddTag}
+        onRemoveTag={handleRemoveTag}
+        onSubmit={handleTagsSubmit}
+        onCancel={handleCancelTags}
+      />
 
       <SuccessModal
         isOpen={showSuccessModal}
