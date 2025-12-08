@@ -11,6 +11,7 @@ import ErrorModal from '@/components/ui/ErrorModal';
 import './Profile.css';
 
 const MAX_TAGS = 20;
+const MAX_ABOUT_ME_LENGTH = 500;
 
 export default function ProfileView() {
   const { username } = useParams();
@@ -286,11 +287,11 @@ export default function ProfileView() {
               disabled={!isEditingBasic || !isOwnProfile}
               className={`profile-textarea ${(!isEditingBasic || !isOwnProfile) ? 'disabled' : ''}`}
               placeholder={isOwnProfile ? "Cuéntanos sobre ti, tu experiencia..." : "Sin descripción"}
-              maxLength={500}
+              maxLength={MAX_ABOUT_ME_LENGTH}
               rows={5}
             />
             {isEditingBasic && isOwnProfile && (
-              <span className="character-count">{formData.about_me.length}/500</span>
+              <span className="character-count">{formData.about_me.length}/{MAX_ABOUT_ME_LENGTH}</span>
             )}
           </div>
 
