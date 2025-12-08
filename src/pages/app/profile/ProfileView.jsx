@@ -129,6 +129,9 @@ export default function ProfileView() {
       setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
       setShowErrorModal(true);
       throw error;
+    }
+  };
+
   const handleStudiesSubmit = async (updatedStudies) => {
     try {
       await handleSubmitStudies(updatedStudies);
@@ -138,6 +141,7 @@ export default function ProfileView() {
     }
   };
 
+  
   // Show error from useProfileData
   useEffect(() => {
     if (error) {
@@ -242,5 +246,3 @@ export default function ProfileView() {
     </div>
   );
 }
-
-
