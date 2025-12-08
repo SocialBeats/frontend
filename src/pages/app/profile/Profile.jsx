@@ -89,7 +89,7 @@ export default function Profile() {
 
   const handleAddTag = (e) => {
     e.preventDefault();
-    if (tagInput.trim() && formData.tags.length < 20) {
+    if (tagInput.trim() && formData.tags.length < 20 && !formData.tags.includes(tagInput.trim())) {
       setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, tagInput.trim()],
