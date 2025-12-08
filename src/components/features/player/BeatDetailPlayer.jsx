@@ -83,9 +83,7 @@ const BeatDetailPlayer = ({ beat }) => {
                     <div className="bd-player__info">
                         <h1 className="bd-player__title">{beat?.title}</h1>
                         <div className="bd-player__meta-row">
-                            <span className="bd-player__artist">
-                                {beat?.createdBy?.username || "Unknown Producer"}
-                            </span>
+
 
                             <div className="bd-player__badges">
                                 {beat?.key && <span className="bd-meta-badge">{beat.key}</span>}
@@ -119,23 +117,16 @@ const BeatDetailPlayer = ({ beat }) => {
                     <span className="bd-time">{formatTime(duration)}</span>
                 </div>
 
-                {/* CONTROLES: ESTRATEGIA FLEXBOX 3 COLUMNAS */}
+                {/* CONTROLES: GRUPO ÚNICO CENTRADO */}
                 <div className="bd-player__controls-row">
-
-                    {/* 1. ESPACIADOR (Contrapeso invisible) */}
-                    <div className="bd-controls-spacer"></div>
-
-                    {/* 2. CENTRO (Botones) */}
-                    <div className="bd-controls-main">
+                    <div className="bd-controls-group">
                         <button className="bd-btn-skip"><SkipBack size={24} /></button>
                         <button className="bd-btn-play" onClick={togglePlay}>
                             {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
                         </button>
                         <button className="bd-btn-skip"><SkipForward size={24} /></button>
-                    </div>
 
-                    {/* 3. DERECHA (Volumen) */}
-                    <div className="bd-controls-secondary">
+                        {/* Volumen como parte del mismo grupo */}
                         <div className="bd-volume-wrapper">
                             <button onClick={() => setIsMuted(!isMuted)} className="bd-btn-icon">
                                 {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}

@@ -75,14 +75,6 @@
   letter-spacing: -0.03em;
 }
 
-.bd-player__artist {
-  font-size: 1.2rem;
-  color: var(--primary, #8b5cf6);
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
 .bd-player__badges {
   display: flex;
   gap: 0.5rem;
@@ -164,35 +156,22 @@
   transform: scale(1);
 }
 
-/* --- CONTROLES INFERIORES: CENTRADO PERFECTO CON FLEX --- */
+/* --- CONTROLES: GRUPO ÚNICO CENTRADO --- */
 .bd-player__controls-row {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Distribuye espacio entre los 3 bloques */
+  justify-content: center;
   margin-top: 0.5rem;
   width: 100%;
 }
 
-/* 1. Izquierda: Espaciador Flexible */
-.bd-controls-spacer {
-  flex: 1; /* Ocupa el mismo espacio disponible que la derecha */
-  /* Invisible, solo ocupa espacio */
-}
-
-/* 2. Centro: Botones */
-.bd-controls-main {
-  flex: 0 0 auto; /* No crece ni se encoge, tamaño del contenido */
+/* Grupo de controles: botones + volumen juntos */
+.bd-controls-group {
   display: flex;
   align-items: center;
+  gap: 2.5rem; /* Espacio consistente entre todos los elementos */
   justify-content: center;
-  gap: 2rem;
-}
-
-/* 3. Derecha: Volumen Flexible */
-.bd-controls-secondary {
-  flex: 1; /* Ocupa el mismo espacio disponible que la izquierda */
-  display: flex;
-  justify-content: flex-end; /* Alinea el contenido a la derecha */
+  flex-wrap: nowrap; /* Mantiene todo en una línea */
 }
 
 /* Estilos de Botones */
@@ -211,8 +190,14 @@
   box-shadow: 0 0 20px rgba(255,255,255,0.3);
 }
 
-.bd-btn-play:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(255,255,255,0.5); }
-.bd-btn-play:active { transform: scale(0.95); }
+.bd-btn-play:hover { 
+  transform: scale(1.1); 
+  box-shadow: 0 0 30px rgba(255,255,255,0.5); 
+}
+
+.bd-btn-play:active { 
+  transform: scale(0.95); 
+}
 
 .bd-btn-skip, .bd-btn-icon {
   background: none;
@@ -222,9 +207,15 @@
   transition: color 0.2s;
   padding: 8px;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.bd-btn-skip:hover, .bd-btn-icon:hover { color: var(--text-main); }
 
+.bd-btn-skip:hover, .bd-btn-icon:hover { 
+  color: var(--text-main); 
+}
+
+/* Volumen como parte del grupo */
 .bd-volume-wrapper {
   display: flex;
   align-items: center;
@@ -234,19 +225,40 @@
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .bd-player { flex-direction: column; padding: 1.5rem; gap: 1.5rem; align-items: center; text-align: center; }
-  .bd-player__cover-wrapper { width: 200px; height: 200px; }
-  .bd-player__header { flex-direction: column; align-items: center; width: 100%; gap: 1rem; }
-  .bd-player__meta-row { align-items: center; }
-  
-  .bd-player__controls-row { 
-    display: flex; 
+  .bd-player { 
     flex-direction: column; 
-    width: 100%; 
+    padding: 1.5rem; 
     gap: 1.5rem; 
+    align-items: center; 
+    text-align: center; 
   }
-  .bd-volume-wrapper { display: none; }
   
-  /* En móvil el espaciador estorba, lo quitamos */
-  .bd-controls-spacer { display: none; }
+  .bd-player__cover-wrapper { 
+    width: 200px; 
+    height: 200px; 
+  }
+  
+  .bd-player__header { 
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%; 
+    gap: 1rem; 
+  }
+  
+  /* En móvil, los controles se apilan verticalmente */
+  .bd-controls-group {
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    align-items: center;
+  }
+  
+  .bd-volume-wrapper {
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+  }
+  
+  /* Ocultamos el volumen en móvil si prefieres */
+  /* .bd-volume-wrapper { display: none; } */
 }
