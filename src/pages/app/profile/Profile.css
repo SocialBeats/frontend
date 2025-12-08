@@ -267,49 +267,11 @@
   padding: 1.25rem 1rem;
   background: #0f172a;
   border-left: 1px solid #334155;
+  max-height: 400px;
+  overflow: hidden;
 }
 
-.certs-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #f1f5f9;
-  margin: 0 0 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.certs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.cert-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  color: #e2e8f0;
-  transition: all 0.2s;
-}
-
-.cert-item:hover {
-  border-color: #fbbf24;
-  background: rgba(251, 191, 36, 0.1);
-}
-
-.certs-note {
-  font-size: 0.7rem;
-  color: #64748b;
-  font-style: italic;
-  margin: 0.75rem 0 0;
-  text-align: center;
-}
+/* Los estilos de certificaciones están en ProfileCertifications.css */
 
 /* =============================================
    BLOQUES DE SECCIÓN (Estudios, Aptitudes)

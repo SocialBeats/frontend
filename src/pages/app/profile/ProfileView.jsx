@@ -100,6 +100,35 @@ export default function ProfileView() {
     }
   };
 
+  // Handlers para certificaciones
+  const handleAddCertification = async (certification) => {
+    try {
+      const currentCerts = profile.certifications || [];
+      const newCerts = [...currentCerts, certification];
+      await updateMyProfile({ certifications: newCerts });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al añadir certificación');
+      setShowErrorModal(true);
+      throw error;
+    }
+  };
+
+  const handleRemoveCertification = async (index) => {
+    try {
+      const currentCerts = profile.certifications || [];
+      const newCerts = currentCerts.filter((_, i) => i !== index);
+      await updateMyProfile({ certifications: newCerts });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
+      setShowErrorModal(true);
+      throw error;
+    }
+  };
+
   // Show error from useProfileData
   useEffect(() => {
     if (error) {
@@ -146,6 +175,12 @@ export default function ProfileView() {
         onSubmitAbout={handleAboutSubmit}
         onCancelAbout={handleCancelAbout}
         onAvatarUpdate={handleAvatarUpdate}
+        onAddCertification={handleAddCertification}
+        onRemoveCertification={handleRemoveCertification}
+        onCertificationError={(message) => {
+          setErrorMessage(message);
+          setShowErrorModal(true);
+        }}
       />
 
       {/* Edit Form - only if own profile */}

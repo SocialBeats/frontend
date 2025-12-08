@@ -3,6 +3,7 @@ import Avatar from '@/components/ui/Avatar';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
+import ProfileCertifications from './ProfileCertifications';
 
 /**
  * ProfileHero component - displays the main profile header section
@@ -20,6 +21,9 @@ export default function ProfileHero({
   onSubmitAbout,
   onCancelAbout,
   onAvatarUpdate,
+  onAddCertification,
+  onRemoveCertification,
+  onCertificationError,
 }) {
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -194,19 +198,14 @@ export default function ProfileHero({
 
       {/* Columna derecha - Certificaciones */}
       <div className="profile-hero-right">
-        <h3 className="certs-title">Certificaciones</h3>
-        <div className="certs-list">
-          <div className="cert-item">
-            <span>🏆</span> Curso en Producción
-          </div>
-          <div className="cert-item">
-            <span>🎓</span> Curso en Teoría Musical
-          </div>
-          <div className="cert-item">
-            <span>🎹</span> Curso Electrónica
-          </div>
-        </div>
-        <p className="certs-note">Archivos desde S3</p>
+        <ProfileCertifications
+          certifications={profile.certifications || []}
+          isOwnProfile={isOwnProfile}
+          onAddCertification={onAddCertification}
+          onRemoveCertification={onRemoveCertification}
+          onError={onCertificationError}
+          saving={saving}
+        />
       </div>
     </div>
   );
