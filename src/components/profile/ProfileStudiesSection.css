@@ -145,8 +145,6 @@
     word-break: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
-    display: inline;
-    /* Allows the button to flow with it or be separate, but typically separate block is safer for layout */
     display: block;
 }
 
