@@ -101,6 +101,24 @@ export default function StudiesModal({
         if (!formData.degree.trim()) {
             newErrors.degree = 'El título es obligatorio';
         }
+        // Validate that end date is not before start date
+        if (
+            formData.start_date.year && formData.end_date.year
+        ) {
+            const startYear = parseInt(formData.start_date.year, 10);
+            const endYear = parseInt(formData.end_date.year, 10);
+            if (endYear < startYear) {
+                newErrors.end_date = 'La fecha de finalización debe ser posterior a la fecha de inicio';
+            } else if (endYear === startYear) {
+                if (formData.start_date.month && formData.end_date.month) {
+                    const startMonthIdx = MONTHS.indexOf(formData.start_date.month);
+                    const endMonthIdx = MONTHS.indexOf(formData.end_date.month);
+                    if (endMonthIdx < startMonthIdx) {
+                        newErrors.end_date = 'La fecha de finalización debe ser posterior a la fecha de inicio';
+                    }
+                }
+            }
+        }
         return newErrors;
     };
 
