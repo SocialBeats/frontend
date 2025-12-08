@@ -15,7 +15,7 @@ export default function Profile() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Use custom hooks for data and form management
-  const { profile, loading, error, loadProfile } = useProfileData();
+  const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData();
   
   const handleSuccess = async () => {
     setShowSuccessModal(true);
@@ -39,7 +39,7 @@ export default function Profile() {
     handleSubmitTags,
     handleCancelBasic,
     handleCancelTags,
-  } = useProfileForm(profile, true, handleSuccess);
+  } = useProfileForm(profile, isOwnProfile, handleSuccess);
 
   // Handle form submission errors
   const handleBasicSubmit = async (e) => {
@@ -96,7 +96,7 @@ export default function Profile() {
       <ProfileHero
         profile={profile}
         formData={formData}
-        isOwnProfile={true}
+        isOwnProfile={isOwnProfile}
         isEditingBasic={isEditingBasic}
         onEditClick={() => setIsEditingBasic(true)}
         onInputChange={handleInputChange}
@@ -123,7 +123,7 @@ export default function Profile() {
       {/* Skills Section */}
       <ProfileSkillsSection
         formData={formData}
-        isOwnProfile={true}
+        isOwnProfile={isOwnProfile}
         isEditingTags={isEditingTags}
         saving={saving}
         tagInput={tagInput}
