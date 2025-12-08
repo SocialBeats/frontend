@@ -10,8 +10,13 @@ export default function ProfileHero({
   formData,
   isOwnProfile,
   isEditingBasic,
+  isEditingAbout,
+  saving,
   onEditClick,
+  onEditAboutClick,
   onInputChange,
+  onSubmitAbout,
+  onCancelAbout,
 }) {
   return (
     <div className="profile-hero">
@@ -66,19 +71,60 @@ export default function ProfileHero({
         </div>
 
         {/* About Me */}
-        <div className="profile-about-section">
+        <div 
+          className={`profile-about-section ${isOwnProfile && !isEditingAbout ? 'clickable' : ''}`}
+          onClick={() => {
+            if (isOwnProfile && !isEditingAbout) {
+              onEditAboutClick();
+            }
+          }}
+          title={isOwnProfile && !isEditingAbout ? "Click para editar" : ""}
+        >
           <textarea
             name="about_me"
             value={formData.about_me}
             onChange={onInputChange}
-            disabled={!isEditingBasic || !isOwnProfile}
-            className={`profile-textarea ${(!isEditingBasic || !isOwnProfile) ? 'disabled' : ''}`}
+            disabled={!isEditingAbout || !isOwnProfile}
+            className={`profile-textarea ${(!isEditingAbout || !isOwnProfile) ? 'disabled' : ''}`}
             placeholder={isOwnProfile ? "Cuéntanos sobre ti, tu experiencia..." : "Sin descripción"}
             maxLength={500}
             rows={5}
+            onClick={(e) => {
+              if (isEditingAbout) {
+                e.stopPropagation();
+              }
+            }}
           />
-          {isEditingBasic && isOwnProfile && (
-            <span className="character-count">{formData.about_me.length}/500</span>
+          {isEditingAbout && isOwnProfile && (
+            <div className="about-edit-controls">
+              <span className="character-count">{formData.about_me.length}/500</span>
+              <div className="about-buttons">
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCancelAbout();
+                  }}
+                  disabled={saving}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="primary" 
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSubmitAbout(e);
+                  }}
+                  disabled={saving}
+                >
+                  {saving ? 'Guardando...' : 'Guardar'}
+                </Button>
+              </div>
+            </div>
           )}
         </div>
 

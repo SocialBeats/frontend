@@ -10,6 +10,7 @@ import { updateMyProfile } from '@/services/profileService';
  */
 export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) => {
   const [isEditingBasic, setIsEditingBasic] = useState(false);
+  const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
@@ -104,6 +105,22 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
     }
   };
 
+  const handleSubmitAbout = async (e) => {
+    e.preventDefault();
+    if (!isOwnProfile) return;
+    
+    try {
+      setSaving(true);
+      await updateMyProfile({ about_me: formData.about_me });
+      setIsEditingAbout(false);
+      if (onSuccess) {
+        await onSuccess();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubmitTags = async (e) => {
     e.preventDefault();
     if (!isOwnProfile) return;
@@ -144,6 +161,16 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
     }
   };
 
+  const handleCancelAbout = () => {
+    setIsEditingAbout(false);
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        about_me: profile.about_me || '',
+      }));
+    }
+  };
+
   const handleCancelTags = () => {
     setIsEditingTags(false);
     if (profile) {
@@ -158,19 +185,23 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
   return {
     formData,
     isEditingBasic,
+    isEditingAbout,
     isEditingTags,
     saving,
     tagInput,
     setTagInput,
     setIsEditingBasic,
+    setIsEditingAbout,
     setIsEditingTags,
     handleInputChange,
     handleContactChange,
     handleAddTag,
     handleRemoveTag,
     handleSubmitBasic,
+    handleSubmitAbout,
     handleSubmitTags,
     handleCancelBasic,
+    handleCancelAbout,
     handleCancelTags,
   };
 };

@@ -24,15 +24,6 @@ export default function ProfileView() {
   // Use custom hooks for data and form management
   const handleRedirect = () => {
     navigate('/app/profile', { replace: true });
-  const handleAddTag = (e) => {
-    e.preventDefault();
-    if (tagInput.trim() && formData.tags.length < MAX_TAGS) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()],
-      }));
-      setTagInput('');
-    }
   };
 
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
@@ -45,19 +36,23 @@ export default function ProfileView() {
   const {
     formData,
     isEditingBasic,
+    isEditingAbout,
     isEditingTags,
     saving,
     tagInput,
     setTagInput,
     setIsEditingBasic,
+    setIsEditingAbout,
     setIsEditingTags,
     handleInputChange,
     handleContactChange,
     handleAddTag,
     handleRemoveTag,
     handleSubmitBasic,
+    handleSubmitAbout,
     handleSubmitTags,
     handleCancelBasic,
+    handleCancelAbout,
     handleCancelTags,
   } = useProfileForm(profile, isOwnProfile, handleSuccess);
 
@@ -67,6 +62,15 @@ export default function ProfileView() {
       await handleSubmitBasic(e);
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Error al actualizar el perfil');
+      setShowErrorModal(true);
+    }
+  };
+
+  const handleAboutSubmit = async (e) => {
+    try {
+      await handleSubmitAbout(e);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar descripción');
       setShowErrorModal(true);
     }
   };
@@ -118,8 +122,13 @@ export default function ProfileView() {
         formData={formData}
         isOwnProfile={isOwnProfile}
         isEditingBasic={isEditingBasic}
+        isEditingAbout={isEditingAbout}
+        saving={saving}
         onEditClick={() => setIsEditingBasic(true)}
+        onEditAboutClick={() => setIsEditingAbout(true)}
         onInputChange={handleInputChange}
+        onSubmitAbout={handleAboutSubmit}
+        onCancelAbout={handleCancelAbout}
       />
 
       {/* Edit Form - only if own profile */}
@@ -171,3 +180,5 @@ export default function ProfileView() {
     </div>
   );
 }
+
+
