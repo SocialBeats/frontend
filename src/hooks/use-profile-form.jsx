@@ -14,7 +14,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tagInput, setTagInput] = useState('');
-  
+
   const [formData, setFormData] = useState({
     full_name: '',
     about_me: '',
@@ -32,6 +32,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
       },
     },
     tags: [],
+    studies: [],
   });
 
   // Initialize form data when profile changes
@@ -54,6 +55,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
           },
         },
         tags: profile.tags || [],
+        studies: profile.studies || [],
       });
     }
   }, [profile]);
@@ -92,7 +94,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
   const handleSubmitBasic = async (e) => {
     e.preventDefault();
     if (!isOwnProfile) return;
-    
+
     try {
       setSaving(true);
       await updateMyProfile(formData);
@@ -108,7 +110,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
   const handleSubmitAbout = async (e) => {
     e.preventDefault();
     if (!isOwnProfile) return;
-    
+
     try {
       setSaving(true);
       await updateMyProfile({ about_me: formData.about_me });
@@ -124,11 +126,27 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
   const handleSubmitTags = async (e) => {
     e.preventDefault();
     if (!isOwnProfile) return;
-    
+
     try {
       setSaving(true);
       await updateMyProfile({ tags: formData.tags });
       setIsEditingTags(false);
+      if (onSuccess) {
+        await onSuccess();
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSubmitStudies = async (updatedStudies) => {
+    if (!isOwnProfile) return;
+
+    try {
+      setSaving(true);
+      await updateMyProfile({ studies: updatedStudies });
+      setFormData(prev => ({ ...prev, studies: updatedStudies }));
+
       if (onSuccess) {
         await onSuccess();
       }
@@ -200,6 +218,7 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
     handleSubmitBasic,
     handleSubmitAbout,
     handleSubmitTags,
+    handleSubmitStudies,
     handleCancelBasic,
     handleCancelAbout,
     handleCancelTags,
