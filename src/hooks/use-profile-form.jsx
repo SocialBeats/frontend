@@ -99,8 +99,6 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
       if (onSuccess) {
         await onSuccess();
       }
-    } catch (error) {
-      throw error;
     } finally {
       setSaving(false);
     }
@@ -117,8 +115,6 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
       if (onSuccess) {
         await onSuccess();
       }
-    } catch (error) {
-      throw error;
     } finally {
       setSaving(false);
     }
