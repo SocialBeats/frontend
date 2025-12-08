@@ -2,6 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
 import Landing from './pages/Landing';
+// import Dashboard from './pages/app/Dashboard';
+import BeatsListPage from './pages/app/beats/BeatsListPage';
+import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
+import BeatDetailPage from './pages/app/beats/BeatDetailPage';
+import BeatFormPage from './pages/app/beats/BeatFormPage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -31,6 +36,13 @@ function App() {
 
         {/* Private Routes - Only for authenticated users */}
         <Route path="/app" element={<PrivateLayout />}>
+          {/* <Route path="beats" element={<BeatsListPage />} /> */}
+          <Route path="my-beats" element={<MyBeatsListPage />} />
+          <Route path="beats/new" element={<BeatFormPage />} />
+          <Route path="beats/:id" element={<BeatDetailPage />} />
+          <Route path="beats/:id/edit" element={<BeatFormPage />} />
+          {/* <Route path="explore" element={<BeatsListPage />} /> TODO: Create Explore page */}
+
           {/* Redirección inicial al Feed */}
           <Route index element={<Navigate to="/app/feed" replace />} />
 

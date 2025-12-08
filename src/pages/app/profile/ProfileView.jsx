@@ -10,6 +10,9 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
 import './Profile.css';
 
+const MAX_TAGS = 20;
+const MAX_ABOUT_ME_LENGTH = 500;
+
 export default function ProfileView() {
   const { username } = useParams();
   const navigate = useNavigate();
@@ -21,6 +24,15 @@ export default function ProfileView() {
   // Use custom hooks for data and form management
   const handleRedirect = () => {
     navigate('/app/profile', { replace: true });
+  const handleAddTag = (e) => {
+    e.preventDefault();
+    if (tagInput.trim() && formData.tags.length < MAX_TAGS) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()],
+      }));
+      setTagInput('');
+    }
   };
 
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
