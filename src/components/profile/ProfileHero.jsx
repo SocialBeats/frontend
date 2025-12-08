@@ -1,6 +1,8 @@
+import { useRef, useState } from 'react';
 import Avatar from '@/components/ui/Avatar';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
+import { uploadAvatarToS3 } from '@/services/uploadService';
 
 /**
  * ProfileHero component - displays the main profile header section
@@ -17,16 +19,68 @@ export default function ProfileHero({
   onInputChange,
   onSubmitAbout,
   onCancelAbout,
+  onAvatarUpdate,
 }) {
+  const fileInputRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarClick = () => {
+    if (isOwnProfile && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingAvatar(true);
+      const avatarUrl = await uploadAvatarToS3(file);
+      
+      // Notificar al padre para que actualice el perfil
+      if (onAvatarUpdate) {
+        await onAvatarUpdate(avatarUrl);
+      }
+    } catch (error) {
+      console.error('Error subiendo avatar:', error);
+      alert(error.message || 'Error al subir el avatar');
+    } finally {
+      setUploadingAvatar(false);
+      // Limpiar el input para permitir subir el mismo archivo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="profile-hero">
       {/* Columna izquierda - Avatar y contacto */}
       <div className="profile-hero-left">
-        <Avatar 
-          src={profile.avatar || ''} 
-          alt={profile.username}
-          size="xlarge"
-        />
+        <div className={`avatar-wrapper ${isOwnProfile ? 'editable' : ''}`} onClick={handleAvatarClick}>
+          <Avatar 
+            src={profile.avatar || ''} 
+            alt={profile.username}
+            size="xlarge"
+          />
+          {isOwnProfile && (
+            <div className={`avatar-overlay ${uploadingAvatar ? 'uploading' : ''}`}>
+              {uploadingAvatar ? (
+                <span className="avatar-spinner">⏳</span>
+              ) : (
+                <span className="avatar-edit-icon">📷</span>
+              )}
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </div>
         <h2 className="profile-username">{profile.username}</h2>
         
         {/* Badge de completitud - solo si es tu perfil */}

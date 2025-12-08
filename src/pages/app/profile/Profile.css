@@ -38,6 +38,54 @@
   gap: 0.5rem;
 }
 
+/* Avatar editable wrapper */
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-wrapper.editable {
+  cursor: pointer;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatar-wrapper.editable:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-overlay.uploading {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.avatar-edit-icon {
+  font-size: 2rem;
+}
+
+.avatar-spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .profile-username {
   font-size: 1.1rem;
   font-weight: 700;

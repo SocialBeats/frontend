@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
+import { useProfileContext } from '@/contexts/ProfileContext';
+import { updateMyProfile } from '@/services/profileService';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -27,6 +29,7 @@ export default function ProfileView() {
   };
 
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
+  const { notifyProfileUpdate } = useProfileContext();
   
   const handleSuccess = async () => {
     setShowSuccessModal(true);
@@ -84,6 +87,19 @@ export default function ProfileView() {
     }
   };
 
+  const handleAvatarUpdate = async (avatarUrl) => {
+    try {
+      await updateMyProfile({ avatar: avatarUrl });
+      await loadProfile(); // Recargar el perfil para mostrar el nuevo avatar
+      notifyProfileUpdate(); // Notificar a NavBar y otros componentes
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar el avatar');
+      setShowErrorModal(true);
+      throw error; // Re-throw para que ProfileHero maneje el estado
+    }
+  };
+
   // Show error from useProfileData
   useEffect(() => {
     if (error) {
@@ -129,6 +145,7 @@ export default function ProfileView() {
         onInputChange={handleInputChange}
         onSubmitAbout={handleAboutSubmit}
         onCancelAbout={handleCancelAbout}
+        onAvatarUpdate={handleAvatarUpdate}
       />
 
       {/* Edit Form - only if own profile */}
