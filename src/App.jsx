@@ -10,7 +10,6 @@ import BeatFormPage from './pages/app/beats/BeatFormPage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import Profile from './pages/app/profile/Profile';
 import ProfileView from './pages/app/profile/ProfileView';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
