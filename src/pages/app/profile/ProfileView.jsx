@@ -10,6 +10,8 @@ import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
 import './Profile.css';
 
+const MAX_TAGS = 20;
+
 export default function ProfileView() {
   const { username } = useParams();
   const navigate = useNavigate();
@@ -116,7 +118,7 @@ export default function ProfileView() {
 
   const handleAddTag = (e) => {
     e.preventDefault();
-    if (tagInput.trim() && formData.tags.length < 20) {
+    if (tagInput.trim() && formData.tags.length < MAX_TAGS) {
       setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, tagInput.trim()],
@@ -394,7 +396,7 @@ export default function ProfileView() {
         <div className="section-header">
           <h2>Aptitudes</h2>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {isEditingTags && <span className="tag-count">{formData.tags.length}/20</span>}
+            {isEditingTags && <span className="tag-count">{formData.tags.length}/{MAX_TAGS}</span>}
             {isOwnProfile && !isEditingTags && (
               <button 
                 type="button"
@@ -418,12 +420,12 @@ export default function ProfileView() {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               placeholder="Ej: Producer, Beatmaker..."
-              disabled={formData.tags.length >= 20}
+              disabled={formData.tags.length >= MAX_TAGS}
             />
             <Button 
               type="button"
               onClick={handleAddTag}
-              disabled={!tagInput.trim() || formData.tags.length >= 20}
+              disabled={!tagInput.trim() || formData.tags.length >= MAX_TAGS}
               variant="secondary"
             >
               +
