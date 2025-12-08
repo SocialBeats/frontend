@@ -368,7 +368,6 @@ export default function Profile() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Click en botón +, isEditingTags actual:', isEditingTags);
                     setIsEditingTags(true);
                   }}
                   className="btn-add-section"
