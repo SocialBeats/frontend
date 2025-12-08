@@ -9,11 +9,22 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: relative; /* Contexto de apilamiento */
 }
 
 .form-section {
-  padding: 1.5rem 1.5rem 3rem 1.5rem; /* Extra bottom padding for dropdowns */
+  padding: 1.5rem 1.5rem 3rem 1.5rem;
+  /* Aseguramos que el select no se corte */
+  overflow: visible !important;
+  position: relative;
 }
+
+/* --- Z-INDEX HIERARCHY (SOLUCIÓN AL SOLAPAMIENTO) --- */
+/* Las tarjetas superiores deben tener mayor z-index que las inferiores
+   para que sus menús desplegables tapen el contenido de abajo. */
+.form-section:nth-child(1) { z-index: 30; }
+.form-section:nth-child(2) { z-index: 20; }
+.form-section:nth-child(3) { z-index: 10; }
 
 /* Headers */
 .section-header-with-icon {
@@ -23,7 +34,7 @@
   justify-content: center;
   text-align: center;
   gap: 0.75rem;
-  margin-bottom: 2rem; /* Más aire abajo */
+  margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--primary-glow);
 }
@@ -31,12 +42,12 @@
 .section-icon { 
   color: var(--primary); 
   flex-shrink: 0;
-  width: 32px; /* Ligeramente más grande visualmente si fuera SVG */
+  width: 32px;
   height: 32px; 
 }
 
 .section-header-text h2 {
-  font-size: 1.75rem; /* Un poco más grande para destacar */
+  font-size: 1.75rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   color: var(--text-main);
@@ -46,21 +57,24 @@
   font-size: 0.95rem;
   color: var(--text-muted);
   margin: 0;
-  max-width: 600px; /* Evita líneas muy largas al centrar */
+  max-width: 600px;
 }
 
 /* Layout de campos */
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Aumentado ligeramente */
+  gap: 1.5rem;
 }
 
 .field-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem; /* Match form-fields gap */
+  gap: 1.5rem;
   width: 100%;
+  /* Importante para dropdowns dentro de filas */
+  position: relative; 
+  z-index: 5;
 }
 
 /* --- AUDIO DROPZONE --- */
@@ -182,7 +196,6 @@
   align-items: stretch;
 }
 
-/* Hacemos que el input wrapper ocupe todo el espacio disponible */
 .tag-input-group .input-wrapper { flex: 1; }
 
 .tags-display {
@@ -237,19 +250,16 @@
 }
 
 /* --- NUMBER INPUT SPINNER REMOVAL --- */
-/* Chrome, Safari, Edge, Opera */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-
 
 /* --- ACTIONS --- */
 .form-actions {
@@ -259,6 +269,9 @@ input[type="number"] {
   padding-top: 1.5rem;
   margin-top: 1.5rem;
   border-top: 1px solid var(--glass-border);
+  position: relative;
+  /* Menor z-index que las tarjetas superiores para que los dropdowns pasen por encima */
+  z-index: 5; 
 }
 
 .error-card {
