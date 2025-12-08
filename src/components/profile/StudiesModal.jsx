@@ -205,7 +205,7 @@ export default function StudiesModal({
                         <span className="count-label">{formData.skills.length}/3</span>
                     </div>
 
-                    <div className="tag-Input-row">
+                    <div className="tag-input-row">
                         <div className="input-wrapper">
                             <Input
                                 value={skillInput}
