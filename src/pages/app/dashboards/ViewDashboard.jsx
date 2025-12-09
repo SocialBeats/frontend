@@ -309,6 +309,7 @@ const ViewDashboard = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onAddWidget={handleAddWidget}
+          dashboardId={id}
         />
       </div>
     </div>

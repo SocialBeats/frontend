@@ -1,17 +1,3 @@
-export interface Widget {
-  id: string;
-  type: string;
-  section: string;
-  title: string;
-}
-
-export interface WidgetDefinition {
-  type: string;
-  title: string;
-  section: string;
-  description?: string;
-}
-
 export const WIDGET_SECTIONS = {
   CORE: 'Métricas Core',
   TEMPO: 'Tempo',
@@ -22,7 +8,7 @@ export const WIDGET_SECTIONS = {
   ARTICULACION: 'Articulación'
 };
 
-export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
+export const AVAILABLE_WIDGETS = [
   // Métricas Core
   {
     type: 'spider',
@@ -30,7 +16,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.CORE,
     description: 'Visualización de las 6 métricas principales'
   },
-  
+
   // Tempo
   {
     type: 'bpm',
@@ -50,7 +36,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.TEMPO,
     description: 'Duración media de los beats'
   },
-  
+
   // Tonalidad
   {
     type: 'clave',
@@ -70,7 +56,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.TONALIDAD,
     description: 'Estabilidad de la tonalidad'
   },
-  
+
   // Perfil Melódico
   {
     type: 'rango_hz',
@@ -84,7 +70,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.PERFIL_MELODICO,
     description: 'Frecuencia media en Hertz'
   },
-  
+
   // Dinámica
   {
     type: 'db',
@@ -92,7 +78,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.DINAMICA,
     description: 'Nivel de volumen en decibelios'
   },
-  
+
   // Textura
   {
     type: 'caracter',
@@ -106,7 +92,7 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     section: WIDGET_SECTIONS.TEXTURA,
     description: 'Nivel de apertura sonora'
   },
-  
+
   // Articulación
   {
     type: 'staccato',
