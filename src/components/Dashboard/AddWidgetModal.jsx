@@ -37,8 +37,13 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
         metricType: widgetDef.type.toUpperCase()
       };
 
+      console.log('📊 Creando widget con datos:', widgetData);
+      console.log('📊 Dashboard ID:', dashboardId);
+
       const response = await createWidget(widgetData);
       const createdWidget = response.data || response;
+
+      console.log('✅ Widget creado en BD:', createdWidget);
 
       // Crear widget local para la UI
       const newWidget = {
@@ -48,10 +53,13 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
         title: widgetDef.title
       };
 
+      console.log('✅ Widget para UI:', newWidget);
+
       onAddWidget(newWidget);
       onClose();
     } catch (error) {
-      console.error('Error al crear widget:', error);
+      console.error('❌ Error al crear widget:', error);
+      console.error('❌ Error response:', error.response?.data);
       alert('Error al crear el widget. Por favor, intenta de nuevo.');
     }
   };

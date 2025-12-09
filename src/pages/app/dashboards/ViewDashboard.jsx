@@ -6,6 +6,8 @@ import AddWidgetModal from '../../../components/Dashboard/AddWidgetModal';
 import SpiderWidget from '../../../components/Dashboard/SpiderWidgets';
 import GenericWidget from '../../../components/Dashboard/GenericWidget';
 import { getDashboardById, updateDashboard } from '../../../services/analytics/dashboards';
+import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
+import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
 
 const ViewDashboard = () => {
@@ -46,6 +48,49 @@ const ViewDashboard = () => {
     };
 
     fetchDashboard();
+  }, [id]);
+
+  // Cargar widgets del dashboard
+  useEffect(() => {
+    const fetchWidgets = async () => {
+      if (!id) return;
+
+      try {
+        console.log('🔍 Cargando widgets para dashboard:', id);
+        const response = await getWidgetsByDashboard(id);
+        const widgetsData = response.data || response;
+
+        console.log('📦 Widgets recibidos de la API:', widgetsData);
+
+        // Mapear los widgets de la API al formato esperado por la UI
+        const mappedWidgets = widgetsData.map(widget => {
+          const metricType = (widget.metricType || widget.metric_type || '').toLowerCase();
+          const widgetDef = AVAILABLE_WIDGETS.find(w => w.type === metricType);
+
+          console.log('🔄 Mapeando widget:', {
+            original: widget,
+            metricType,
+            widgetDef
+          });
+
+          return {
+            id: widget.id || widget._id,
+            type: metricType,
+            section: widgetDef?.section || 'Métricas Core',
+            title: widgetDef?.title || widget.metricType || 'Widget'
+          };
+        });
+
+        console.log('✅ Widgets mapeados para UI:', mappedWidgets);
+        setWidgets(mappedWidgets);
+      } catch (error) {
+        console.error('❌ Error al cargar widgets:', error);
+        console.error('❌ Error response:', error.response?.data);
+        setWidgets([]);
+      }
+    };
+
+    fetchWidgets();
   }, [id]);
 
   useEffect(() => {
@@ -100,18 +145,19 @@ const ViewDashboard = () => {
     navigate('/app/dashboards');
   };
 
-  const handleAddWidget = (widgetDef) => {
-    const newWidget = {
-      id: `${widgetDef.type}-${Date.now()}`,
-      type: widgetDef.type,
-      section: widgetDef.section,
-      title: widgetDef.title
-    };
+  const handleAddWidget = (newWidget) => {
+    // El widget ya viene formateado desde el modal
     setWidgets([...widgets, newWidget]);
   };
 
-  const handleRemoveWidget = (widgetId) => {
-    setWidgets(widgets.filter(w => w.id !== widgetId));
+  const handleRemoveWidget = async (widgetId) => {
+    try {
+      await deleteWidget(widgetId);
+      setWidgets(widgets.filter(w => w.id !== widgetId));
+    } catch (error) {
+      console.error('Error al eliminar widget:', error);
+      alert('Error al eliminar el widget. Por favor, intenta de nuevo.');
+    }
   };
 
   const renderWidget = (widget) => {
