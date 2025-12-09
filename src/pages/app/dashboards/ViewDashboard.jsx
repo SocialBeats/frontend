@@ -5,6 +5,7 @@ import Button from '../../../components/ui/Button';
 import AddWidgetModal from '../../../components/Dashboard/AddWidgetModal';
 import SpiderWidget from '../../../components/Dashboard/SpiderWidgets';
 import GenericWidget from '../../../components/Dashboard/GenericWidget';
+import { getDashboardById, updateDashboard } from '../../../services/analytics/dashboards';
 import './ViewDashboard.css';
 
 const ViewDashboard = () => {
@@ -32,16 +33,13 @@ const ViewDashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const mockDashboard = {
-          id: parseInt(id),
-          name: 'Dashboard de Análisis Musical',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setDashboard(mockDashboard);
-        setEditedName(mockDashboard.name);
+        const response = await getDashboardById(id);
+        const dashboardData = response.data || response;
+        setDashboard(dashboardData);
+        setEditedName(dashboardData.name);
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
+        setDashboard(null);
       } finally {
         setLoading(false);
       }
@@ -79,9 +77,9 @@ const ViewDashboard = () => {
 
     setIsSaving(true);
     try {
+      await updateDashboard(dashboard.id, { name: editedName });
       setDashboard(prev => ({ ...prev, name: editedName }));
       setIsEditingName(false);
-      console.log('Nombre actualizado:', editedName);
     } catch (error) {
       console.error('Error al actualizar nombre:', error);
       alert('Error al actualizar el nombre');
@@ -120,7 +118,7 @@ const ViewDashboard = () => {
     switch (widget.type) {
       case 'spider':
         return <SpiderWidget />;
-      
+
       // Tempo
       case 'bpm':
         return <GenericWidget title={widget.title} value="120 BPM" />;
@@ -128,7 +126,7 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="1,234" />;
       case 'duracion_promedio':
         return <GenericWidget title={widget.title} value="0.5s" />;
-      
+
       // Tonalidad
       case 'clave':
         return <GenericWidget title={widget.title} value="C Major" />;
@@ -136,23 +134,23 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="85%" />;
       case 'estabilidad_tonal':
         return <GenericWidget title={widget.title} value="92%" />;
-      
+
       // Perfil Melódico
       case 'rango_hz':
         return <GenericWidget title={widget.title} value="± 250 Hz" />;
       case 'hz_medios':
         return <GenericWidget title={widget.title} value="440 Hz" />;
-      
+
       // Dinámica
       case 'db':
         return <GenericWidget title={widget.title} value="75 dB" />;
-      
+
       // Textura
       case 'caracter':
         return <GenericWidget title={widget.title} value="Brillante" />;
       case 'apertura':
         return <GenericWidget title={widget.title} value="Alta" />;
-      
+
       // Articulación
       case 'staccato':
         return <GenericWidget title={widget.title} value="65%" />;
@@ -160,7 +158,7 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="127" />;
       case 'ataques_graduales':
         return <GenericWidget title={widget.title} value="89" />;
-      
+
       default:
         return <GenericWidget title={widget.title} />;
     }
@@ -249,8 +247,10 @@ const ViewDashboard = () => {
             )}
           </div>
           <div className="view-dashboard__metadata">
-            <span>Creado: {new Date(dashboard.createdAt).toLocaleDateString()}</span>
-            <span>Actualizado: {new Date(dashboard.updatedAt).toLocaleDateString()}</span>
+            <span>Creado: {new Date(dashboard.created_at || dashboard.createdAt).toLocaleDateString()}</span>
+            {(dashboard.updated_at || dashboard.updatedAt) && (
+              <span>Actualizado: {new Date(dashboard.updated_at || dashboard.updatedAt).toLocaleDateString()}</span>
+            )}
           </div>
         </div>
         <div className="view-dashboard__actions">

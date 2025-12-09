@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
+import SuccessModal from '../../../components/ui/SuccessModal';
+import ErrorModal from '../../../components/ui/ErrorModal';
 import './CreateDashboards.css';
 import { createDashboard } from '../../../services/analytics/dashboards';
 import { getMyBeats } from '../../../services/beatsService';
@@ -13,17 +15,21 @@ const CreateDashboards = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [createdDashboardId, setCreatedDashboardId] = useState(null);
 
   // Función para cargar beats (expuesta para poder reutilizarla)
   const loadUserBeats = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const beatsData = await getMyBeats();
-      
+
       console.log('🎵 Beats recibidos:', beatsData);
-      
+
       if (beatsData && Array.isArray(beatsData)) {
         setBeats(beatsData);
 
@@ -48,34 +54,60 @@ const CreateDashboards = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!dashboardName.trim()) {
-      alert('Por favor ingresa un nombre para el dashboard');
+      setErrorMessage('Por favor ingresa un nombre para el dashboard');
+      setShowErrorModal(true);
       return;
     }
-    
+
     if (!selectedBeatId) {
-      alert('Por favor selecciona un beat');
+      setErrorMessage('Por favor selecciona un beat');
+      setShowErrorModal(true);
       return;
     }
 
     try {
       setIsCreating(true);
       setError(null);
-      
+
       const dashboardData = {
         name: dashboardName.trim(),
         beatId: selectedBeatId
       };
 
       const response = await createDashboard(dashboardData);
-      
+
       console.log('Dashboard creado:', response);
-      alert('Dashboard creado exitosamente');
-      navigate('/app/dashboards');
+      const createdDashboard = response.data || response;
+      const dashboardId = createdDashboard.id || createdDashboard._id;
+
+      // Guardar el ID y mostrar modal de éxito
+      setCreatedDashboardId(dashboardId);
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error('Error al crear dashboard:', err);
+      setErrorMessage(
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        'Error al crear el dashboard. Por favor, intenta de nuevo.'
+      );
+      setShowErrorModal(true);
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    if (createdDashboardId) {
+      navigate(`/app/dashboards/view/${createdDashboardId}`);
+    }
+  };
+
+  const handleErrorModalClose = () => {
+    setShowErrorModal(false);
+    setErrorMessage('');
   };
 
   const handleCancel = () => {
@@ -137,9 +169,9 @@ const CreateDashboards = () => {
             ) : error ? (
               <div className="create-dashboard__error">
                 <p>{error}</p>
-                <Button 
-                  type="button" 
-                  variant="secondary" 
+                <Button
+                  type="button"
+                  variant="secondary"
                   onClick={loadUserBeats}
                   size="small"
                 >
@@ -157,8 +189,8 @@ const CreateDashboards = () => {
                     {selectedBeatId === beat._id && (
                       <div className="beat-card__check">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" fill="currentColor"/>
-                          <path d="M7 12l3 3 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <circle cx="12" cy="12" r="10" fill="currentColor" />
+                          <path d="M7 12l3 3 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                     )}
@@ -192,8 +224,8 @@ const CreateDashboards = () => {
             ) : (
               <div className="create-dashboard__no-beats">
                 <p>No tienes beats disponibles.</p>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={() => navigate('/app/beats/upload')}
                 >
                   Subir tu primer beat
@@ -221,6 +253,22 @@ const CreateDashboards = () => {
           </div>
         </form>
       </div>
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        title="Dashboard Creado"
+        message="Tu dashboard se ha creado exitosamente y está listo para usar."
+        buttonText="Ver Dashboard"
+      />
+
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={handleErrorModalClose}
+        title="Error al Crear Dashboard"
+        message={errorMessage}
+        buttonText="Cerrar"
+      />
     </div>
   );
 };
