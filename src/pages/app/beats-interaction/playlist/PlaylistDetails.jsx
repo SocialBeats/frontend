@@ -6,6 +6,7 @@ import IconButton from "../../../../components/ui/IconButton";
 import Button from "../../../../components/ui/Button";
 import logo from "../../../../assets/logo-dark-no-fondo.png";
 import ListComments from "../comment/ListComments";
+import ListRatings from "../rating/ListRatings";
 import "./PlaylistDetails.css";
 
 // --- Datos mock ---
@@ -163,6 +164,9 @@ const PlaylistDetails = () => {
 
       {/* Comments section */}
       <ListComments isBeat={false} resourceId={playlist._id} />
+
+      {/* Ratings section */}
+      <ListRatings isBeat={false} resourceId={playlist._id} />
 
       {/* Delete modal */}
       <Modal
