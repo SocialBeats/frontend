@@ -322,7 +322,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
             {ratings.map((rating) => {
               const username = rating.user?.username || "Usuario";
               const score = rating.score ?? 0;
-              const comment = rating.comment?.trim();
+              const comment = rating.comment;
 
               return (
                 <div key={rating._id} className="rating-item">
@@ -338,7 +338,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                         </span>
                       </div>
 
-                      {comment && (
+                      {comment !== null && (
                         <div className="rating-comment">{comment}</div>
                       )}
 
