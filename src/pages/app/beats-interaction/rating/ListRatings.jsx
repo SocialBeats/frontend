@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
-// import { getBeatRatings, getPlaylistRatings } from "@/services/beats-interaction/ratingService";
+// import { getBeatRatings, getPlaylistRatings, getMyBeatRating, getMyPlaylistRating } from "@/services/beats-interaction/ratingService";
 import "./ListRatings.css";
 
 // --- Datos mock (playlist) --------------------------------------------------------
@@ -172,6 +172,9 @@ const MOCK_RATINGS = [
 const MOCK_AVERAGE = 4.4;
 const MOCK_COUNT = MOCK_RATINGS.length;
 
+const MOCK_CURRENT_USER_ID = "u2";
+const MOCK_MY_RATING = MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
+
 // --- Helpers ----------------------------------------------------------------------
 function renderStars(score) {
   const rounded = Math.round(score ?? 0);
@@ -215,11 +218,13 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
   const [limit, setLimit] = useState(5);
   const [totalRatings, setTotalRatings] = useState(MOCK_RATINGS.length);
 
+  const [myRating, setMyRating] = useState(null);
+
   const safeLimit = limit <= 0 ? 1 : limit;
   const totalPages = totalRatings > 0 ? Math.ceil(totalRatings / safeLimit) : 1;
 
   useEffect(() => {
-    // 🔹 MOCK: simulamos paginación igual que en ListComments
+    // MOCK: simulamos paginación igual que en ListComments
     const startIndex = (page - 1) * safeLimit;
     const endIndex = startIndex + safeLimit;
     const pageItems = MOCK_RATINGS.slice(startIndex, endIndex);
@@ -229,8 +234,11 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
     setAverage(MOCK_AVERAGE);
     setCount(MOCK_COUNT);
 
+    // MOCK: simulamos que ya tenemos la valoración del usuario actual
+    setMyRating(MOCK_MY_RATING);
+
     /*
-    // 🔹 Versión real con backend
+    // Versión real con backend
     async function fetchRatings() {
       if (!resourceId) return;
 
@@ -260,7 +268,24 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
       }
     }
 
+    async function fetchMyRating() {
+      if (!resourceId) return;
+
+      try {
+        const response = isBeat
+          ? await getMyBeatRating(resourceId)
+          : await getMyPlaylistRating(resourceId);
+
+        // Suponiendo que el backend devuelve la rating en response.data.data
+        const rating = response.data?.data ?? null;
+        setMyRating(rating);
+      } catch (error) {
+        console.error("Error cargando mi valoración", error);
+      }
+    }
+
     fetchRatings();
+    fetchMyRating();
     */
   }, [isBeat, resourceId, page, safeLimit]);
 
@@ -312,6 +337,31 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
             <span className="ratings-summary ratings-summary--empty">
               Todavía no hay valoraciones.
             </span>
+          )}
+        </div>
+
+        <div className="my-rating-section">
+          {myRating ? (
+            <div className="my-rating-card">
+              <div className="my-rating-title">Tu valoración ha sido:</div>
+
+              <div className="my-rating-score-row">
+                <div className="my-rating-stars">
+                  {renderStars(myRating.score)}
+                </div>
+                <span className="my-rating-score-number">
+                  {myRating.score}/5
+                </span>
+              </div>
+
+              {myRating.comment !== null && (
+                <div className="my-rating-comment">{myRating.comment}</div>
+              )}
+            </div>
+          ) : (
+            <div className="my-rating-card my-rating-card--empty">
+              Todavía no has puntuado esta {isBeat ? "beat" : "playlist"}
+            </div>
           )}
         </div>
 
