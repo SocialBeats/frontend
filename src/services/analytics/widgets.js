@@ -9,7 +9,7 @@ export function getWidgetById(id) {
 }
 
 export function getWidgetsByDashboard(dashboardId) {
-  return client.get(`/analytics/widgets/dashboard/${dashboardId}`);
+  return client.get(`/analytics/dashboards/${dashboardId}/widgets`);
 }
 
 export function createWidget(data) {

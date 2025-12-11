@@ -30,31 +30,39 @@ export const getBeats = async (filters = {}) => {
   }
 };
 
-export const getMyBeats = async (filters = {}) => {
+// 👇 CAMBIAR AQUÍ: QUITAR /api/v1
+export const getMyBeats = async (params = {}) => {
   try {
-    console.log('📡 Making API request to /beats with filters:', filters);
+    console.log('📡 Fetching my beats with params:', params);
+    console.log('🔑 Token presente:', localStorage.getItem('accessToken') ? 'SÍ' : 'NO');
     console.log('🔗 Base URL:', client.defaults.baseURL);
 
-    const { data } = await client.get('/beats/my-beats', { params: filters });
-    console.log('📦 Raw API response:', data);
+    const { data } = await client.get('/beats/my-beats');
 
-    // Extract the beats array from the API response structure
+    console.log('📦 My beats response:', data);
+    console.log('📊 data.data value:', data.data);
+    console.log('📊 data.data length:', data.data?.length);
+    console.log('📊 data.data is Array?:', Array.isArray(data.data));
+    console.log('📊 First beat if any:', data.data?.[0]);
+
     if (data.success && data.data) {
-      console.log('✅ Returning beats array:', data.data);
-      return data.data;
+      const beatsArray = data.data;
+      console.log('✅ Returning my beats count:', beatsArray.length);
+      console.log('✅ Returning my beats:', beatsArray);
+      return beatsArray;
     } else {
       console.warn('⚠️ Unexpected API response structure:', data);
-      return data; // fallback to raw data
+      return data;
     }
   } catch (error) {
-    console.error('🚨 Service error details:', {
+    console.error('🚨 Error fetching my beats:', {
       message: error.message,
-      code: error.code,
       status: error.response?.status,
       statusText: error.response?.statusText,
       data: error.response?.data,
+      headers: error.response?.headers,
       url: error.config?.url,
-      baseURL: error.config?.baseURL
+      fullUrl: error.config?.baseURL + error.config?.url
     });
     throw error;
   }
