@@ -1,9 +1,24 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { X, BarChart3, Music, TrendingUp, Sparkles, Activity, Volume2, Layers, Zap } from 'lucide-react';
 import { AVAILABLE_WIDGETS } from './type';
+import { createWidget } from '../../services/analytics/widgets';
 import './AddWidgetModal.css';
 
-const AddWidgetModal = ({ isOpen, onClose, onAddWidget }) => {
+const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
+  // Prevenir scroll cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup al desmontar
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const widgetsBySection = AVAILABLE_WIDGETS.reduce((acc, widget) => {
@@ -14,9 +29,39 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget }) => {
     return acc;
   }, {});
 
-  const handleAddWidget = (widget) => {
-    onAddWidget(widget);
-    onClose();
+  const handleAddWidget = async (widgetDef) => {
+    try {
+      // Crear widget en la API - usando el schema correcto
+      const widgetData = {
+        dashboardId: dashboardId,
+        metricType: widgetDef.type.toUpperCase()
+      };
+
+      console.log('📊 Creando widget con datos:', widgetData);
+      console.log('📊 Dashboard ID:', dashboardId);
+
+      const response = await createWidget(widgetData);
+      const createdWidget = response.data || response;
+
+      console.log('✅ Widget creado en BD:', createdWidget);
+
+      // Crear widget local para la UI
+      const newWidget = {
+        id: createdWidget.id || createdWidget._id || `${widgetDef.type}-${Date.now()}`,
+        type: widgetDef.type,
+        section: widgetDef.section,
+        title: widgetDef.title
+      };
+
+      console.log('✅ Widget para UI:', newWidget);
+
+      onAddWidget(newWidget);
+      onClose();
+    } catch (error) {
+      console.error('❌ Error al crear widget:', error);
+      console.error('❌ Error response:', error.response?.data);
+      alert('Error al crear el widget. Por favor, intenta de nuevo.');
+    }
   };
 
   const getSectionIcon = (section) => {
@@ -87,7 +132,7 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget }) => {
                 <h3 className="section-title">{section}</h3>
                 <span className="section-count">{widgets.length} widgets</span>
               </div>
-              
+
               <div className="widgets-grid">
                 {widgets.map((widget) => (
                   <button
@@ -105,7 +150,7 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget }) => {
                       )}
                       <div className="widget-add-icon">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                          <path d="M10 4v12m-6-6h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M10 4v12m-6-6h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                       </div>
                     </div>
