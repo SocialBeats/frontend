@@ -146,8 +146,8 @@ const BeatDetailPage = () => {
                       className="w-full justify-center btn-buy-large"
                       onClick={() => console.log('Download', beat.title)}
                     >
-                      {beat.pricing?.isFree ? <Download size={20} className="mr-2" /> : <ShoppingCart size={20} className="mr-2" />}
-                      {beat.pricing?.isFree ? 'Download Now' : 'Purchase License'}
+                      <Download size={20} className="mr-2" />
+                        Download
                     </Button>
                   )}
 
