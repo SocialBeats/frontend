@@ -28,8 +28,8 @@ const BeatDetailPage = () => {
       try {
         const beatData = await getBeatById(id);
         if (beatData) setBeat(beatData);
-        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
         else setError('Beat not found.');
+        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
       } catch (err) {
         setError('Error fetching beat.');
         console.error(err);
@@ -70,7 +70,7 @@ const BeatDetailPage = () => {
       <div className="beat-detail-container">
 
         {/* PLAYER HERO */}
-        <BeatDetailPlayer beat={beat} />
+        <BeatDetailPlayer beat={beat} isOwner={isOwner} />
 
         <div className="detail-grid">
 
@@ -84,6 +84,19 @@ const BeatDetailPage = () => {
                 <p className="beat-description">
                   {beat.description || "No description provided for this beat."}
                 </p>
+
+                <div className="beat-card-genre-key">
+                  <span className="beat-card-genre">
+                    <span className="meta-icon">♪</span>
+                    {beat.genre}
+                  </span>
+                  {beat.key && (
+                    <span className="beat-card-key">
+                      <span className="meta-label">Key</span>
+                      {beat.key}
+                    </span>
+                  )}
+                </div>
 
                 <div className="tags-section">
                   <span className="tags-label">

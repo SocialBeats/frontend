@@ -185,3 +185,79 @@ export const uploadFileToS3 = async (uploadUrl, file) => {
     throw error;
   }
 };
+
+/**
+ * Search beats by query string
+ * @param {string} query - Search query (min 2 characters)
+ * @returns {Promise<Array>} Array of matching beats
+ */
+export const searchBeats = async (query) => {
+  try {
+    console.log('🔍 Searching beats with query:', query);
+    
+    if (!query || query.length < 2) {
+      console.warn('⚠️ Search query must be at least 2 characters');
+      return [];
+    }
+
+    const { data } = await client.get('/beats/search', { 
+      params: { q: query } 
+    });
+
+    if (data.success && data.data) {
+      console.log('✅ Search results:', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return Array.isArray(data) ? data : [];
+    }
+  } catch (error) {
+    console.error('🚨 Error searching beats:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get beats statistics
+ * @returns {Promise<Object>} Statistics object with counts
+ */
+export const getBeatsStats = async () => {
+  try {
+    console.log('📊 Fetching beats statistics...');
+    const { data } = await client.get('/beats/stats');
+
+    if (data.success && data.data) {
+      console.log('✅ Beats stats:', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error fetching beats stats:', error);
+    throw error;
+  }
+};
+
+/**
+ * Increment play count for a beat
+ * @param {string} id - Beat ID
+ * @returns {Promise<Object>} Updated beat data
+ */
+export const incrementPlayCount = async (id) => {
+  try {
+    console.log('▶️ Incrementing play count for beat:', id);
+    const { data } = await client.post(`/beats/${id}/play`);
+
+    if (data.success) {
+      console.log('✅ Play count incremented');
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error incrementing play count:', error);
+    throw error;
+  }
+};

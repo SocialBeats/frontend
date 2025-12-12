@@ -8,6 +8,7 @@ import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
 import BeatDetailPage from './pages/app/beats/BeatDetailPage';
 import BeatFormPage from './pages/app/beats/BeatFormPage';
+import ExplorePage from './pages/app/explore/ExplorePage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -51,7 +52,7 @@ function App() {
           <Route path="feed" element={<Feed />} />
 
           {/* Rutas placeholder apuntando a Feed por ahora */}
-          <Route path="explore" element={<Feed />} />
+          <Route path="explore" element={<ExplorePage />} />
           <Route path="upload" element={<Feed />} />
           <Route path="library" element={<Feed />} />
           <Route path="messages" element={<Feed />} />

@@ -54,8 +54,17 @@
   color: var(--text-light);
   line-height: 1.8;
   font-size: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   white-space: pre-wrap;
+}
+
+.beat-card-genre-key {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
 .tags-section {

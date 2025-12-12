@@ -15,7 +15,6 @@ const allColumns = [
   { key: "bpm", label: "BPM" },
   { key: "key", label: "Key" },
   { key: "duration", label: "Duration" },
-  { key: "price", label: "Price" },
   { key: "plays", label: "Plays" },
   { key: "downloads", label: "Downloads" },
   { key: "likes", label: "Likes" },
@@ -36,7 +35,6 @@ const BeatsListPage = () => {
     bpm: false,
     key: false,
     duration: true,
-    price: false,
     plays: false,
     downloads: false,
     likes: false,
@@ -83,9 +81,6 @@ const BeatsListPage = () => {
         const formattedBeats = data.map((beat) => ({
           ...beat,
           formattedDuration: formatDuration(beat.duration || 0),
-          formattedPrice: beat.pricing?.isFree
-            ? "Free"
-            : `$${beat.pricing?.price || 0}`,
           formattedPlays: (beat.stats?.plays || 0).toLocaleString(),
           formattedDownloads: (beat.stats?.downloads || 0).toLocaleString(),
           formattedLikes: (beat.stats?.likes || 0).toLocaleString(),
@@ -262,22 +257,12 @@ const BeatsListPage = () => {
                     {visibleColumns.genre && (
                       <div className="col-genre">{beat.genre}</div>
                     )}
-                    {visibleColumns.bpm && (
-                      <div className="col-bpm">{beat.bpm || "N/A"}</div>
-                    )}
                     {visibleColumns.key && (
                       <div className="col-key">{beat.key}</div>
                     )}
                     {visibleColumns.duration && (
                       <div className="col-duration">
                         {beat.formattedDuration}
-                      </div>
-                    )}
-                    {visibleColumns.price && (
-                      <div className="col-price">
-                        <span className="beat-price-tag">
-                          {beat.formattedPrice}
-                        </span>
                       </div>
                     )}
                     {visibleColumns.plays && (

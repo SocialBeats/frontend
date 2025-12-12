@@ -258,6 +258,10 @@
     max-width: 200px;
     justify-content: center;
   }
+
+  .beat-artist {
+    font-size: 0.9rem;
+  }
   
   /* Ocultamos el volumen en móvil si prefieres */
   /* .bd-volume-wrapper { display: none; } */

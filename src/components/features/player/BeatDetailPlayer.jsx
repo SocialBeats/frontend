@@ -6,7 +6,7 @@ import {
 import logo from '../../../assets/logo-dark-no-fondo.png';
 import './BeatDetailPlayer.css';
 
-const BeatDetailPlayer = ({ beat }) => {
+const BeatDetailPlayer = ({ beat, isOwner }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -82,16 +82,11 @@ const BeatDetailPlayer = ({ beat }) => {
                 <div className="bd-player__header">
                     <div className="bd-player__info">
                         <h1 className="bd-player__title">{beat?.title}</h1>
-                        <div className="bd-player__meta-row">
-
-
-                            <div className="bd-player__badges">
-                                {beat?.key && <span className="bd-meta-badge">{beat.key}</span>}
-                                {beat?.genre && (
-                                    <span className="bd-meta-badge bd-meta-badge--accent">{beat.genre}</span>
-                                )}
-                            </div>
-                        </div>
+                        {!isOwner && (
+                            <p className="beat-artist">
+                                {beat.createdBy?.username || 'Artista desconocido'}
+                            </p>
+                        )}
                     </div>
 
                     <div className="bd-player__actions-top">
