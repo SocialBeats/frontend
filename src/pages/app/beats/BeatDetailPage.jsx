@@ -131,16 +131,16 @@ const BeatDetailPage = () => {
                 {/* 1. SECCIÓN PÚBLICA / LICENCIA */}
                 <div className="license-section">
 
-                  {/* Status Pill Centrado */}
+                  {isOwner && (
                   <div className="status-container">
                     <div className={`status-badge ${beat.isPublic ? 'status-public' : 'status-private'}`}>
                       {beat.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
                       <span>{beat.isPublic ? 'Public Beat' : 'Private Beat'}</span>
                     </div>
-                  </div>
+                  </div>)}
 
                   {/* Botón Principal */}
-                  {beat.isDownloadable && (
+                  {beat.isDownloadable && !isOwner && (
                     <Button
                       variant="primary"
                       className="w-full justify-center btn-buy-large"
