@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { getAccessToken, refreshAccessToken, logout } from '@/services/authService';
+// AÑADIDO: Necesitamos getRefreshToken para saber si vale la pena intentar refrescar
+import { getAccessToken, refreshAccessToken, logout, getRefreshToken } from '@/services/authService';
 
 let failedQueue = [];
 let isRefreshing = false;
@@ -57,7 +58,7 @@ export function createAxiosClient({ options }) {
         !originalRequest.url?.includes('/auth/refresh') &&
         !originalRequest.url?.includes('/auth/login')
       ) {
-        // Si ya estamos refrescando, encolar la petición
+        // Si ya estamos refrescando, encolar la petición (CÓDIGO ORIGINAL MANTENIDO)
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -94,26 +95,20 @@ export function createAxiosClient({ options }) {
         }
       }
 
-      // Caso 2: Error 401 en refresh endpoint - Token de refresh inválido
+      // Caso 2: Error 401 ESPECÍFICO en endpoint de refresh (Tu lógica original)
+      // Si falló el refreshAccessToken de arriba, caerá en el catch,
+      // pero esto cubre si la petición original era directamente un refresh manual.
       if (
         error.response?.status === 401 &&
-        error.response?.data?.error === 'INVALID_REFRESH_TOKEN'
+        originalRequest.url.includes('/auth/refresh')
       ) {
-        // El refresh token expiró o es inválido, desloguear
         logout();
         return Promise.reject(error);
       }
 
-      // Caso 3: Error 401 por falta de token (usuario no autenticado)
-      if (
-        error.response?.status === 401 &&
-        (error.response?.data?.message === 'Missing token' ||
-         error.response?.data?.error === 'AUTHENTICATION_REQUIRED')
-      ) {
-        // No hacer nada, dejar que el componente maneje el error
-        return Promise.reject(error);
-      }
-
+      // Caso 3: Eliminado explícitamente porque ahora el 401 general
+      // que NO cumpla las condiciones del Caso 1 caerá aquí abajo por defecto.
+      
       // Cualquier otro error, rechazar
       return Promise.reject(error);
     }

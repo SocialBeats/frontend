@@ -1,11 +1,4 @@
-import React from 'react';
-
-interface GenericWidgetProps {
-  title: string;
-  value?: string | number;
-}
-
-export const GenericWidget: React.FC<GenericWidgetProps> = ({ title, value = 'N/A' }) => {
+const GenericWidget = ({ title, value = 'N/A' }) => {
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow h-full">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{title}</h3>

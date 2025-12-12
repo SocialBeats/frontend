@@ -1,7 +1,7 @@
 import log from 'loglevel';
 
 // Get log level from environment variable or default to 'info'
-const logLevel = (import.meta.env.VITE_LOG_LEVEL || 'info').trim().toLowerCase();
+const logLevel = (window.RUNTIME_CONFIG.VITE_LOG_LEVEL || 'info').trim().toLowerCase();
 
 // Set the log level
 log.setLevel(logLevel);

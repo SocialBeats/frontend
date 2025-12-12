@@ -65,6 +65,34 @@ const BeatDetailPage = () => {
       </div>
 
       <div className="beat-detail-container">
+        {/* Main Beat Info Section */}
+        <div className="beat-hero-section">
+          <div className="beat-cover-large">
+            <img
+              src={logo}
+              alt={beat.title}
+              className="beat-cover-image"
+            />
+            <div className="beat-cover-overlay">
+              <Button
+                className="play-button-large"
+                size="large"
+                onClick={togglePlay}
+              >
+                <span className="play-icon-large">{isPlaying ? '⏸' : '▶'}</span>
+                {isPlaying ? 'Pause' : 'Play'}
+              </Button>
+            </div>
+            {/* Hidden Audio Element */}
+            {beat && (
+              <audio
+                ref={audioRef}
+                src={`${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`}
+                onEnded={() => setIsPlaying(false)}
+                onError={(e) => console.error("Audio playback error:", e)}
+              />
+            )}
+          </div>
 
         {/* PLAYER HERO */}
         <BeatDetailPlayer beat={beat} />

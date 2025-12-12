@@ -126,12 +126,12 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary);
+  background: #334155;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
+  background: #475569;
 }
 
 /* Utilities */

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
+import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
 // import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
@@ -10,6 +11,7 @@ import BeatFormPage from './pages/app/beats/BeatFormPage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ProfileView from './pages/app/profile/ProfileView';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboards from './pages/app/dashboards/CreateDashboards';
@@ -19,7 +21,8 @@ import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <ProfileProvider>
+        <Routes>
         {/* Public Routes - Accessible to everyone */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
@@ -52,7 +55,8 @@ function App() {
           <Route path="upload" element={<Feed />} />
           <Route path="library" element={<Feed />} />
           <Route path="messages" element={<Feed />} />
-          <Route path="profile" element={<Feed />} />
+          <Route path="profile" element={<ProfileView />} />
+          <Route path="profile/:username" element={<ProfileView />} />
 
           {/* Rutas del microservicio Dashboards */}
           <Route path="/app/dashboards" element={<DashboardsPage />} />
@@ -64,6 +68,7 @@ function App() {
         {/* TODO: Implementar un panic route o página 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ProfileProvider>
     </BrowserRouter>
   );
 }

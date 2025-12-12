@@ -5,6 +5,9 @@ import Button from '../../../components/ui/Button';
 import AddWidgetModal from '../../../components/Dashboard/AddWidgetModal';
 import SpiderWidget from '../../../components/Dashboard/SpiderWidgets';
 import GenericWidget from '../../../components/Dashboard/GenericWidget';
+import { getDashboardById, updateDashboard } from '../../../services/analytics/dashboards';
+import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
+import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
 
 const ViewDashboard = () => {
@@ -32,22 +35,62 @@ const ViewDashboard = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const mockDashboard = {
-          id: parseInt(id),
-          name: 'Dashboard de Análisis Musical',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setDashboard(mockDashboard);
-        setEditedName(mockDashboard.name);
+        const response = await getDashboardById(id);
+        const dashboardData = response.data || response;
+        setDashboard(dashboardData);
+        setEditedName(dashboardData.name);
       } catch (error) {
         console.error('Error al cargar dashboard:', error);
+        setDashboard(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboard();
+  }, [id]);
+
+  // Cargar widgets del dashboard
+  useEffect(() => {
+    const fetchWidgets = async () => {
+      if (!id) return;
+
+      try {
+        console.log('🔍 Cargando widgets para dashboard:', id);
+        const response = await getWidgetsByDashboard(id);
+        const widgetsData = response.data || response;
+
+        console.log('📦 Widgets recibidos de la API:', widgetsData);
+
+        // Mapear los widgets de la API al formato esperado por la UI
+        const mappedWidgets = widgetsData.map(widget => {
+          const metricType = (widget.metricType || widget.metric_type || '').toLowerCase();
+          const widgetDef = AVAILABLE_WIDGETS.find(w => w.type === metricType);
+
+          console.log('🔄 Mapeando widget:', {
+            original: widget,
+            metricType,
+            widgetDef
+          });
+
+          return {
+            id: widget.id || widget._id,
+            type: metricType,
+            section: widgetDef?.section || 'Métricas Core',
+            title: widgetDef?.title || widget.metricType || 'Widget'
+          };
+        });
+
+        console.log('✅ Widgets mapeados para UI:', mappedWidgets);
+        setWidgets(mappedWidgets);
+      } catch (error) {
+        console.error('❌ Error al cargar widgets:', error);
+        console.error('❌ Error response:', error.response?.data);
+        setWidgets([]);
+      }
+    };
+
+    fetchWidgets();
   }, [id]);
 
   useEffect(() => {
@@ -79,9 +122,9 @@ const ViewDashboard = () => {
 
     setIsSaving(true);
     try {
+      await updateDashboard(dashboard.id, { name: editedName });
       setDashboard(prev => ({ ...prev, name: editedName }));
       setIsEditingName(false);
-      console.log('Nombre actualizado:', editedName);
     } catch (error) {
       console.error('Error al actualizar nombre:', error);
       alert('Error al actualizar el nombre');
@@ -102,25 +145,26 @@ const ViewDashboard = () => {
     navigate('/app/dashboards');
   };
 
-  const handleAddWidget = (widgetDef) => {
-    const newWidget = {
-      id: `${widgetDef.type}-${Date.now()}`,
-      type: widgetDef.type,
-      section: widgetDef.section,
-      title: widgetDef.title
-    };
+  const handleAddWidget = (newWidget) => {
+    // El widget ya viene formateado desde el modal
     setWidgets([...widgets, newWidget]);
   };
 
-  const handleRemoveWidget = (widgetId) => {
-    setWidgets(widgets.filter(w => w.id !== widgetId));
+  const handleRemoveWidget = async (widgetId) => {
+    try {
+      await deleteWidget(widgetId);
+      setWidgets(widgets.filter(w => w.id !== widgetId));
+    } catch (error) {
+      console.error('Error al eliminar widget:', error);
+      alert('Error al eliminar el widget. Por favor, intenta de nuevo.');
+    }
   };
 
   const renderWidget = (widget) => {
     switch (widget.type) {
       case 'spider':
         return <SpiderWidget />;
-      
+
       // Tempo
       case 'bpm':
         return <GenericWidget title={widget.title} value="120 BPM" />;
@@ -128,7 +172,7 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="1,234" />;
       case 'duracion_promedio':
         return <GenericWidget title={widget.title} value="0.5s" />;
-      
+
       // Tonalidad
       case 'clave':
         return <GenericWidget title={widget.title} value="C Major" />;
@@ -136,23 +180,23 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="85%" />;
       case 'estabilidad_tonal':
         return <GenericWidget title={widget.title} value="92%" />;
-      
+
       // Perfil Melódico
       case 'rango_hz':
         return <GenericWidget title={widget.title} value="± 250 Hz" />;
       case 'hz_medios':
         return <GenericWidget title={widget.title} value="440 Hz" />;
-      
+
       // Dinámica
       case 'db':
         return <GenericWidget title={widget.title} value="75 dB" />;
-      
+
       // Textura
       case 'caracter':
         return <GenericWidget title={widget.title} value="Brillante" />;
       case 'apertura':
         return <GenericWidget title={widget.title} value="Alta" />;
-      
+
       // Articulación
       case 'staccato':
         return <GenericWidget title={widget.title} value="65%" />;
@@ -160,7 +204,7 @@ const ViewDashboard = () => {
         return <GenericWidget title={widget.title} value="127" />;
       case 'ataques_graduales':
         return <GenericWidget title={widget.title} value="89" />;
-      
+
       default:
         return <GenericWidget title={widget.title} />;
     }
@@ -249,8 +293,10 @@ const ViewDashboard = () => {
             )}
           </div>
           <div className="view-dashboard__metadata">
-            <span>Creado: {new Date(dashboard.createdAt).toLocaleDateString()}</span>
-            <span>Actualizado: {new Date(dashboard.updatedAt).toLocaleDateString()}</span>
+            <span>Creado: {new Date(dashboard.created_at || dashboard.createdAt).toLocaleDateString()}</span>
+            {(dashboard.updated_at || dashboard.updatedAt) && (
+              <span>Actualizado: {new Date(dashboard.updated_at || dashboard.updatedAt).toLocaleDateString()}</span>
+            )}
           </div>
         </div>
         <div className="view-dashboard__actions">
@@ -309,6 +355,7 @@ const ViewDashboard = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onAddWidget={handleAddWidget}
+          dashboardId={id}
         />
       </div>
     </div>
