@@ -9,6 +9,7 @@ import ConfirmModal from '../../../components/ui/ConfirmModal';
 import BeatDetailPlayer from '../../../components/features/player/BeatDetailPlayer';
 
 import { getBeatById, deleteBeat } from '../../../services/beatsService';
+import { getCurrentUserId } from '../../../services/authService';
 import './BeatDetailPage.css';
 
 const BeatDetailPage = () => {
@@ -20,12 +21,14 @@ const BeatDetailPage = () => {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isOwner, setIsOwner] = useState(false); // Placeholder for ownership logic
 
   useEffect(() => {
     const fetchBeat = async () => {
       try {
         const beatData = await getBeatById(id);
         if (beatData) setBeat(beatData);
+        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
         else setError('Beat not found.');
       } catch (err) {
         setError('Error fetching beat.');
@@ -65,34 +68,6 @@ const BeatDetailPage = () => {
       </div>
 
       <div className="beat-detail-container">
-        {/* Main Beat Info Section */}
-        <div className="beat-hero-section">
-          <div className="beat-cover-large">
-            <img
-              src={logo}
-              alt={beat.title}
-              className="beat-cover-image"
-            />
-            <div className="beat-cover-overlay">
-              <Button
-                className="play-button-large"
-                size="large"
-                onClick={togglePlay}
-              >
-                <span className="play-icon-large">{isPlaying ? '⏸' : '▶'}</span>
-                {isPlaying ? 'Pause' : 'Play'}
-              </Button>
-            </div>
-            {/* Hidden Audio Element */}
-            {beat && (
-              <audio
-                ref={audioRef}
-                src={`${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`}
-                onEnded={() => setIsPlaying(false)}
-                onError={(e) => console.error("Audio playback error:", e)}
-              />
-            )}
-          </div>
 
         {/* PLAYER HERO */}
         <BeatDetailPlayer beat={beat} />
@@ -151,23 +126,17 @@ const BeatDetailPage = () => {
                     </div>
                   </div>
 
-                  {/* Precio Grande y Limpio */}
-                  <div className="price-container">
-                    <span className="price-label">Standard License</span>
-                    <span className="price-amount">
-                      {beat.pricing?.isFree ? 'Free' : `$${beat.pricing?.price}`}
-                    </span>
-                  </div>
-
                   {/* Botón Principal */}
-                  <Button
-                    variant="primary"
-                    className="w-full justify-center btn-buy-large"
-                    onClick={() => console.log('Download', beat.title)}
-                  >
-                    {beat.pricing?.isFree ? <Download size={20} className="mr-2" /> : <ShoppingCart size={20} className="mr-2" />}
-                    {beat.pricing?.isFree ? 'Download Now' : 'Purchase License'}
-                  </Button>
+                  {beat.isDownloadable && (
+                    <Button
+                      variant="primary"
+                      className="w-full justify-center btn-buy-large"
+                      onClick={() => console.log('Download', beat.title)}
+                    >
+                      {beat.pricing?.isFree ? <Download size={20} className="mr-2" /> : <ShoppingCart size={20} className="mr-2" />}
+                      {beat.pricing?.isFree ? 'Download Now' : 'Purchase License'}
+                    </Button>
+                  )}
 
                   <div className="license-features">
                     <span className="feature-item"><CheckCircle2 size={12} /> MP3 + WAV</span>
@@ -178,29 +147,31 @@ const BeatDetailPage = () => {
                 <div className="divider" />
 
                 {/* 2. ADMIN CONTROLS (Intacto) */}
-                <div className="admin-controls">
-                  <span className="admin-label">Admin Controls</span>
-                  <div className="admin-buttons-row">
-                    <Button
-                      variant="secondary"
-                      size="medium"
-                      className="flex-1 justify-center"
-                      onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
-                    >
-                      <Edit size={16} className="mr-2" /> Edit
-                    </Button>
+                {isOwner && (
+                  <div className="admin-controls">
+                    <span className="admin-label">Owner Controls</span>
+                    <div className="admin-buttons-row">
+                      <Button
+                        variant="secondary"
+                        size="medium"
+                        className="flex-1 justify-center"
+                        onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
+                      >
+                        <Edit size={16} className="mr-2" /> Edit
+                      </Button>
 
-                    <Button
-                      variant="danger"
-                      size="medium"
-                      className="flex-1 justify-center"
-                      onClick={() => setShowDeleteModal(true)}
-                      disabled={deleting}
-                    >
-                      <Trash2 size={16} className="mr-2" /> Delete
-                    </Button>
+                      <Button
+                        variant="danger"
+                        size="medium"
+                        className="flex-1 justify-center"
+                        onClick={() => setShowDeleteModal(true)}
+                        disabled={deleting}
+                      >
+                        <Trash2 size={16} className="mr-2" /> Delete
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
 
               </div>
             </Card>

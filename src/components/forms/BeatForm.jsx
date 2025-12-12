@@ -39,18 +39,13 @@ const BeatForm = ({
     key: initialData?.key || '',
     description: initialData?.description || '',
     tags: initialData?.tags || [],
-    pricing: {
-      isFree: initialData?.pricing?.isFree ?? true,
-      price: initialData?.pricing?.price?.toString() || '0',
-      currency: initialData?.pricing?.currency || 'USD'
-    },
     isPublic: initialData?.isPublic ?? true,
     isDownloadable: initialData?.isDownloadable ?? false,
   });
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(
-    initialData?.audio?.s3Key 
-      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
+    initialData?.audio?.s3Key
+      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}`
       : null
   );
   const [isDragActive, setIsDragActive] = useState(false);
@@ -162,11 +157,6 @@ const BeatForm = ({
     if (!isEditing && !audioFile) { setError('Please upload an audio file.'); return; }
     const submitData = {
       ...formData,
-      pricing: {
-        ...formData.pricing,
-        isFree: !formData.isDownloadable ? true : formData.pricing.isFree,
-        price: (!formData.isDownloadable || formData.pricing.isFree) ? 0 : parseFloat(formData.pricing.price) || 0
-      }
     };
     onSubmit(submitData, audioFile);
   };
@@ -393,7 +383,7 @@ const BeatForm = ({
           <div className="section-header-with-icon">
             <Eye size={24} className="section-icon" />
             <div className="section-header-text">
-              <h2>Visibility & Pricing</h2>
+              <h2>Visibility & Download Options</h2>
               <p className="section-description">Configure who can see and download your beat</p>
             </div>
           </div>
@@ -408,61 +398,16 @@ const BeatForm = ({
                 onChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
               />
 
-              <Toggle
-                label="Allow downloads"
-                description="Users can download this beat"
-                icon={<Download size={16} />}
-                checked={formData.isDownloadable}
-                onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
-              />
+              {formData.isPublic && (
+                <Toggle
+                  label="Allow downloads"
+                  description="Users can download this beat"
+                  icon={<Download size={16} />}
+                  checked={formData.isDownloadable}
+                  onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
+                />
+              )}
             </div>
-
-            {formData.isDownloadable && (
-              <>
-                <div className="toggle-row">
-                  <Toggle
-                    label="Free download"
-                    description="No charge for downloads"
-                    icon={<DollarSign size={16} />}
-                    checked={formData.pricing.isFree}
-                    onChange={(checked) => setFormData(prev => ({
-                      ...prev,
-                      pricing: { ...prev.pricing, isFree: checked }
-                    }))}
-                  />
-                </div>
-
-                {!formData.pricing.isFree && (
-                  <div className="field-row">
-                    <Input
-                      label="Price"
-                      id="pricing.price"
-                      name="pricing.price"
-                      type="number"
-                      value={formData.pricing.price}
-                      onChange={handleInputChange}
-                      placeholder="29.99"
-                      min="0"
-                      step="0.01"
-                      fullWidth
-                    />
-
-                    <Select
-                      label="Currency"
-                      id="pricing.currency"
-                      name="pricing.currency"
-                      value={formData.pricing.currency}
-                      onChange={handleInputChange}
-                      fullWidth
-                    >
-                      <option value="USD">USD ($)</option>
-                      <option value="EUR">EUR (€)</option>
-                      <option value="GBP">GBP (£)</option>
-                    </Select>
-                  </div>
-                )}
-              </>
-            )}
           </div>
         </Card>
       </div>

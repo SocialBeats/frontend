@@ -160,3 +160,15 @@ export function getCurrentUsername() {
   const payload = decodeJWT(accessToken);
   return payload?.username || null;
 }
+
+/**
+ * Obtiene el username del usuario autenticado desde el token
+ * @returns {string|null} - Username del usuario o null si no está autenticado
+ */
+export function getCurrentUserId() {
+  const accessToken = getAccessToken();
+  if (!accessToken) return null;
+  
+  const payload = decodeJWT(accessToken);
+  return payload?.id || null;
+}

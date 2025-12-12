@@ -94,7 +94,6 @@ const MyBeatsListPage = () => {
                 <h3 className="beat-card-title">{beat.title}</h3>
                 <div className="beat-card-metadata">
                   <span className="beat-card-genre">{beat.genre}</span>
-                  <span className="beat-card-separator">•</span>
                 </div>
               </div>
             </Card>

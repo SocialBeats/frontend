@@ -145,31 +145,6 @@
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Precio Grande */
-.price-container { text-align: center; }
-
-.price-label {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.price-amount {
-  display: block;
-  font-size: 3.5rem; /* Aún más grande */
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1;
-  /* Efecto metálico sutil */
-  background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 15px rgba(139, 92, 246, 0.2));
-}
-
 /* Botón Compra */
 .btn-buy-large {
   font-weight: 700;
@@ -224,7 +199,7 @@
   text-align: center;
 }
 
-.admin-buttons-row { display: flex; gap: 1rem; }
+.admin-buttons-row { display: flex; gap: 1rem; justify-content: center;}
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
