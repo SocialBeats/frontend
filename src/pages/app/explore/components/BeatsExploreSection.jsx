@@ -8,12 +8,15 @@ import './BeatsExploreSection.css';
 /**
  * BeatsExploreSection - Sección de exploración de beats
  * 
+ * Props:
+ * - searchTerm: Término de búsqueda global desde ExplorePage
+ * 
  * Muestra:
- * - Barra de filtros (búsqueda, género, clave, tags, descargable)
+ * - Barra de filtros específicos de beats (género, clave, tags, descargable)
  * - Beats más reproducidos (carrusel horizontal)
  * - Beats más recientes (grid)
  */
-export default function BeatsExploreSection() {
+export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) {
     const navigate = useNavigate();
 
     // Estados para los datos
@@ -27,9 +30,8 @@ export default function BeatsExploreSection() {
     const [loadingRecent, setLoadingRecent] = useState(true);
     const [loadingFiltered, setLoadingFiltered] = useState(false);
 
-    // Estado de filtros
+    // Estado de filtros específicos de beats (sin búsqueda)
     const [filters, setFilters] = useState({
-        search: '',
         genre: '',
         key: '',
         tags: '',
@@ -73,16 +75,16 @@ export default function BeatsExploreSection() {
     }, []);
 
     // Cargar beats filtrados
-    const loadFilteredBeats = useCallback(async (currentFilters) => {
+    const loadFilteredBeats = useCallback(async (currentFilters, currentSearchTerm) => {
         try {
             setLoadingFiltered(true);
 
             // Construir parámetros de búsqueda
             const params = {};
 
-            if (currentFilters.search && currentFilters.search.length >= 2) {
+            if (currentSearchTerm && currentSearchTerm.length >= 2) {
                 // Usar endpoint de búsqueda si hay texto
-                const data = await searchBeats(currentFilters.search);
+                const data = await searchBeats(currentSearchTerm);
                 let beats = Array.isArray(data) ? data : data.beats || [];
 
                 // Aplicar filtros adicionales en el cliente
@@ -135,10 +137,10 @@ export default function BeatsExploreSection() {
         loadRecentBeats();
     }, [loadMostPlayedBeats, loadRecentBeats]);
 
-    // Detectar si hay filtros activos
+    // Detectar si hay filtros activos o búsqueda global
     useEffect(() => {
         const hasActiveFilters =
-            filters.search ||
+            searchTerm ||
             filters.genre ||
             filters.key ||
             filters.tags ||
@@ -147,24 +149,27 @@ export default function BeatsExploreSection() {
         setIsFiltering(hasActiveFilters);
 
         if (hasActiveFilters) {
-            loadFilteredBeats(filters);
+            loadFilteredBeats(filters, searchTerm);
         }
-    }, [filters, loadFilteredBeats]);
+    }, [filters, searchTerm, loadFilteredBeats]);
 
     // Manejador de cambio de filtros
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
     };
 
-    // Limpiar filtros
+    // Limpiar filtros y búsqueda global
     const handleClearFilters = () => {
         setFilters({
-            search: '',
             genre: '',
             key: '',
             tags: '',
             isDownloadable: ''
         });
+        // También limpiar la búsqueda global
+        if (onClearSearch) {
+            onClearSearch();
+        }
     };
 
     // Navegar al detalle del beat
@@ -227,6 +232,7 @@ export default function BeatsExploreSection() {
                                 <BeatCard
                                     key={beat._id}
                                     beat={beat}
+                                    variant="carousel"
                                     onClick={() => handleBeatClick(beat._id)}
                                 />
                             ))}

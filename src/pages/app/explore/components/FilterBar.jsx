@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Search, Filter, X, Music, Key, Tag, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Filter, X, Music, Key, Tag, Download } from 'lucide-react';
 import './FilterBar.css';
 
 /**
- * FilterBar - Barra de filtros para la exploración de beats
+ * FilterBar - Barra de filtros específicos para beats
  * 
- * Filtros disponibles:
- * - Búsqueda por texto (nombre del beat)
+ * La búsqueda por texto está a nivel de ExplorePage (global).
+ * Este componente solo maneja filtros específicos de beats:
  * - Género musical
  * - Clave musical
  * - Tags
@@ -53,36 +53,10 @@ const DOWNLOADABLE_OPTIONS = [
 
 export default function FilterBar({ filters, onFilterChange, onClearFilters }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [localSearch, setLocalSearch] = useState(filters.search || '');
-
-  // Debounce para la búsqueda
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== filters.search) {
-        onFilterChange({ ...filters, search: localSearch });
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [localSearch, filters, onFilterChange]);
-
-  // Sincronizar búsqueda local con filtros externos
-  useEffect(() => {
-    setLocalSearch(filters.search || '');
-  }, [filters.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     onFilterChange({ ...filters, [name]: value });
-  };
-
-  const handleSearchChange = (e) => {
-    setLocalSearch(e.target.value);
-  };
-
-  const handleClearSearch = () => {
-    setLocalSearch('');
-    onFilterChange({ ...filters, search: '' });
   };
 
   // Contar filtros activos
@@ -95,34 +69,14 @@ export default function FilterBar({ filters, onFilterChange, onClearFilters }) {
 
   return (
     <div className="filter-bar">
-      {/* Búsqueda principal */}
-      <div className="filter-search-container">
-        <div className="filter-search-wrapper">
-          <Search className="filter-search-icon" size={20} />
-          <input
-            type="text"
-            placeholder="Buscar beats por nombre..."
-            value={localSearch}
-            onChange={handleSearchChange}
-            className="filter-search-input"
-          />
-          {localSearch && (
-            <button 
-              className="filter-search-clear" 
-              onClick={handleClearSearch}
-              aria-label="Limpiar búsqueda"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
+      {/* Botón de filtros */}
+      <div className="filter-toggle-container">
         <button 
           className={`filter-toggle-btn ${showAdvanced ? 'active' : ''} ${activeFiltersCount > 0 ? 'has-filters' : ''}`}
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <Filter size={18} />
-          <span>Filtros</span>
+          <span>Filtros de Beats</span>
           {activeFiltersCount > 0 && (
             <span className="filter-count">{activeFiltersCount}</span>
           )}
@@ -211,10 +165,10 @@ export default function FilterBar({ filters, onFilterChange, onClearFilters }) {
           </div>
 
           {/* Botón limpiar filtros */}
-          {(activeFiltersCount > 0 || filters.search) && (
+          {activeFiltersCount > 0 && (
             <button className="filter-clear-btn" onClick={onClearFilters}>
               <X size={16} />
-              Limpiar todos los filtros
+              Limpiar filtros
             </button>
           )}
         </div>

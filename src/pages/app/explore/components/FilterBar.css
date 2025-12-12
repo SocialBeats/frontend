@@ -1,4 +1,4 @@
-/* FilterBar.css - Estilos para la barra de filtros */
+/* FilterBar.css - Estilos para la barra de filtros de beats */
 
 .filter-bar {
   display: flex;
@@ -6,68 +6,10 @@
   gap: 1rem;
 }
 
-/* Search Container */
-.filter-search-container {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.filter-search-wrapper {
-  flex: 1;
-  position: relative;
+/* Toggle Container */
+.filter-toggle-container {
   display: flex;
   align-items: center;
-}
-
-.filter-search-icon {
-  position: absolute;
-  left: 1rem;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.filter-search-input {
-  width: 100%;
-  padding: 0.875rem 1rem 0.875rem 3rem;
-  background: var(--bg-glass);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  color: var(--text-main);
-  font-size: 1rem;
-  font-family: var(--font-main);
-  transition: all 0.2s ease;
-}
-
-.filter-search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.filter-search-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-glow);
-}
-
-.filter-search-clear {
-  position: absolute;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-search-clear:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--text-main);
 }
 
 /* Toggle Button */
@@ -256,11 +198,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .filter-search-container {
-    flex-direction: column;
-  }
-
-  .filter-search-wrapper {
+  .filter-toggle-container {
     width: 100%;
   }
 
@@ -271,11 +209,5 @@
 
   .filter-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .filter-search-input {
-    font-size: 16px; /* Prevenir zoom en iOS */
   }
 }
