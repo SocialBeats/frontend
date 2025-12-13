@@ -332,6 +332,9 @@
 }
 
 .ratings-input {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
   text-align: center;
   padding-left: 0;
   padding-right: 0;
