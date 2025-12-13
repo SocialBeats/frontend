@@ -214,13 +214,34 @@
   background: #f3f4ff;
   border-radius: 0.75rem;
   padding: 0.85rem 1.2rem;
+  color: #000000;
+  display: block;
   text-align: center;
+}
+
+.my-rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.my-rating-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.my-rating-right {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  color: #000000;
+  gap: 0.35rem;
+  min-width: 40px;
 }
 
 .my-rating-card--empty {
@@ -239,9 +260,14 @@
 
 .my-rating-actions {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 0.75rem;
+  top: 2px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .my-rating-title {
