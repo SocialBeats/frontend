@@ -17,9 +17,10 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
 
     if (!resourceId || score <= 0) return;
 
+    const trimmed = comment.trim();
     const payload = {
       score,
-      comment: comment.trim() ? comment.trim() : null,
+      comment: trimmed ? trimmed : null,
     };
 
     // MOCK
