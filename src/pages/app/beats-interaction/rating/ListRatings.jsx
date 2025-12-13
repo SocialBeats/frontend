@@ -3,6 +3,7 @@ import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 // import { getBeatRatings, getPlaylistRatings, getMyBeatRating, getMyPlaylistRating } from "@/services/beats-interaction/ratingService";
+import CreateRating from "./CreateRating";
 import "./ListRatings.css";
 
 // --- Datos mock (playlist) --------------------------------------------------------
@@ -172,8 +173,9 @@ const MOCK_RATINGS = [
 const MOCK_AVERAGE = 4.4;
 const MOCK_COUNT = MOCK_RATINGS.length;
 
-const MOCK_CURRENT_USER_ID = "u2";
-const MOCK_MY_RATING = MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
+const MOCK_CURRENT_USER_ID = "u1";
+const MOCK_MY_RATING =
+  MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
 
 // --- Helpers ----------------------------------------------------------------------
 function renderStars(score) {
@@ -359,9 +361,19 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
               )}
             </div>
           ) : (
-            <div className="my-rating-card my-rating-card--empty">
-              Todavía no has puntuado esta {isBeat ? "beat" : "playlist"}
-            </div>
+            <>
+              <div className="my-rating-card my-rating-card--empty">
+                Todavía no has puntuado esta {isBeat ? "beat" : "playlist"}
+              </div>
+              <CreateRating
+                isBeat={isBeat}
+                resourceId={resourceId}
+                onRatingCreated={(newRating) => {
+                  console.log("Rating creada correctamente", newRating);
+                  setMyRating(newRating);
+                }}
+              />
+            </>
           )}
         </div>
 
