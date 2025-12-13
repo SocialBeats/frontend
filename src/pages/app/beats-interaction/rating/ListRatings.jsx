@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
-// import { getBeatRatings, getPlaylistRatings, getMyBeatRating, getMyPlaylistRating } from "@/services/beats-interaction/ratingService";
+import IconButton from "../../../../components/ui/IconButton";
+// import { getBeatRatings, getPlaylistRatings, getMyBeatRating, getMyPlaylistRating, patchRating } from "@/services/beats-interaction/ratingService";
 import CreateRating from "./CreateRating";
 import "./ListRatings.css";
 
@@ -173,7 +174,7 @@ const MOCK_RATINGS = [
 const MOCK_AVERAGE = 4.4;
 const MOCK_COUNT = MOCK_RATINGS.length;
 
-const MOCK_CURRENT_USER_ID = "u1";
+const MOCK_CURRENT_USER_ID = "u5";
 const MOCK_MY_RATING =
   MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
 
@@ -194,7 +195,6 @@ function renderStars(score) {
       </span>
     );
   }
-
   return stars;
 }
 
@@ -222,11 +222,14 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
   const [myRating, setMyRating] = useState(null);
 
+  const [editingRatingId, setEditingRatingId] = useState(null);
+  const [editingComment, setEditingComment] = useState("");
+
   const safeLimit = limit <= 0 ? 1 : limit;
   const totalPages = totalRatings > 0 ? Math.ceil(totalRatings / safeLimit) : 1;
 
   useEffect(() => {
-    // MOCK: simulamos paginación igual que en ListComments
+    // MOCK: paginación igual que comentarios
     const startIndex = (page - 1) * safeLimit;
     const endIndex = startIndex + safeLimit;
     const pageItems = MOCK_RATINGS.slice(startIndex, endIndex);
@@ -253,13 +256,9 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
         const items = payload.data || [];
 
         setRatings(items);
-        setAverage(
-          typeof payload.average === "number" ? payload.average : null
-        );
-        setCount(
-          typeof payload.count === "number" ? payload.count : items.length
-        );
-        // Si el backend devuelve total, úsalo; si no, usamos count/items.length
+        setAverage(typeof payload.average === "number" ? payload.average : null);
+        setCount(typeof payload.count === "number" ? payload.count : items.length);
+
         setTotalRatings(
           typeof payload.total === "number"
             ? payload.total
@@ -278,7 +277,6 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
           ? await getMyBeatRating(resourceId)
           : await getMyPlaylistRating(resourceId);
 
-        // Suponiendo que el backend devuelve la rating en response.data.data
         const rating = response.data?.data ?? null;
         setMyRating(rating);
       } catch (error) {
@@ -307,7 +305,6 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
   const handlePageInputChange = (e) => {
     const value = parseInt(e.target.value, 10);
-
     if (Number.isNaN(value)) return;
 
     if (value < 1 || value > totalPages) {
@@ -323,6 +320,56 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
   const goNextPage = () =>
     setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
   const goLastPage = () => setPage(totalPages);
+
+  // --- edición handlers -----------------------------------------------------------
+  const startEditing = (rating) => {
+    setEditingRatingId(rating._id);
+    setEditingComment(rating.comment ?? "");
+  };
+
+  const cancelEditing = () => {
+    setEditingRatingId(null);
+    setEditingComment("");
+  };
+
+  const handleSaveEdit = async (ratingId) => {
+    const trimmed = editingComment.trim();
+    const newComment = trimmed ? trimmed : null;
+
+    // MOCK
+    console.log(`Editar comentario de rating "${ratingId}" =>`, newComment);
+
+    // update local state
+    setRatings((prev) =>
+      prev.map((r) =>
+        r._id === ratingId
+          ? {
+              ...r,
+              comment: newComment,
+              updatedAt: new Date().toISOString(),
+            }
+          : r
+      )
+    );
+    setMyRating((prev) =>
+      prev && prev._id === ratingId
+        ? { ...prev, comment: newComment, updatedAt: new Date().toISOString() }
+        : prev
+    );
+    cancelEditing();
+
+    /*
+    // Versión real con backend (PATCH recomendado)
+    try {
+      await patchRating(ratingId, { comment: newComment });
+      // Opción A: volver a pedir myRating y ratings
+      // await fetchMyRating(); await fetchRatings();
+      // Opción B: actualizar estado local como arriba
+    } catch (error) {
+      console.error("Error editando rating", error);
+    }
+    */
+  };
 
   return (
     <div className="ratings-section">
@@ -345,7 +392,18 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
         <div className="my-rating-section">
           {myRating ? (
             <div className="my-rating-card">
-              <div className="my-rating-title">Tu valoración ha sido:</div>
+              <div className="my-rating-top">
+                <div className="my-rating-title">Tu valoración ha sido:</div>
+                <div className="my-rating-actions">
+                  <IconButton
+                    variant="ghost"
+                    onClick={() => startEditing(myRating)}
+                    title="Editar comentario"
+                  >
+                    ✏️
+                  </IconButton>
+                </div>
+              </div>
 
               <div className="my-rating-score-row">
                 <div className="my-rating-stars">
@@ -356,8 +414,38 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                 </span>
               </div>
 
-              {myRating.comment !== null && (
-                <div className="my-rating-comment">{myRating.comment}</div>
+              {editingRatingId === myRating._id ? (
+                <>
+                  <Input
+                    fullWidth
+                    value={editingComment}
+                    onChange={(e) => setEditingComment(e.target.value)}
+                    className="rating-edit-input"
+                    placeholder="Edita tu comentario..."
+                  />
+                  <div className="rating-edit-actions rating-edit-actions--center">
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={() => handleSaveEdit(myRating._id)}
+                    >
+                      Guardar
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={cancelEditing}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {myRating.comment !== null && (
+                    <div className="my-rating-comment">{myRating.comment}</div>
+                  )}
+                </>
               )}
             </div>
           ) : (
@@ -365,6 +453,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
               <div className="my-rating-card my-rating-card--empty">
                 Todavía no has puntuado esta {isBeat ? "beat" : "playlist"}
               </div>
+
               <CreateRating
                 isBeat={isBeat}
                 resourceId={resourceId}
@@ -385,6 +474,8 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
               const username = rating.user?.username || "Usuario";
               const score = rating.score ?? 0;
               const comment = rating.comment;
+              const isMyRating = rating.userId === MOCK_CURRENT_USER_ID;
+              const isEditing = editingRatingId === rating._id;
 
               return (
                 <div key={rating._id} className="rating-item">
@@ -400,13 +491,57 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                         </span>
                       </div>
 
-                      {comment !== null && (
-                        <div className="rating-comment">{comment}</div>
+                      {isEditing ? (
+                        <>
+                          <Input
+                            fullWidth
+                            value={editingComment}
+                            onChange={(e) => setEditingComment(e.target.value)}
+                            className="rating-edit-input"
+                            placeholder="Edita tu comentario..."
+                          />
+                          <div className="rating-edit-actions">
+                            <Button
+                              variant="primary"
+                              size="small"
+                              onClick={() => handleSaveEdit(rating._id)}
+                            >
+                              Guardar
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="small"
+                              onClick={cancelEditing}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {comment !== null && (
+                            <div className="rating-comment">{comment}</div>
+                          )}
+                        </>
                       )}
 
                       {rating.createdAt && (
                         <div className="rating-meta">
                           {formatDate(rating.createdAt)}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="rating-right">
+                      {isMyRating && !isEditing && (
+                        <div className="rating-actions">
+                          <IconButton
+                            variant="ghost"
+                            onClick={() => startEditing(rating)}
+                            title="Editar comentario"
+                          >
+                            ✏️
+                          </IconButton>
                         </div>
                       )}
                     </div>
