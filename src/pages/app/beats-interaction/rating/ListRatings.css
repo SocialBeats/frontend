@@ -167,10 +167,43 @@
   margin-top: 0.4rem;
   display: flex;
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .rating-edit-actions--center {
   justify-content: center;
+}
+
+.rating-edit-stars {
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.rating-edit-star {
+  font-size: 1.45rem;
+  cursor: pointer;
+  color: #d4d4d4;
+  transition: transform 0.1s ease, color 0.1s ease;
+  user-select: none;
+}
+
+.rating-edit-star:hover {
+  transform: scale(1.1);
+}
+
+.rating-edit-star--filled {
+  color: #facc15;
+}
+
+.rating-edit-score-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000000;
+  margin-left: 0.25rem;
 }
 
 .my-rating-section {

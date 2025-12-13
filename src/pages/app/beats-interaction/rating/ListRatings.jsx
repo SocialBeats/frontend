@@ -178,6 +178,8 @@ const MOCK_CURRENT_USER_ID = "u5";
 const MOCK_MY_RATING =
   MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
 
+const MAX_SCORE = 5;
+
 // --- Helpers ----------------------------------------------------------------------
 function renderStars(score) {
   const rounded = Math.round(score ?? 0);
@@ -224,6 +226,8 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
   const [editingRatingId, setEditingRatingId] = useState(null);
   const [editingComment, setEditingComment] = useState("");
+  const [editingScore, setEditingScore] = useState(0);
+  const [editingHoverScore, setEditingHoverScore] = useState(null);
 
   const safeLimit = limit <= 0 ? 1 : limit;
   const totalPages = totalRatings > 0 ? Math.ceil(totalRatings / safeLimit) : 1;
@@ -325,19 +329,29 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
   const startEditing = (rating) => {
     setEditingRatingId(rating._id);
     setEditingComment(rating.comment ?? "");
+    setEditingScore(rating.score ?? 0);
+    setEditingHoverScore(null);
   };
 
   const cancelEditing = () => {
     setEditingRatingId(null);
     setEditingComment("");
+    setEditingScore(0);
+    setEditingHoverScore(null);
   };
 
   const handleSaveEdit = async (ratingId) => {
     const trimmed = editingComment.trim();
     const newComment = trimmed ? trimmed : null;
 
+    const newScore = Number(editingScore);
+    if (!newScore || newScore < 1 || newScore > 5) return;
+
     // MOCK
-    console.log(`Editar comentario de rating "${ratingId}" =>`, newComment);
+    console.log(`Editar rating "${ratingId}" =>`, {
+      score: newScore,
+      comment: newComment,
+    });
 
     // update local state
     setRatings((prev) =>
@@ -345,23 +359,31 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
         r._id === ratingId
           ? {
               ...r,
+              score: newScore,
               comment: newComment,
               updatedAt: new Date().toISOString(),
             }
           : r
       )
     );
+
     setMyRating((prev) =>
       prev && prev._id === ratingId
-        ? { ...prev, comment: newComment, updatedAt: new Date().toISOString() }
+        ? {
+            ...prev,
+            score: newScore,
+            comment: newComment,
+            updatedAt: new Date().toISOString(),
+          }
         : prev
     );
+
     cancelEditing();
 
     /*
     // Versión real con backend (PATCH recomendado)
     try {
-      await patchRating(ratingId, { comment: newComment });
+      await patchRating(ratingId, { score: newScore, comment: newComment });
       // Opción A: volver a pedir myRating y ratings
       // await fetchMyRating(); await fetchRatings();
       // Opción B: actualizar estado local como arriba
@@ -369,6 +391,41 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
       console.error("Error editando rating", error);
     }
     */
+  };
+
+  const renderEditableStars = () => {
+    const active = editingHoverScore ?? editingScore;
+
+    return (
+      <div className="rating-edit-stars">
+        {Array.from({ length: MAX_SCORE }).map((_, index) => {
+          const starValue = index + 1;
+          const filled = starValue <= active;
+
+          return (
+            <span
+              key={starValue}
+              className={`rating-edit-star ${
+                filled ? "rating-edit-star--filled" : ""
+              }`}
+              onMouseEnter={() => setEditingHoverScore(starValue)}
+              onMouseLeave={() => setEditingHoverScore(null)}
+              onClick={() => setEditingScore(starValue)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  setEditingScore(starValue);
+              }}
+              title={`Puntuar con ${starValue}`}
+            >
+              ★
+            </span>
+          );
+        })}
+        <span className="rating-edit-score-number">{editingScore}/5</span>
+      </div>
+    );
   };
 
   return (
@@ -395,27 +452,22 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
               <div className="my-rating-top">
                 <div className="my-rating-title">Tu valoración ha sido:</div>
                 <div className="my-rating-actions">
-                  <IconButton
-                    variant="ghost"
-                    onClick={() => startEditing(myRating)}
-                    title="Editar comentario"
-                  >
-                    ✏️
-                  </IconButton>
+                  {editingRatingId !== myRating._id && (
+                    <IconButton
+                      variant="ghost"
+                      onClick={() => startEditing(myRating)}
+                      title="Editar puntuación y comentario"
+                    >
+                      ✏️
+                    </IconButton>
+                  )}
                 </div>
-              </div>
-
-              <div className="my-rating-score-row">
-                <div className="my-rating-stars">
-                  {renderStars(myRating.score)}
-                </div>
-                <span className="my-rating-score-number">
-                  {myRating.score}/5
-                </span>
               </div>
 
               {editingRatingId === myRating._id ? (
                 <>
+                  {renderEditableStars()}
+
                   <Input
                     fullWidth
                     value={editingComment}
@@ -423,11 +475,13 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                     className="rating-edit-input"
                     placeholder="Edita tu comentario..."
                   />
+
                   <div className="rating-edit-actions rating-edit-actions--center">
                     <Button
                       variant="primary"
                       size="small"
                       onClick={() => handleSaveEdit(myRating._id)}
+                      disabled={editingScore <= 0}
                     >
                       Guardar
                     </Button>
@@ -442,6 +496,15 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                 </>
               ) : (
                 <>
+                  <div className="my-rating-score-row">
+                    <div className="my-rating-stars">
+                      {renderStars(myRating.score)}
+                    </div>
+                    <span className="my-rating-score-number">
+                      {myRating.score}/5
+                    </span>
+                  </div>
+
                   {myRating.comment !== null && (
                     <div className="my-rating-comment">{myRating.comment}</div>
                   )}
@@ -483,12 +546,19 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                     <div className="rating-left">
                       <div className="rating-main-line">
                         <span className="rating-username">{username}</span>
-                        <span className="rating-stars-wrapper">
-                          <span className="rating-stars">
-                            {renderStars(score)}
+
+                        {!isEditing ? (
+                          <span className="rating-stars-wrapper">
+                            <span className="rating-stars">
+                              {renderStars(score)}
+                            </span>
+                            <span className="rating-score-number">
+                              {score}/5
+                            </span>
                           </span>
-                          <span className="rating-score-number">{score}/5</span>
-                        </span>
+                        ) : (
+                          renderEditableStars()
+                        )}
                       </div>
 
                       {isEditing ? (
@@ -505,6 +575,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                               variant="primary"
                               size="small"
                               onClick={() => handleSaveEdit(rating._id)}
+                              disabled={editingScore <= 0}
                             >
                               Guardar
                             </Button>
@@ -538,7 +609,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                           <IconButton
                             variant="ghost"
                             onClick={() => startEditing(rating)}
-                            title="Editar comentario"
+                            title="Editar puntuación y comentario"
                           >
                             ✏️
                           </IconButton>
