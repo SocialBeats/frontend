@@ -9,6 +9,20 @@ import { getDashboardById, updateDashboard } from '../../../services/analytics/d
 import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
 import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
+import '../../../components/Dashboard/MetricsWidgets.css';
+import BPMWidget from '../../../components/Dashboard/BPMWidget';
+import KeyWidget from '../../../components/Dashboard/KeyWidget';
+import ProgressBarWidget from '../../../components/Dashboard/ProgressBarWidget';
+import DecibelsWidget from '../../../components/Dashboard/DecibelsWidget';
+import SimpleNumberWidget from '../../../components/Dashboard/SimpleNumberWidget';
+import BadgeWidget from '../../../components/Dashboard/BadgeWidget';
+import HzRangeWidget from '../../../components/Dashboard/HzRangeWidget';
+import FrequencyWidget from '../../../components/Dashboard/FrecuencyWidget';
+import GaugeWidget from '../../../components/Dashboard/GaugeWidget';
+import RatioWidget from '../../../components/Dashboard/RatioWidget';
+import ChromaWidget from '../../../components/Dashboard/ChromaWidget';
+import { mockBeatMetrics } from '../../../utils/mockMetrics';
+import BeatsPositionWidget from '../../../components/Dashboard/BeatsPositionWidget';
 
 const ViewDashboard = () => {
   const navigate = useNavigate();
@@ -161,49 +175,61 @@ const ViewDashboard = () => {
   };
 
   const renderWidget = (widget) => {
+    const metrics = mockBeatMetrics.extraMetrics;
+
     switch (widget.type) {
       case 'spider':
         return <SpiderWidget />;
 
       // Tempo
       case 'bpm':
-        return <GenericWidget title={widget.title} value="120 BPM" />;
+        return <BPMWidget title={widget.title} value={metrics.bpm} />;
       case 'num_beats':
-        return <GenericWidget title={widget.title} value="1,234" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats.toLocaleString()} icon="💓" />;
       case 'duracion_promedio':
-        return <GenericWidget title={widget.title} value="0.5s" />;
-
+        return <SimpleNumberWidget title={widget.title} value={metrics.mean_duration.toFixed(3)} unit="s" />;
+      case 'beats_position':
+        return <BeatsPositionWidget title={widget.title} value={metrics.beats_position} />;
       // Tonalidad
       case 'clave':
-        return <GenericWidget title={widget.title} value="C Major" />;
+        return <KeyWidget title={widget.title} value={metrics.key} />;
       case 'uniformidad_notas':
-        return <GenericWidget title={widget.title} value="85%" />;
+        return <ProgressBarWidget title={widget.title} value={metrics.uniformity} />;
       case 'estabilidad_tonal':
-        return <GenericWidget title={widget.title} value="92%" />;
+        return <ProgressBarWidget title={widget.title} value={metrics.stability} />;
+      case 'chroma_features':
+        return <ChromaWidget title="Características Cromáticas" chromaFeatures={metrics.chroma_features} />;
+
+      // Potencia Sonora
+      case 'db':
+        return <DecibelsWidget title={widget.title} value={metrics.decibels} />;
 
       // Perfil Melódico
       case 'rango_hz':
-        return <GenericWidget title={widget.title} value="± 250 Hz" />;
+        return <HzRangeWidget title={widget.title} range={metrics.hz_range} mean={metrics.mean_hz} />;
       case 'hz_medios':
-        return <GenericWidget title={widget.title} value="440 Hz" />;
-
-      // Dinámica
-      case 'db':
-        return <GenericWidget title={widget.title} value="75 dB" />;
+        return <FrequencyWidget title={widget.title} value={metrics.mean_hz} />;
 
       // Textura
       case 'caracter':
-        return <GenericWidget title={widget.title} value="Brillante" />;
+        return <BadgeWidget title={widget.title} value={metrics.character} emoji="✨" />;
       case 'apertura':
-        return <GenericWidget title={widget.title} value="Alta" />;
+        return <GaugeWidget title={widget.title} value={metrics.opening} />;
 
       // Articulación
       case 'staccato':
-        return <GenericWidget title={widget.title} value="65%" />;
+        return <BadgeWidget title={widget.title} value={metrics.style} emoji="🎵" />;
       case 'ataques_subitos':
-        return <GenericWidget title={widget.title} value="127" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.suddent_changes} icon="⚡" />;
       case 'ataques_graduales':
-        return <GenericWidget title={widget.title} value="89" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.soft_changes} icon="〰️" />;
+      case 'ratio_ataques':
+        return <RatioWidget
+          title={widget.title}
+          suddenChanges={metrics.suddent_changes}
+          softChanges={metrics.soft_changes}
+          ratio={metrics.ratio_sudden_soft}
+        />;
 
       default:
         return <GenericWidget title={widget.title} />;
@@ -335,7 +361,10 @@ const ViewDashboard = () => {
                 <h3 className="text-xl font-semibold mb-4">{section}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {widgetsBySection[section].map((widget) => (
-                    <div key={widget.id} className="relative group">
+                    <div
+                      key={widget.id}
+                      className={`relative group ${widget.type === 'spider' ? 'spider-widget-container' : ''}`}
+                    >
                       <button
                         onClick={() => handleRemoveWidget(widget.id)}
                         className="absolute top-2 right-2 z-10 p-2 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
@@ -350,14 +379,14 @@ const ViewDashboard = () => {
             ))}
           </div>
         )}
-
-        <AddWidgetModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAddWidget={handleAddWidget}
-          dashboardId={id}
-        />
       </div>
+
+      <AddWidgetModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddWidget={handleAddWidget}
+        dashboardId={id}
+      />
     </div>
   );
 };

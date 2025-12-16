@@ -37,6 +37,13 @@ export const AVAILABLE_WIDGETS = [
     description: 'Duración media de los beats'
   },
 
+  {
+    type: 'beats_position',
+    title: 'Posición de Beats',
+    section: WIDGET_SECTIONS.TEMPO,
+    description: 'Posiciones de los beats en la estructura rítmica'
+  },
+
   // Tonalidad
   {
     type: 'clave',
@@ -55,6 +62,13 @@ export const AVAILABLE_WIDGETS = [
     title: 'Estabilidad Tonal',
     section: WIDGET_SECTIONS.TONALIDAD,
     description: 'Estabilidad de la tonalidad'
+  },
+
+  {
+    type: 'chroma_features',
+    title: 'Características Cromáticas',
+    section: WIDGET_SECTIONS.TONALIDAD,
+    description: 'Visualización circular de notas cromáticas'
   },
 
   // Perfil Melódico
@@ -111,5 +125,12 @@ export const AVAILABLE_WIDGETS = [
     title: 'Ataques Graduales',
     section: WIDGET_SECTIONS.ARTICULACION,
     description: 'Cantidad de ataques graduales'
+  },
+
+  {
+    type: 'ratio_ataques',
+    title: 'Ratio de Ataques',
+    section: WIDGET_SECTIONS.ARTICULACION,
+    description: 'Proporción entre ataques súbitos y graduales'
   }
 ];

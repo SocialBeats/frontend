@@ -5,11 +5,16 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  /* ← Cambiado de center a flex-start */
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  padding-top: 2rem;
+  /* ← Añadido */
   animation: fadeIn 0.3s ease;
+  overflow-y: auto;
+  /* ← Añadido */
 }
 
 @keyframes fadeIn {
@@ -27,13 +32,18 @@
   border-radius: 24px;
   width: 100%;
   max-width: 1200px;
-  max-height: 85vh;
+  max-height: calc(100vh - 4rem);
+  /* ← Cambiado de 85vh */
   display: flex;
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(148, 163, 184, 0.2);
   animation: slideUp 0.3s ease;
   overflow: hidden;
+  margin: 0 auto;
+  /* ← Añadido */
+  position: relative;
+  /* ← Añadido */
 }
 
 @keyframes slideUp {
@@ -441,10 +451,13 @@
 @media (max-width: 768px) {
   .modal-overlay {
     padding: 1rem;
+    align-items: flex-start;
+    /* ← Añadido */
   }
 
   .modal-container {
-    max-height: 90vh;
+    max-height: calc(100vh - 2rem);
+    /* ← Cambiado de 90vh */
     border-radius: 20px;
   }
 
