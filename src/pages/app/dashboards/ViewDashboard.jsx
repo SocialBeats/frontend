@@ -34,6 +34,8 @@ const ViewDashboard = () => {
   const [widgets, setWidgets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const inputRef = useRef(null);
+  const addButtonRef = useRef(null);
+  const [showFab, setShowFab] = useState(false);
 
   const WIDGET_SECTIONS = {
     CORE: 'Métricas Core',
@@ -62,6 +64,26 @@ const ViewDashboard = () => {
 
     fetchDashboard();
   }, [id]);
+
+  // Show FAB when the header 'Añadir Widget' button is not visible in viewport
+  useEffect(() => {
+    if (!addButtonRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // show FAB when header button is NOT intersecting
+        setShowFab(!entry.isIntersecting);
+      },
+      { root: null, threshold: 0.05 }
+    );
+
+    observer.observe(addButtonRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [addButtonRef.current]);
 
   // Cargar widgets del dashboard
   useEffect(() => {
@@ -335,6 +357,7 @@ const ViewDashboard = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Visualización del Dashboard</h2>
           <button
+            ref={addButtonRef}
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -401,6 +424,16 @@ const ViewDashboard = () => {
         onAddWidget={handleAddWidget}
         dashboardId={id}
       />
+      {showFab && (
+        <button
+          className="view-dashboard__fab"
+          onClick={() => setIsModalOpen(true)}
+          aria-label="Añadir Widget"
+          title="Añadir Widget"
+        >
+          <Plus size={20} />
+        </button>
+      )}
     </div>
   );
 };
