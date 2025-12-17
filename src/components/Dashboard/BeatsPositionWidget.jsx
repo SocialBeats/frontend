@@ -6,13 +6,13 @@ const BeatsPositionWidget = ({ title, value }) => {
 
   return (
     <div className="widget-base">
-      <h3 className="text-lg font-semibold mb-4 text-white">
+      <h3 className="text-lg font-semibold mb-4 text-white text-center">
         {title}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="simple-number">
+        <div className="flex items-center gap-3 justify-center">
           <span className="simple-number__value">{formattedValue}</span>
-          <span className="simple-number__unit">s</span>
+          <span style={{ fontSize: '2rem', color: '#94a3b8', alignSelf: 'flex-end', marginBottom: '0.5rem' }}>s</span>
         </div>
       </div>
     </div>

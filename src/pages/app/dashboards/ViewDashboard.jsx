@@ -185,7 +185,7 @@ const ViewDashboard = () => {
       case 'bpm':
         return <BPMWidget title={widget.title} value={metrics.bpm} />;
       case 'num_beats':
-        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats.toLocaleString()} icon="💓" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats.toLocaleString()} icon="💓" bpm={metrics.bpm} />;
       case 'duracion_promedio':
         return <SimpleNumberWidget title={widget.title} value={metrics.mean_duration.toFixed(3)} unit="s" />;
       case 'beats_position':
