@@ -9,7 +9,6 @@ import { getDashboardById, updateDashboard } from '../../../services/analytics/d
 import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
 import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
-import '../../../components/Dashboard/MetricsWidgets.css';
 import BPMWidget from '../../../components/Dashboard/BPMWidget';
 import KeyWidget from '../../../components/Dashboard/KeyWidget';
 import ProgressBarWidget from '../../../components/Dashboard/ProgressBarWidget';

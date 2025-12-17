@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './RatioWidget.css';
 
 const RatioWidget = ({ title, suddenChanges, softChanges, ratio }) => {
   const total = suddenChanges + softChanges;

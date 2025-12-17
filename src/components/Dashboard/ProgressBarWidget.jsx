@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './ProgressBarWidget.css';
 
 const ProgressBarWidget = ({ title, value, showPercentage = true }) => {
   const percentage = Math.round(value * 100);

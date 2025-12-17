@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './BadgeWidget.css';
 
 const BadgeWidget = ({ title, value, emoji = '' }) => {
   return (

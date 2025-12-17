@@ -1,0 +1,7 @@
+.decibels-meter { display:flex; align-items:center; gap:2rem; margin-bottom:1rem; }
+.decibels-bar { position:relative; width:40px; height:200px; border-radius:20px; overflow:hidden; background: linear-gradient(to top, #ef4444 0%, #fbbf24 50%, #22c55e 100%); border:3px solid #e5e7eb; }
+.decibels-bar__indicator { position:absolute; left:-5px; width:50px; height:4px; background:#1e293b; box-shadow:0 0 8px rgba(0,0,0,0.5); transition:bottom 0.3s ease; }
+.decibels-display { display:flex; flex-direction:column; align-items:center; }
+.decibels-value { font-size:2.5rem; font-weight:700; color:#667eea; }
+.decibels-unit { font-size:1rem; color:#94a3b8; font-weight:600; }
+.decibels-zone { font-size:0.875rem; font-weight:600; text-transform:uppercase; }

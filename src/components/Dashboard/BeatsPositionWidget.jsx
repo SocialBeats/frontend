@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './SimpleNumberWidget.css';
 
 const BeatsPositionWidget = ({ title, value }) => {
   // value es el timestamp en segundos del primer beat (ej: 1.77)

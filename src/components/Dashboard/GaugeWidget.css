@@ -1,0 +1,5 @@
+.gauge { width:100%; max-width:200px; }
+.gauge-svg { width:100%; height:auto; }
+.gauge-labels { display:flex; justify-content:space-between; margin-top:-1rem; }
+.gauge-label { font-size:0.75rem; color:#64748b; font-weight:500; }
+.gauge-value { text-align:center; font-size:1.5rem; font-weight:700; color:#667eea; margin-top:0.5rem; }

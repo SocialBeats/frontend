@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './SimpleNumberWidget.css';
 import { useState, useEffect } from 'react';
 
 const SimpleNumberWidget = ({ title, value, unit = '', icon = '' }) => {

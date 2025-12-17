@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './GaugeWidget.css';
 
 const GaugeWidget = ({ title, value, leftLabel = 'Cerrado', rightLabel = 'Abierto' }) => {
   const percentage = value * 100;

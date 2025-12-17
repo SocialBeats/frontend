@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './HzRangeWidget.css';
 
 const HzRangeWidget = ({ title, range, mean }) => {
   const minHz = Math.round(mean - range / 2);

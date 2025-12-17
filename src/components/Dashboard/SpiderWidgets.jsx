@@ -1,4 +1,6 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import './BaseWidget.css';
+import './SpiderWidget.css';
 import { mockBeatMetrics } from '../../utils/mockMetrics';
 
 const SpiderWidget = () => {

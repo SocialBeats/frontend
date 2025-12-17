@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './DecibelsWidget.css';
 
 const DecibelsWidget = ({ title, value }) => {
   const percentage = Math.min(Math.max(value, 0), 100);

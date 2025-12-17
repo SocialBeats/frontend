@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './BPMWidget.css';
 import { useState, useEffect } from 'react';
 
 const BPMWidget = ({ title, value }) => {

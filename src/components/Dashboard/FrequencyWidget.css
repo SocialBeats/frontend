@@ -1,0 +1,6 @@
+.frequency-display { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-bottom:1rem; }
+.frequency-emoji { font-size:3rem; }
+.frequency-value-container { display:flex; align-items:baseline; gap:0.5rem; }
+.frequency-value { font-size:2.5rem; font-weight:700; color:#667eea; }
+.frequency-unit { font-size:1rem; color:#94a3b8; font-weight:600; }
+.frequency-register { font-size:1rem; font-weight:600; text-transform:uppercase; }

@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './FrequencyWidget.css';
 
 const FrequencyWidget = ({ title, value }) => {
   const getRegister = (hz) => {

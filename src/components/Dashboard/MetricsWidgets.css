@@ -22,17 +22,13 @@
 }
 
 @media (min-width: 1024px) {
-.widget-span-2 {
-  grid-column: span 1;
-}
-
-@media (min-width: 1024px) {
-  .widget-span-2 {
-    grid-column: span 2;
-  }
-}
   .spider-widget-container {
     grid-column: span 3;
+  }
+
+  /* Widgets that should take ~half width on large screens */
+  .widget-span-2 {
+    grid-column: span 2;
   }
 }
 
@@ -118,45 +114,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-}
-
-.bpm-speedometer {
-  position: relative;
-  width: 340px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.bpm-arc {
-  position: absolute;
-  width: 100%;
-  height: auto;
-  top: 0;
-  left: 0;
-}
-
-.bpm-center-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -20%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  z-index: 5;
-}
-
-.bpm-value {
-  font-size: 4.5rem;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  transition: all 0.3s ease;
 }
 
 .bpm-unit {
@@ -679,21 +636,27 @@
     font-weight: 700;
     color: #f1f5f9;
   }
-
-  .beats-position-label {
-    font-size: 1.125rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .beats-position-track {
-    position: relative;
-    height: 8px;
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 10px;
-    overflow: visible;
-    margin-top: 1rem;
+    .chroma-row-track {
+      flex: 1;
+      height: 26px;
+      background: rgba(30, 41, 59, 0.15); /* slightly contrasting track */
+      border-radius: 13px;
+      overflow: hidden;
+      position: relative;
+      display: block;
+      width: 100%;
+    }
+  
+    .chroma-row-bar {
+      height: 100%;
+      border-radius: 13px;
+      transition: width 0.35s ease, box-shadow 0.25s ease;
+      animation: chroma-grow 0.45s ease-out;
+      display: block;
+      min-width: 10px; /* ensure visibility for tiny values */
+      background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+      box-shadow: 0 4px 18px rgba(124, 58, 237, 0.25);
+    }
   }
 
   .beats-position-indicator {
@@ -720,4 +683,75 @@
       opacity: 0.8;
     }
   }
+}
+
+/* New grid layout for chroma widget */
+.chroma-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.chroma-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chroma-item-left {
+  width: 34px;
+  text-align: right;
+}
+
+.chroma-note {
+  font-size: 0.9rem;
+  color: #e6eef8;
+  font-weight: 700;
+}
+
+
+.chroma-item-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chroma-item-right--bars .chroma-row-track {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chroma-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* percent box */
+.chroma-percent {
+  width: 44px;
+  text-align: right;
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* Ensure widgets that span two columns have consistent visual height */
+
+.widget-span-2 .widget-base {
+  min-height: 420px; /* increased so Key appears a bit larger */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keep chroma widget the original width but match Clave height */
+.chroma-widget {
+  min-height: 420px; /* match the Key widget height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertically center chroma content */
+}
+
+.chroma-widget .chroma-grid {
+  align-content: center;
 }

@@ -1,0 +1,4 @@
+.simple-number { display:flex; align-items:baseline; gap:0.75rem; }
+.simple-number__icon { font-size:2rem; }
+.simple-number__value { font-size:3rem; font-weight:700; color:#667eea; }
+.simple-number__unit { font-size:1.25rem; color:#94a3b8; font-weight:600; }

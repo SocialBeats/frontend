@@ -1,4 +1,5 @@
-import './MetricsWidgets.css';
+import './BaseWidget.css';
+import './KeyWidget.css';
 import React from 'react';
 
 
@@ -31,21 +32,24 @@ const KeyWidget = ({ title, value }) => {
         {title}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        <div style={{ position: 'relative', width: 260, height: 280, margin: '0 auto 18px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width={260} height={280} viewBox="0 0 260 280" style={{ display: 'block' }}>
+        {/* Increased container to match chroma height (min-height in CSS is 420px) */}
+        <div style={{ position: 'relative', width: 360, height: 323, margin: '0 auto 18px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width={360} height={380} viewBox="0 0 360 380" style={{ display: 'block' }}>
             <g>
               {CHROMA_NOTES.map((note, i) => {
                 const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
-                const r = 95; // Más grande para separar más del centro y no tocar bordes
-                const x = 130 + r * Math.cos(angle);
-                const y = 140 + r * Math.sin(angle); // Centrado verticalmente en el nuevo viewBox
+                const r = 125; // larger radius to spread notes around
+                const cx = 180; // center x for 360 width
+                const cy = 190; // center y for 380 height
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
                 const isActive = i === idx;
                 return (
                   <g key={note}>
                     <circle
                       cx={x}
                       cy={y}
-                      r={isActive ? 24 : 14}
+                      r={isActive ? 28 : 16}
                       fill={isActive ? keyColor : '#334155'}
                       stroke={isActive ? '#fff' : 'none'}
                       strokeWidth={isActive ? 3 : 0}
@@ -55,8 +59,8 @@ const KeyWidget = ({ title, value }) => {
                       x={x}
                       y={y + 6}
                       textAnchor="middle"
-                      fontSize={isActive ? 22 : 15}
-                      fontWeight={isActive ? 800 : 500}
+                      fontSize={isActive ? 20 : 14}
+                      fontWeight={isActive ? 800 : 600}
                       fill={isActive ? '#fff' : '#cbd5e1'}
                     >
                       {note}
@@ -76,13 +80,13 @@ const KeyWidget = ({ title, value }) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 140,
-            height: 140,
+            width: 180,
+            height: 180,
             borderRadius: '50%',
             background: 'rgba(30,41,59,0.92)',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+            boxShadow: '0 2px 18px rgba(0,0,0,0.22)',
           }}>
-            <span style={{ fontSize: 48, fontWeight: 900, color: keyColor, lineHeight: 1 }}>{root}</span>
+            <span style={{ fontSize: 56, fontWeight: 900, color: keyColor, lineHeight: 1 }}>{root}</span>
           </div>
         </div>
       </div>
