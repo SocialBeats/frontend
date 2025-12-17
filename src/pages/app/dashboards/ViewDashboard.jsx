@@ -363,7 +363,11 @@ const ViewDashboard = () => {
                   {widgetsBySection[section].map((widget) => (
                     <div
                       key={widget.id}
-                      className={`relative group ${widget.type === 'spider' ? 'spider-widget-container' : ''}`}
+                      className={`relative group ${
+                        widget.type === 'spider' ? 'spider-widget-container' : 
+                        widget.type === 'bpm' ? 'bpm-widget-container' : 
+                        ''
+                      }`}
                     >
                       <button
                         onClick={() => handleRemoveWidget(widget.id)}
