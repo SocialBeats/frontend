@@ -27,6 +27,9 @@
 .widget-span-2 { /* used to make some widgets span 2 columns on lg */ }
 @media (min-width: 1024px) { .widget-span-2 { grid-column: span 2; } }
 
+/* Span full width of the grid (useful for wide widgets like decibels) */
+.widget-span-full { grid-column: 1 / -1; }
+
 .metric-widget { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height:100%; display:flex; flex-direction:column; }
 .metric-widget--wide { grid-column: span 2; }
 .metric-widget__title { font-size:0.875rem; font-weight:600; color:#64748b; margin:0 0 1rem 0; text-transform:uppercase; letter-spacing:0.05em; }

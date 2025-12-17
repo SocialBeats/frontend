@@ -12,27 +12,34 @@ const DecibelsWidget = ({ title, value }) => {
 
   const { zone, color } = getZone(value);
 
+  const cleanTitle = (title || '').replace(/\s*\(dB\)\s*/i, '');
+
   return (
     <div className="widget-base">
       <h3 className="text-lg font-semibold mb-4 text-white bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-        {title}
+        {cleanTitle}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="decibels-meter">
-          <div className="decibels-bar">
+        <div className="decibels-meter decibels-meter--horizontal">
+          <div className="decibels-bar decibels-bar--horizontal">
             <div
-              className="decibels-bar__indicator"
-              style={{ bottom: `${percentage}%` }}
-            ></div>
+              className="decibels-bar__handle"
+              style={{ left: `${percentage}%` }}
+              title={`${value.toFixed(1)} dB`}
+              aria-hidden={false}
+            />
           </div>
-          <div className="decibels-display">
+
+          <div className="decibels-display" aria-hidden>
             <span className="decibels-value">{value.toFixed(1)}</span>
             <span className="decibels-unit">dB</span>
           </div>
+
+          <div className="decibels-labels" aria-hidden>
+            <span className="decibels-label decibels-label--left">Quiet</span>
+            <span className="decibels-label decibels-label--right">Loud</span>
+          </div>
         </div>
-        <span className="decibels-zone" style={{ color }}>
-          {zone}
-        </span>
       </div>
     </div>
   );
