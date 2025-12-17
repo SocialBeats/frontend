@@ -9,14 +9,14 @@ const SimpleNumberWidget = ({ title, value, unit = '', icon = '' }) => {
         {title}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="flex items-center gap-3 justify-center">
-          <span className="simple-number__value">{value}</span>
-          {unit && <span style={{ fontSize: '2rem', color: '#94a3b8', alignSelf: 'flex-end', marginBottom: '0.5rem' }}>{unit}</span>}
-          {icon && (
-            <span style={{ fontSize: '3rem' }}>
-              {icon}
-            </span>
-          )}
+        <div className="simple-number__content">
+          <div className="flex items-center gap-3 justify-center">
+            <span className="simple-number__value">{value}</span>
+            {unit && <span className="simple-number__unit">{unit}</span>}
+            {icon && (
+              <span className="simple-number__icon">{icon}</span>
+            )}
+          </div>
         </div>
       </div>
     </div>

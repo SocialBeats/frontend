@@ -2,3 +2,8 @@
 .simple-number__icon { font-size:2rem; }
 .simple-number__value { font-size:3rem; font-weight:700; color:#667eea; }
 .simple-number__unit { font-size:1.25rem; color:#94a3b8; font-weight:600; }
+
+/* Centering helper for number widgets */
+.simple-number__content { width: 100%; display:flex; justify-content: center; align-items: center; }
+.simple-number__icon { font-size:2.5rem; }
+.simple-number__unit { font-size:2rem; color:#94a3b8; align-self: flex-end; margin-bottom: 0.25rem; margin-left: 0.75rem; }

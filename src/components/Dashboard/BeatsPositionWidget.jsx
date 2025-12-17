@@ -11,9 +11,11 @@ const BeatsPositionWidget = ({ title, value }) => {
         {title}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="flex items-center gap-3 justify-center">
-          <span className="simple-number__value">{formattedValue}</span>
-          <span style={{ fontSize: '2rem', color: '#94a3b8', alignSelf: 'flex-end', marginBottom: '0.5rem' }}>s</span>
+        <div className="simple-number__content">
+          <div className="flex items-center gap-3 justify-center">
+            <span className="simple-number__value">{formattedValue}</span>
+            <span className="simple-number__unit">s</span>
+          </div>
         </div>
       </div>
     </div>
