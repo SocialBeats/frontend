@@ -1,6 +1,9 @@
 import './MetricsWidgets.css';
+import { useState, useEffect } from 'react';
 
 const BPMWidget = ({ title, value }) => {
+  const [scale, setScale] = useState(1);
+
   const getBPMCategory = (bpm) => {
     if (bpm < 90) return { 
       label: 'SLOW', 
@@ -57,6 +60,28 @@ const BPMWidget = ({ title, value }) => {
   const angleRad = (normalizedAngle * Math.PI) / 180;
   const ballX = centerX - radius * Math.cos(angleRad);
   const ballY = centerY - radius * Math.sin(angleRad);
+
+  // Animación de bump basada en BPM
+  useEffect(() => {
+    // Calcular intervalo según categoría de BPM
+    let interval;
+    if (value < 90) {
+      interval = 60000 / (value || 60); // SLOW
+    } else if (value < 120) {
+      interval = 60000 / (value || 90); // MODERATE
+    } else if (value < 140) {
+      interval = 60000 / (value || 120); // UPTEMPO
+    } else {
+      interval = 60000 / (value || 140); // FAST
+    }
+
+    const bump = setInterval(() => {
+      setScale(1.15);
+      setTimeout(() => setScale(1), 150);
+    }, interval);
+
+    return () => clearInterval(bump);
+  }, [value]);
 
   return (
     <div className="widget-base bpm-widget">
@@ -191,7 +216,14 @@ const BPMWidget = ({ title, value }) => {
               }} />
           </svg>          {/* Center display */}
           <div className="bpm-center-display">
-            <div className="bpm-value" style={{ color: category.color, textShadow: `0 4px 20px ${category.shadowColor}` }}>
+            <div 
+              className="bpm-value" 
+              style={{ 
+                color: category.color, 
+                textShadow: `0 4px 20px ${category.shadowColor}`,
+                transform: `scale(${scale})`,
+                transition: 'transform 0.15s ease-out'
+              }}>
               {value}
             </div>
             <div className="bpm-unit">BPM</div>
