@@ -19,10 +19,11 @@ export const mockBeatMetrics = {
   // Extra Metrics
   extraMetrics: {
     // Tempo
-    bpm:128,
+    bpm: 128,
     num_beats: 512,
     mean_duration: 0.469,
-    beats_position: [0.469, 0.938, 1.407, 1.876],
+    beats_position: 1.7717188208616776, // Posición del primer beat en segundos
+    song_duration: 180, // Duración total de la canción en segundos
 
     // Tonalidad
     key: "F# Minor",

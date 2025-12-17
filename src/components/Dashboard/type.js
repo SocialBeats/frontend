@@ -39,9 +39,9 @@ export const AVAILABLE_WIDGETS = [
 
   {
     type: 'beats_position',
-    title: 'Posición de Beats',
+    title: 'Posición del Primer Beat',
     section: WIDGET_SECTIONS.TEMPO,
-    description: 'Posiciones de los beats en la estructura rítmica'
+    description: 'Timestamp del primer beat detectado'
   },
 
   // Tonalidad
