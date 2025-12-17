@@ -15,3 +15,12 @@
 @media (min-width: 1024px) {
 	.progress-widget { height: 160px; }
 }
+
+/* Prevent title wrapping so it doesn't increase widget height */
+.progress-widget h3 {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	margin-bottom: 0.75rem; /* slightly smaller than mb-4 to help layout */
+}
