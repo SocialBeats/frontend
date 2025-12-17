@@ -32,9 +32,9 @@ const KeyWidget = ({ title, value }) => {
         {title}
       </h3>
       <div className="flex flex-col items-center justify-center h-full">
-        {/* Increased container to match chroma height (min-height in CSS is 420px) */}
-        <div style={{ position: 'relative', width: 360, height: 323, margin: '0 auto 18px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width={360} height={380} viewBox="0 0 360 380" style={{ display: 'block' }}>
+        {/* Responsive container: keep max-width but allow it to shrink to fit column */}
+        <div style={{ position: 'relative', width: '100%', maxWidth: 360, height: 'auto', margin: '0 auto 18px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="100%" height="auto" viewBox="0 0 360 380" style={{ display: 'block' }} preserveAspectRatio="xMidYMid meet">
             <g>
               {CHROMA_NOTES.map((note, i) => {
                 const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
@@ -80,13 +80,15 @@ const KeyWidget = ({ title, value }) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 180,
-            height: 180,
+            width: '50%',
+            height: '50%',
+            maxWidth: 180,
+            maxHeight: 180,
             borderRadius: '50%',
             background: 'rgba(30,41,59,0.92)',
             boxShadow: '0 2px 18px rgba(0,0,0,0.22)',
           }}>
-            <span style={{ fontSize: 56, fontWeight: 900, color: keyColor, lineHeight: 1 }}>{root}</span>
+            <span style={{ fontSize: '3.5rem', fontWeight: 900, color: keyColor, lineHeight: 1 }}>{root}</span>
           </div>
         </div>
       </div>

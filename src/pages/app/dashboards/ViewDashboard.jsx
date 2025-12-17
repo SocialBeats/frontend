@@ -358,14 +358,21 @@ const ViewDashboard = () => {
             {sections.map((section) => (
               <div key={section}>
                 <h3 className="text-xl font-semibold mb-4">{section}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                  // Use 2 equal columns on large screens for the "Tonalidad" section
+                  // so `clave` and `Características Cromáticas` can sit side-by-side.
+                }
+                <div className={
+                  section === 'Tonalidad'
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'
+                    : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                }>
                   {widgetsBySection[section].map((widget) => (
                     <div
                       key={widget.id}
                       className={`relative group ${
                         widget.type === 'spider' ? 'spider-widget-container' : 
                         widget.type === 'bpm' ? 'bpm-widget-container' : 
-                        widget.type === 'clave' ? 'widget-span-2' : 
                         ''
                       }`}
                     >
