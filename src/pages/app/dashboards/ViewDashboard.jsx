@@ -366,6 +366,7 @@ const ViewDashboard = () => {
                       className={`relative group ${
                         widget.type === 'spider' ? 'spider-widget-container' : 
                         widget.type === 'bpm' ? 'bpm-widget-container' : 
+                        widget.type === 'clave' ? 'widget-span-2' : 
                         ''
                       }`}
                     >
