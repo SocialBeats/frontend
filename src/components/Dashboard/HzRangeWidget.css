@@ -1,7 +1,7 @@
 .hz-range { width:100%; }
-.hz-range__bar { position:relative; width:100%; height:40px; border-radius:20px; overflow:hidden; margin-bottom:1rem; }
-.hz-range__gradient { width:100%; height:100%; background: linear-gradient(to right, #3b82f6, #10b981, #f59e0b); }
-.hz-range__mean-indicator { position:absolute; top:0; width:4px; height:100%; background:white; box-shadow:0 0 8px rgba(0,0,0,0.5); transform: translateX(-50%); }
+.hz-range__sparkline { width:100%; height:48px; margin-bottom:1rem; border-radius:10px; overflow:hidden; }
+.hz-range__sparkline svg { display:block; }
 .hz-range__labels { display:flex; justify-content:space-between; }
 .hz-range__label { font-size:0.75rem; color:#64748b; font-weight:500; }
 .hz-range__label--mean { font-weight:700; color:#667eea; }
+.hz-range__mean-line { stroke: #ffffff; stroke-width: 2; }

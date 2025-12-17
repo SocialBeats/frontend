@@ -362,8 +362,11 @@ const ViewDashboard = () => {
                   // Use 2 equal columns on large screens for the "Tonalidad" section
                   // so `clave` and `Características Cromáticas` can sit side-by-side.
                 }
+                {
+                  // Make Tonalidad and Perfil Melódico use 2 equal columns
+                }
                 <div className={
-                  section === 'Tonalidad'
+                  (section === WIDGET_SECTIONS.TONALIDAD || section === WIDGET_SECTIONS.PERFIL_MELODICO)
                     ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'
                     : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
                 }>

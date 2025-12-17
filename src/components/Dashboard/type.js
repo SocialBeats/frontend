@@ -47,9 +47,9 @@ export const AVAILABLE_WIDGETS = [
   // Tonalidad
   {
     type: 'clave',
-    title: 'Clave',
+    title: 'Tono',
     section: WIDGET_SECTIONS.TONALIDAD,
-    description: 'Clave musical detectada'
+    description: 'Tono musical detectado'
   },
   {
     type: 'uniformidad_notas',
@@ -74,7 +74,7 @@ export const AVAILABLE_WIDGETS = [
   // Perfil Melódico
   {
     type: 'rango_hz',
-    title: 'Rango ± Hz',
+    title: 'Ancho de banda (Hz)',
     section: WIDGET_SECTIONS.PERFIL_MELODICO,
     description: 'Rango de frecuencias en Hertz'
   },

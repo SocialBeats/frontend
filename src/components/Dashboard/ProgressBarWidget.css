@@ -5,22 +5,24 @@
 
 /* Ensure all progress-bar-based widgets have a consistent size */
 .progress-widget {
-	height: 140px; /* fixed height so widgets always match */
+	height: 180px; /* fixed height so widgets always match and allow 2-line titles */
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	overflow: hidden;
+	padding: 1.25rem; /* tighten inner spacing slightly for better fit */
 }
 
 @media (min-width: 1024px) {
-	.progress-widget { height: 160px; }
+	.progress-widget { height: 200px; }
 }
 
-/* Prevent title wrapping so it doesn't increase widget height */
+/* Allow titles to wrap to two lines but keep them centered */
 .progress-widget h3 {
-	white-space: nowrap;
+	white-space: normal;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	text-align: center;
-	margin-bottom: 0.75rem; /* slightly smaller than mb-4 to help layout */
+	line-height: 1.05;
+	margin-bottom: 1rem;
 }
