@@ -401,8 +401,10 @@ const ViewDashboard = () => {
                         if (widget.type === 'spider') classes.push('spider-widget-container');
                         if (widget.type === 'bpm') classes.push('bpm-widget-container');
                         if (widget.type === 'db') classes.push('widget-span-full');
+                        if (widget.type === 'apertura') classes.push('widget-span-2');
                         return classes.join(' ');
                       })()}
+                      style={widget.type === 'apertura' ? { gridColumn: 'span 2' } : undefined}
                     >
                       <button
                         onClick={() => handleRemoveWidget(widget.id)}

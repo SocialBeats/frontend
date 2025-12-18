@@ -2,7 +2,7 @@ import './BaseWidget.css';
 import './GaugeWidget.css';
 
 const GaugeWidget = ({ title, value, leftLabel = 'Cerrado', rightLabel = 'Abierto' }) => {
-  const percentage = value * 100;
+  const percentage = Math.max(0, Math.min(1, value)) * 100;
   const angle = -90 + (percentage * 1.8);
 
   return (
@@ -28,6 +28,7 @@ const GaugeWidget = ({ title, value, leftLabel = 'Cerrado', rightLabel = 'Abiert
               strokeLinecap="round"
               strokeDasharray={`${percentage * 2.51} 251`}
             />
+            {/* tick marks removed as per design request */}
             <line
               x1="100"
               y1="100"
