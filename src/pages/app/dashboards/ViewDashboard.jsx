@@ -433,6 +433,7 @@ const ViewDashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onAddWidget={handleAddWidget}
         dashboardId={id}
+        existingWidgets={widgets}
       />
       {showFab && (
         <button
