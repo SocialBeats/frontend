@@ -11,7 +11,7 @@ const RatioWidget = ({ title, suddenChanges, softChanges, ratio }) => {
       <h3 className="text-lg font-semibold mb-4 text-white bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
         {title}
       </h3>
-      <div className="flex flex-col justify-center h-full">
+      <div className="ratio-container">
         <div className="ratio-bars">
           <div className="ratio-item">
             <div className="ratio-item__header">
