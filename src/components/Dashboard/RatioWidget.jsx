@@ -7,7 +7,7 @@ const RatioWidget = ({ title, suddenChanges, softChanges, ratio }) => {
   const softPercentage = (softChanges / total) * 100;
 
   return (
-    <div className="widget-base">
+    <div className="widget-base widget-span-full">
       <h3 className="text-lg font-semibold mb-4 text-white bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
         {title}
       </h3>

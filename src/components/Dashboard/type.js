@@ -53,15 +53,15 @@ export const AVAILABLE_WIDGETS = [
   },
   {
     type: 'uniformidad_notas',
-    title: 'Uniformidad en las Notas',
+    title: 'Consistencia Escalar',
     section: WIDGET_SECTIONS.TONALIDAD,
-    description: 'Consistencia de las notas'
+    description: 'Mide qué tanto se mantiene la melodía dentro de una escala específica'
   },
   {
     type: 'estabilidad_tonal',
-    title: 'Estabilidad Tonal',
+    title: 'Centro Tonal',
     section: WIDGET_SECTIONS.TONALIDAD,
-    description: 'Estabilidad de la tonalidad'
+    description: 'Nivel de firmeza con la que se percibe la tónica o nota principal'
   },
 
   {
@@ -74,9 +74,9 @@ export const AVAILABLE_WIDGETS = [
   // Perfil Melódico
   {
     type: 'rango_hz',
-    title: 'Ancho de banda (Hz)',
+    title: 'Extensión Tonal',
     section: WIDGET_SECTIONS.PERFIL_MELODICO,
-    description: 'Rango de frecuencias en Hertz'
+    description: 'Rango total entre la nota más grave y la más aguda'
   },
   {
     type: 'hz_medios',
@@ -88,9 +88,9 @@ export const AVAILABLE_WIDGETS = [
   // Dinámica
   {
     type: 'db',
-    title: 'Decibelios (dB)',
+    title: 'Intensidad Sonora',
     section: WIDGET_SECTIONS.DINAMICA,
-    description: 'Nivel de volumen en decibelios'
+    description: 'Nivel de presión sonora y potencia media (dB)'
   },
 
   // Textura
@@ -110,21 +110,21 @@ export const AVAILABLE_WIDGETS = [
   // Articulación
   {
     type: 'staccato',
-    title: 'Staccato',
+    title: 'Conectividad',
     section: WIDGET_SECTIONS.ARTICULACION,
-    description: 'Nivel de articulación staccato'
+    description: 'Ajusta la transición y el espacio de silencio entre cada nota para crear un flujo fluido o fragmentado'
   },
   {
     type: 'ataques_subitos',
     title: 'Ataques Súbitos',
     section: WIDGET_SECTIONS.ARTICULACION,
-    description: 'Cantidad de ataques súbitos'
+    description: 'Frecuencia de notas con inicio inmediato y percusivo'
   },
   {
     type: 'ataques_graduales',
     title: 'Ataques Graduales',
     section: WIDGET_SECTIONS.ARTICULACION,
-    description: 'Cantidad de ataques graduales'
+    description: 'Frecuencia de notas con entrada suave o creciente'
   },
 
   {

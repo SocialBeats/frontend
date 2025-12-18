@@ -265,6 +265,8 @@ const ViewDashboard = () => {
     return acc;
   }, {});
 
+  /* Reordering of widgets by section was removed — restoring original rendering order. */
+
   const sections = Object.values(WIDGET_SECTIONS).filter(section => widgetsBySection[section]?.length > 0);
 
   if (loading) {
@@ -401,7 +403,11 @@ const ViewDashboard = () => {
                         if (widget.type === 'spider') classes.push('spider-widget-container');
                         if (widget.type === 'bpm') classes.push('bpm-widget-container');
                         if (widget.type === 'db') classes.push('widget-span-full');
+                        // Make the Ratio widget span the full grid width by applying
+                        // the same `widget-span-full` helper to the grid child wrapper.
+                        if (widget.type === 'ratio_ataques') classes.push('widget-span-full');
                         if (widget.type === 'apertura') classes.push('widget-span-2');
+                        // No automatic 3-column span applied here; keep wrapper classes minimal.
                         return classes.join(' ');
                       })()}
                       style={widget.type === 'apertura' ? { gridColumn: 'span 2' } : undefined}
