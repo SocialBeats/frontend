@@ -11,6 +11,7 @@ import ProfileHero from '@/components/profile/ProfileHero';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
 import ProfileStudiesSection from '@/components/profile/ProfileStudiesSection';
+import ProfileCompletionWidget from '@/components/profile/ProfileCompletionWidget';
 import './Profile.css';
 
 export const MAX_TAGS = 20;
@@ -34,7 +35,7 @@ export default function ProfileView() {
   
 
   const handleSuccess = async () => {
-    setShowSuccessModal(true);
+    // Solo recargar perfil sin mostrar modal (más fluido)
     await loadProfile();
   };
 
@@ -174,7 +175,17 @@ export default function ProfileView() {
 
   return (
     <div className="profile-page">
+      {/* Profile Completion Widget - only for own profile */}
+      {isOwnProfile && (
+        <ProfileCompletionWidget
+          onEditBasic={() => setIsEditingBasic(true)}
+          onEditAbout={() => setIsEditingAbout(true)}
+          onEditTags={() => setIsEditingTags(true)}
+        />
+      )}
+
       {/* Hero Section */}
+      <div id="profile-hero">
       <ProfileHero
         profile={profile}
         formData={formData}
@@ -195,6 +206,7 @@ export default function ProfileView() {
           setShowErrorModal(true);
         }}
       />
+      </div>
 
       {/* Edit Form - only if own profile */}
       {isOwnProfile && isEditingBasic && (
@@ -209,26 +221,30 @@ export default function ProfileView() {
       )}
 
       {/* Studies Section */}
-      <ProfileStudiesSection
-        studies={formData.studies}
-        isOwnProfile={isOwnProfile}
-        onUpdateStudies={handleStudiesSubmit}
-      />
+      <div id="profile-studies-section">
+        <ProfileStudiesSection
+          studies={formData.studies}
+          isOwnProfile={isOwnProfile}
+          onUpdateStudies={handleStudiesSubmit}
+        />
+      </div>
 
       {/* Skills Section */}
-      <ProfileSkillsSection
-        formData={formData}
-        isOwnProfile={isOwnProfile}
-        isEditingTags={isEditingTags}
-        saving={saving}
-        tagInput={tagInput}
-        onTagInputChange={(e) => setTagInput(e.target.value)}
-        onEditClick={() => setIsEditingTags(true)}
-        onAddTag={handleAddTag}
-        onRemoveTag={handleRemoveTag}
-        onSubmit={handleTagsSubmit}
-        onCancel={handleCancelTags}
-      />
+      <div id="profile-skills-section">
+        <ProfileSkillsSection
+          formData={formData}
+          isOwnProfile={isOwnProfile}
+          isEditingTags={isEditingTags}
+          saving={saving}
+          tagInput={tagInput}
+          onTagInputChange={(e) => setTagInput(e.target.value)}
+          onEditClick={() => setIsEditingTags(true)}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
+          onSubmit={handleTagsSubmit}
+          onCancel={handleCancelTags}
+        />
+      </div>
 
       <SuccessModal
         isOpen={showSuccessModal}
