@@ -38,9 +38,7 @@ const MyPlaylists = () => {
     fetchPlaylists();
   }, []);
 
-  const handleOpenPlaylist = (id) => {
-    navigate(`/app/playlists/${id}`);
-  };
+  const handleOpenPlaylist = (id) => navigate(`/app/playlists/${id}`);
 
   const toggleMenu = (id, e) => {
     e.stopPropagation();
@@ -82,10 +80,21 @@ const MyPlaylists = () => {
   return (
     <div className="playlist-list">
       <div className="playlist-list__container">
-        <h1 className="playlist-list__title">Tus Playlists</h1>
-        <p className="playlist-list__subtitle">
-          Lista de playlists creadas o compartidas contigo.
-        </p>
+        <div className="playlist-list__header-row">
+          <div>
+            <h1 className="playlist-list__title">Tus Playlists</h1>
+            <p className="playlist-list__subtitle">
+              Lista de playlists creadas o compartidas contigo.
+            </p>
+          </div>
+
+          <button
+            className="btn-create-playlist"
+            onClick={() => navigate("/app/playlists/create")}
+          >
+            + Crear Playlist
+          </button>
+        </div>
 
         {playlists.length === 0 ? (
           <p className="playlist-list__empty">
@@ -99,13 +108,9 @@ const MyPlaylists = () => {
                 className="playlist-card"
                 onClick={() => handleOpenPlaylist(pl._id)}
               >
-                {/* Header & Menu */}
                 <div className="playlist-card__top">
                   <div className="playlist-card__info">
-                    <h2 className="playlist-card__name">
-                      {pl.name}
-                    </h2>
-
+                    <h2 className="playlist-card__name">{pl.name}</h2>
                     <p className="playlist-card__description">
                       {pl.description || "Sin descripción"}
                     </p>
@@ -169,7 +174,6 @@ const MyPlaylists = () => {
           title="Eliminar playlist"
         >
           <p>¿Seguro que quieres eliminar esta playlist?</p>
-
           <div className="modal-buttons">
             <button
               className="modal-btn cancel"
