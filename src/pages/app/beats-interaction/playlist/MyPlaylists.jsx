@@ -1,31 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../../components/ui/Modal";
 import "./PlaylistLists.css";
-
-// Mock playlists for now
-const mockPlaylists = [
-  {
-    id: 42,
-    name: "Favoritas 2024",
-    description: "Mis canciones más escuchadas del año.",
-  },
-  {
-    id: 2,
-    name: "Beats para trabajar",
-    description: "Playlist perfecta para concentrarse.",
-  },
-  {
-    id: 3,
-    name: "Reggaeton Old School",
-    description: "Clásicos de reggaeton del 2000 al 2010.",
-  },
-];
+import {
+  getMyPlaylists,
+  deletePlaylist as deletePlaylistApi,
+} from "../../../../services/beats-interaction/playlistService";
 
 const MyPlaylists = () => {
   const navigate = useNavigate();
+
+  const [playlists, setPlaylists] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [openMenuId, setOpenMenuId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      try {
+        const response = await getMyPlaylists();
+
+        const data = Array.isArray(response.data)
+          ? response.data
+          : response.data?.playlists || [];
+
+        setPlaylists(data);
+      } catch (error) {
+        console.error("Error loading playlists:", error);
+        alert("No se pudieron cargar tus playlists");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlaylists();
+  }, []);
 
   const handleOpenPlaylist = (id) => {
     navigate(`/app/playlists/${id}`);
@@ -33,7 +44,7 @@ const MyPlaylists = () => {
 
   const toggleMenu = (id, e) => {
     e.stopPropagation();
-    setOpenMenuId((prev) => (prev === id ? null : id));
+    setOpenMenuId(prev => (prev === id ? null : id));
   };
 
   const openDeleteModal = (id) => {
@@ -41,11 +52,32 @@ const MyPlaylists = () => {
     setOpenMenuId(null);
   };
 
-  const deletePlaylist = () => {
-    console.log("Deleting playlist:", deleteTarget);
-    // Aquí iría la llamada a la API para borrar la playlist
-    setDeleteTarget(null);
+  const confirmDeletePlaylist = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+
+    const previousPlaylists = playlists;
+    setPlaylists(prev =>
+      prev.filter(pl => pl._id !== deleteTarget)
+    );
+
+    try {
+      await deletePlaylistApi(deleteTarget);
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error("Error deleting playlist:", error);
+      alert("No se pudo eliminar la playlist");
+
+      setPlaylists(previousPlaylists);
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
+  if (isLoading) {
+    return <p className="loading-text">Cargando playlists...</p>;
+  }
 
   return (
     <div className="playlist-list">
@@ -55,71 +87,104 @@ const MyPlaylists = () => {
           Lista de playlists creadas o compartidas contigo.
         </p>
 
-        <div className="playlist-grid">
-          {mockPlaylists.map((pl) => (
-            <div
-              key={pl.id}
-              className="playlist-card"
-              onClick={() => handleOpenPlaylist(pl.id)}
-            >
-              {/* Header & Menu */}
-              <div className="playlist-card__top">
-                <div>
-                  <h2 className="playlist-card__name">{pl.name}</h2>
-                  <p className="playlist-card__description">
-                    {pl.description || "Sin descripción"}
-                  </p>
-                </div>
+        {playlists.length === 0 ? (
+          <p className="playlist-list__empty">
+            Aún no tienes playlists
+          </p>
+        ) : (
+          <div className="playlist-grid">
+            {playlists.map(pl => (
+              <div
+                key={pl._id}
+                className="playlist-card"
+                onClick={() => handleOpenPlaylist(pl._id)}
+              >
+                {/* Header & Menu */}
+                <div className="playlist-card__top">
+                  <div className="playlist-card__info">
+                    <h2 className="playlist-card__name">
+                      {pl.name}
+                    </h2>
 
-                <button
-                  className="playlist-card__menu-btn"
-                  onClick={(e) => toggleMenu(pl.id, e)}
-                >
-                  ⋮
-                </button>
+                    <p className="playlist-card__description">
+                      {pl.description || "Sin descripción"}
+                    </p>
 
-                {openMenuId === pl.id && (
-                  <div
-                    className="playlist-card__menu"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      className="playlist-card__menu-item"
-                      onClick={() => navigate(`/app/playlists/${pl.id}/edit`)}
-                    >
-                      ✏️ Editar
-                    </button>
+                    {/* Badges */}
+                    <div className="playlist-card__meta">
+                      <span
+                        className={`playlist-badge ${
+                          pl.isPublic ? "public" : "private"
+                        }`}
+                      >
+                        {pl.isPublic ? "🌍 Pública" : "🔒 Privada"}
+                      </span>
 
-                    <button
-                      className="playlist-card__menu-item delete"
-                      onClick={() => openDeleteModal(pl.id)}
-                    >
-                      🗑️ Eliminar
-                    </button>
+                      {pl.collaborators?.length > 0 && (
+                        <span className="playlist-badge collaborators">
+                          👥 {pl.collaborators.length}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
 
-        {/* Delete confirmation modal */}
+                  <button
+                    className="playlist-card__menu-btn"
+                    onClick={(e) => toggleMenu(pl._id, e)}
+                  >
+                    ⋮
+                  </button>
+
+                  {openMenuId === pl._id && (
+                    <div
+                      className="playlist-card__menu"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        className="playlist-card__menu-item"
+                        onClick={() =>
+                          navigate(`/app/playlists/${pl._id}/edit`)
+                        }
+                      >
+                        ✏️ Editar
+                      </button>
+
+                      <button
+                        className="playlist-card__menu-item delete"
+                        onClick={() => openDeleteModal(pl._id)}
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <Modal
           isOpen={deleteTarget !== null}
-          onClose={() => setDeleteTarget(null)}
+          onClose={() => !isDeleting && setDeleteTarget(null)}
           title="Eliminar playlist"
         >
           <p>¿Seguro que quieres eliminar esta playlist?</p>
+
           <div className="modal-buttons">
             <button
               className="modal-btn cancel"
+              disabled={isDeleting}
               onClick={() => setDeleteTarget(null)}
             >
               Cancelar
             </button>
 
-            <button className="modal-btn delete" onClick={deletePlaylist}>
-              Borrar
+            <button
+              className="modal-btn delete"
+              disabled={isDeleting}
+              onClick={confirmDeletePlaylist}
+            >
+              {isDeleting ? "Borrando..." : "Borrar"}
             </button>
           </div>
         </Modal>

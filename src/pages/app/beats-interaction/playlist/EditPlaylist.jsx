@@ -1,69 +1,115 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Button from '../../../../components/ui/Button';
-import './CreatePlaylist.css';
-
-const mockUsers = [
-  { id: 1, name: "Ana García" },
-  { id: 2, name: "Luis Martínez" },
-  { id: 3, name: "Sara López" },
-  { id: 4, name: "Carlos Ruiz" },
-  { id: 5, name: "Julia Méndez" },
-];
-
-const mockPlaylists = [
-  {
-    id: 42,
-    name: "Mis Temazos",
-    description: "Playlist con mis canciones favoritas 🎶",
-    collaborators: [1, 4],
-    isPublic: true,
-  },
-];
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Button from "../../../../components/ui/Button";
+import {
+  getPlaylistById,
+  updatePlaylist,
+} from "../../../../services/beats-interaction/playlistService";
+import { searchProfiles } from "../../../../services/profileService";
+import "./CreatePlaylist.css";
 
 const EditPlaylist = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [playlistName, setPlaylistName] = useState("");
   const [playlistDescription, setPlaylistDescription] = useState("");
   const [playlistCollaborators, setPlaylistCollaborators] = useState([]);
   const [playlistIsPublic, setPlaylistIsPublic] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [foundUsers, setFoundUsers] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const filteredUsers = mockUsers.filter(u =>
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !playlistCollaborators.includes(u.id)
-  );
+useEffect(() => {
+  const fetchPlaylist = async () => {
+    try {
+      const response = await getPlaylistById(id);
+      const playlist = response.data;
 
-  const toggleCollaborator = (userId) => {
-    setPlaylistCollaborators(prev =>
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
+      setPlaylistName(playlist.name || "");
+      setPlaylistDescription(playlist.description || "");
+      setPlaylistIsPublic(playlist.isPublic || false);
+
+
+      if (playlist.collaboratorsData?.length > 0) {
+        const normalized = playlist.collaboratorsData.map(user => ({
+          _id: user.userId,
+          username: user.username,
+        }));
+
+        setPlaylistCollaborators(normalized);
+      } else if (playlist.collaborators?.length > 0) {
+
+        const { profiles = [] } = await searchProfiles({
+          ids: playlist.collaborators,
+        });
+
+        const normalized = profiles.map(user => ({
+          _id: user._id,
+          username: user.username,
+        }));
+
+        setPlaylistCollaborators(normalized);
+      } else {
+        setPlaylistCollaborators([]);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cargar la playlist");
+      navigate("/app/playlists/me");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => {
-    const playlist = mockPlaylists.find(p => p.id === Number(id));
+  fetchPlaylist();
+}, [id, navigate]);
 
-    if (!playlist) {
-      alert("La playlist no existe");
-      navigate("/app/playlists");
+
+  useEffect(() => {
+    if (!playlistIsPublic || searchQuery.trim().length < 2) {
+      setFoundUsers([]);
       return;
     }
 
-    setPlaylistName(playlist.name);
-    setPlaylistDescription(playlist.description);
-    setPlaylistCollaborators(playlist.collaborators);
-    setPlaylistIsPublic(playlist.isPublic);
+    const timeout = setTimeout(async () => {
+      setIsSearching(true);
 
-    setIsLoading(false);
-  }, [id, navigate]);
+      try {
+        const { profiles = [] } = await searchProfiles(searchQuery.trim());
+
+        const filtered = profiles.filter(
+          user =>
+            !playlistCollaborators.some(
+              collaborator => collaborator._id === user._id
+            )
+        );
+
+        setFoundUsers(filtered);
+      } catch (error) {
+        console.error("Error buscando usuarios:", error);
+        setFoundUsers([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery, playlistCollaborators, playlistIsPublic]);
+
+
+  const toggleCollaborator = (user) => {
+    setPlaylistCollaborators(prev =>
+      prev.some(u => u._id === user._id)
+        ? prev.filter(u => u._id !== user._id)
+        : [...prev, user]
+    );
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,32 +119,44 @@ const EditPlaylist = () => {
       return;
     }
 
+    if (!playlistIsPublic && playlistCollaborators.length > 0) {
+      alert("No puedes añadir colaboradores a una playlist privada");
+      return;
+    }
+
+    if (playlistCollaborators.length > 30) {
+      alert("Máximo 30 colaboradores");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
-      const updatedPlaylist = {
-        id: Number(id),
-        name: playlistName,
-        description: playlistDescription,
-        collaborators: playlistCollaborators,
+      const payload = {
+        name: playlistName.trim(),
+        description: playlistDescription.trim(),
         isPublic: playlistIsPublic,
-        updatedAt: new Date().toISOString(),
+        collaborators: playlistIsPublic
+          ? playlistCollaborators.map(user => user._id)
+          : [],
       };
 
-      console.log("Playlist actualizada:", updatedPlaylist);
+      await updatePlaylist(id, payload);
 
-      // navigate(`/app/playlists/${id}`);
-
+      navigate(`/app/playlists/${id}`);
     } catch (error) {
       console.error("Error al actualizar playlist:", error);
-      alert("Error al actualizar la playlist");
+      alert(
+        error?.response?.data?.message ||
+          "Error al actualizar la playlist"
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    // navigate("/app/playlists");
+    navigate(`/app/playlists/${id}`);
   };
 
   if (isLoading) {
@@ -108,7 +166,7 @@ const EditPlaylist = () => {
   return (
     <div className="create-playlist">
       <div className="create-playlist__container">
-        
+
         <div className="create-playlist__header">
           <h1 className="create-playlist__title">Editar Playlist</h1>
           <p className="create-playlist__subtitle">
@@ -126,7 +184,6 @@ const EditPlaylist = () => {
               className="create-playlist__input"
               value={playlistName}
               onChange={(e) => setPlaylistName(e.target.value)}
-              placeholder="Ej: Favoritas de 2024"
               disabled={isSaving}
             />
           </div>
@@ -138,58 +195,64 @@ const EditPlaylist = () => {
               className="create-playlist__textarea"
               value={playlistDescription}
               onChange={(e) => setPlaylistDescription(e.target.value)}
-              placeholder="Ej: Canciones más escuchadas del año"
               disabled={isSaving}
-            ></textarea>
+            />
           </div>
 
-          {/* Collaborators */}
+          {/* Colaboradores */}
           <div className="create-playlist__form-group">
             <label className="create-playlist__label">Colaboradores</label>
 
             {/* Chips */}
             <div className="selected-collaborators">
-              {playlistCollaborators.map(id => {
-                const user = mockUsers.find(u => u.id === id);
-                if (!user) return null;
-                return (
-                  <div key={id} className="collab-chip">
-                    {user.name}
-                    <span className="remove-chip" onClick={() => toggleCollaborator(id)}>
-                      ✕
-                    </span>
-                  </div>
-                );
-              })}
+              {playlistCollaborators.map(user => (
+                <div key={user._id} className="collab-chip">
+                  {user.username}
+                  <span
+                    className="remove-chip"
+                    onClick={() => toggleCollaborator(user)}
+                  >
+                    ✕
+                  </span>
+                </div>
+              ))}
             </div>
 
-            {/* Search box */}
             <input
               type="text"
               className="create-playlist__input collaborator-search"
-              placeholder="Buscar colaboradores..."
+              placeholder={
+                playlistIsPublic
+                  ? "Buscar colaboradores..."
+                  : "Haz la playlist pública para añadir colaboradores"
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={isSaving}
+              disabled={!playlistIsPublic || isSaving}
             />
 
-            {searchQuery.trim() && (
+            {playlistIsPublic && searchQuery.trim() && (
               <div className="collaborator-dropdown">
-                {filteredUsers.length === 0 ? (
+                {isSearching ? (
+                  <div className="collaborator-dropdown__empty">
+                    Buscando...
+                  </div>
+                ) : foundUsers.length === 0 ? (
                   <div className="collaborator-dropdown__empty">
                     No se encontraron usuarios
                   </div>
                 ) : (
-                  filteredUsers.map(user => (
+                  foundUsers.map(user => (
                     <div
-                      key={user.id}
+                      key={user._id}
                       className="collaborator-dropdown__item"
                       onClick={() => {
-                        toggleCollaborator(user.id);
+                        toggleCollaborator(user);
                         setSearchQuery("");
+                        setFoundUsers([]);
                       }}
                     >
-                      {user.name}
+                      {user.username}
                     </div>
                   ))
                 )}
@@ -197,28 +260,43 @@ const EditPlaylist = () => {
             )}
           </div>
 
-          {/* Public switch */}
+          {/* Visibilidad */}
           <div className="create-playlist__form-group switch-row">
-            <label className="create-playlist__label">Playlist Pública</label>
-
+            <label className="create-playlist__label">
+              Playlist Pública
+            </label>
             <label className="switch">
               <input
                 type="checkbox"
                 checked={playlistIsPublic}
-                onChange={() => setPlaylistIsPublic(prev => !prev)}
+                onChange={() => {
+                  setPlaylistIsPublic(prev => !prev);
+                  setPlaylistCollaborators([]);
+                  setSearchQuery("");
+                  setFoundUsers([]);
+                }}
               />
               <span className="slider"></span>
             </label>
           </div>
 
           <div className="create-playlist__actions">
-            <Button type="button" variant="secondary" onClick={handleCancel}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCancel}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={!playlistName.trim() || isSaving}>
+
+            <Button
+              type="submit"
+              disabled={!playlistName.trim() || isSaving}
+            >
               {isSaving ? "Guardando..." : "Guardar Cambios"}
             </Button>
           </div>
+
         </form>
       </div>
     </div>
