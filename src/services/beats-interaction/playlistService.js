@@ -12,9 +12,12 @@ export function getUserPlaylists(userId) {
   return client.get(`/beats-interactions/playlists/user/${userId}`)
 }
 
-export function getPublicPlaylists() {
-  return client.get('/beats-interactions/playlists/public')
+export function getPublicPlaylists(params = {}) {
+  return client.get('/beats-interactions/playlists/public', {
+    params,
+  });
 }
+
 
 export function getPlaylistById(id) {
   return client.get(`/beats-interactions/playlists/${id}`)
