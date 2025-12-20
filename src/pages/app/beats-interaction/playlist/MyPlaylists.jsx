@@ -6,6 +6,7 @@ import {
   getMyPlaylists,
   deletePlaylist as deletePlaylistApi,
 } from "../../../../services/beats-interaction/playlistService";
+import { getCurrentUserId } from "../../../../services/authService";
 
 const MyPlaylists = () => {
   const navigate = useNavigate();
@@ -17,6 +18,13 @@ const MyPlaylists = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const id = getCurrentUserId();
+    setCurrentUserId(id);
+  }, []);
+
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
@@ -25,7 +33,6 @@ const MyPlaylists = () => {
         const data = Array.isArray(response.data)
           ? response.data
           : response.data?.playlists || [];
-
         setPlaylists(data);
       } catch (error) {
         console.error("Error loading playlists:", error);
@@ -42,7 +49,7 @@ const MyPlaylists = () => {
 
   const toggleMenu = (id, e) => {
     e.stopPropagation();
-    setOpenMenuId(prev => (prev === id ? null : id));
+    setOpenMenuId((prev) => (prev === id ? null : id));
   };
 
   const openDeleteModal = (id) => {
@@ -56,9 +63,7 @@ const MyPlaylists = () => {
     setIsDeleting(true);
 
     const previousPlaylists = playlists;
-    setPlaylists(prev =>
-      prev.filter(pl => pl._id !== deleteTarget)
-    );
+    setPlaylists((prev) => prev.filter((pl) => pl._id !== deleteTarget));
 
     try {
       await deletePlaylistApi(deleteTarget);
@@ -97,12 +102,10 @@ const MyPlaylists = () => {
         </div>
 
         {playlists.length === 0 ? (
-          <p className="playlist-list__empty">
-            Aún no tienes playlists
-          </p>
+          <p className="playlist-list__empty">Aún no tienes playlists</p>
         ) : (
           <div className="playlist-grid">
-            {playlists.map(pl => (
+            {playlists.map((pl) => (
               <div
                 key={pl._id}
                 className="playlist-card"
@@ -133,34 +136,38 @@ const MyPlaylists = () => {
                     </div>
                   </div>
 
-                  <button
-                    className="playlist-card__menu-btn"
-                    onClick={(e) => toggleMenu(pl._id, e)}
-                  >
-                    ⋮
-                  </button>
-
-                  {openMenuId === pl._id && (
-                    <div
-                      className="playlist-card__menu"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                  {currentUserId === pl.ownerId && (
+                    <>
                       <button
-                        className="playlist-card__menu-item"
-                        onClick={() =>
-                          navigate(`/app/playlists/${pl._id}/edit`)
-                        }
+                        className="playlist-card__menu-btn"
+                        onClick={(e) => toggleMenu(pl._id, e)}
                       >
-                        ✏️ Editar
+                        ⋮
                       </button>
 
-                      <button
-                        className="playlist-card__menu-item delete"
-                        onClick={() => openDeleteModal(pl._id)}
-                      >
-                        🗑️ Eliminar
-                      </button>
-                    </div>
+                      {openMenuId === pl._id && (
+                        <div
+                          className="playlist-card__menu"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className="playlist-card__menu-item"
+                            onClick={() =>
+                              navigate(`/app/playlists/${pl._id}/edit`)
+                            }
+                          >
+                            ✏️ Editar
+                          </button>
+
+                          <button
+                            className="playlist-card__menu-item delete"
+                            onClick={() => openDeleteModal(pl._id)}
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
