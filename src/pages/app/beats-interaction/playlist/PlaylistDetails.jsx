@@ -30,6 +30,7 @@ const PlaylistDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const audioRef = useRef(null);
 
   const myUserId = getCurrentUserId();
 
@@ -44,6 +45,9 @@ const PlaylistDetails = () => {
   const [loadingBeats, setLoadingBeats] = useState(false);
 
   const [fixedWidth, setFixedWidth] = useState(null);
+
+  const [currentPlayingId, setCurrentPlayingId] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   /* ================= FETCH PLAYLIST ================= */
 
@@ -122,6 +126,79 @@ const PlaylistDetails = () => {
     return () => window.removeEventListener("resize", captureWidth);
   }, []);
 
+  /* ================= AUDIO PLAYER ================= */
+
+  const getAudioUrl = (beat) => {
+    if (beat.audio?.s3Key) {
+      const cdnDomain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || 
+                        import.meta.env.VITE_CDN_DOMAIN || 
+                        '';
+      return `${cdnDomain}/${beat.audio.s3Key}`;
+    }
+    if (beat.audio?.url) {
+      return beat.audio.url;
+    }
+    if (beat.audioUrl) {
+      return beat.audioUrl;
+    }
+    return null;
+  };
+
+  const togglePlay = (beatId, beat) => {
+    if (!audioRef.current) {
+      console.error('Audio ref not available');
+      return;
+    }
+
+    const audioUrl = getAudioUrl(beat);
+    
+    if (!audioUrl) {
+      console.error('No audio URL found for beat:', beat);
+      alert('Audio no disponible para este beat');
+      return;
+    }
+
+    if (currentPlayingId === beatId) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().catch(err => {
+          console.error('Error playing audio:', err);
+          alert('Error al reproducir el audio');
+        });
+        setIsPlaying(true);
+      }
+    } else {
+      // Cambiar a un nuevo beat
+      console.log('Loading audio from:', audioUrl);
+      audioRef.current.src = audioUrl;
+      audioRef.current.play()
+        .then(() => {
+          setCurrentPlayingId(beatId);
+          setIsPlaying(true);
+        })
+        .catch(err => {
+          console.error('Error playing audio:', err);
+          alert('Error al reproducir el audio');
+        });
+    }
+  };
+
+  const handleAudioEnded = () => {
+    setIsPlaying(false);
+    
+    const currentIndex = beats.findIndex(b => b._id === currentPlayingId);
+    if (currentIndex !== -1 && currentIndex < beats.length - 1) {
+      const nextBeat = beats[currentIndex + 1];
+      togglePlay(nextBeat._id, nextBeat);
+    } else {
+      setCurrentPlayingId(null);
+    }
+  };
+
+  /* ================= PLAYLIST ACTIONS ================= */
+
   const handleDeletePlaylist = async () => {
     try {
       await deletePlaylist(playlist._id);
@@ -170,6 +247,12 @@ const PlaylistDetails = () => {
         beatId
       );
       setPlaylist(data);
+      
+      if (currentPlayingId === beatId) {
+        audioRef.current?.pause();
+        setIsPlaying(false);
+        setCurrentPlayingId(null);
+      }
     } catch {
       alert("Error al quitar el beat");
     }
@@ -193,6 +276,16 @@ const PlaylistDetails = () => {
           : {}
       }
     >
+      {/* Audio Element */}
+      <audio
+        ref={audioRef}
+        onEnded={handleAudioEnded}
+        onError={(e) => {
+          console.error("Audio playback error:", e);
+          setIsPlaying(false);
+        }}
+      />
+
       {/* HEADER */}
       <div className="playlist-details-header">
         <div>
@@ -254,38 +347,55 @@ const PlaylistDetails = () => {
             Esta playlist aún no tiene beats
           </div>
         ) : (
-          beats.map((beat, index) => (
-            <Card
-              key={beat._id || beat.beatId}
-              className="playlist-beat-row"
-              padding="none"
-            >
-              <div>{index + 1}</div>
-              <div>
-                <strong>{beat.title}</strong>
-                <div className="text-muted">{beat.artist}</div>
-              </div>
-              <div>
-                {new Date(beat.addedAt).toLocaleDateString()}
-              </div>
-              <img
-                src={logo}
-                alt="cover"
-                className="beat-cover-small"
-              />
-
-              {canEditPlaylist && (
+          beats.map((beat, index) => {
+            const beatId = beat._id || beat.beatId;
+            const isCurrentlyPlaying = currentPlayingId === beatId && isPlaying;
+            const hasAudio = getAudioUrl(beat) !== null;
+            
+            return (
+              <Card
+                key={beatId}
+                className={`playlist-beat-row ${isCurrentlyPlaying ? 'playing' : ''}`}
+                padding="none"
+              >
+                {/* Play Button */}
                 <IconButton
-                  variant="danger"
-                  onClick={() =>
-                    handleRemoveBeat(beat._id || beat.beatId)
-                  }
+                  variant="ghost"
+                  onClick={() => togglePlay(beatId, beat)}
+                  disabled={!hasAudio}
+                  title={hasAudio ? "Reproducir" : "Audio no disponible"}
                 >
-                  ❌
+                  {isCurrentlyPlaying ? '⏸' : '▶'}
                 </IconButton>
-              )}
-            </Card>
-          ))
+
+                <div>{index + 1}</div>
+                
+                <div>
+                  <strong>{beat.title}</strong>
+                  <div className="text-muted">{beat.artist}</div>
+                </div>
+                
+                <div>
+                  {new Date(beat.addedAt).toLocaleDateString()}
+                </div>
+                
+                <img
+                  src={logo}
+                  alt="cover"
+                  className="beat-cover-small"
+                />
+
+                {canEditPlaylist && (
+                  <IconButton
+                    variant="danger"
+                    onClick={() => handleRemoveBeat(beatId)}
+                  >
+                    ❌
+                  </IconButton>
+                )}
+              </Card>
+            );
+          })
         )}
       </div>
 
