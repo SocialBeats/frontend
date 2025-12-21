@@ -151,3 +151,98 @@
 .modal-btn.delete:hover {
   background: #dc2626;
 }
+
+.playlist-beats-wrapper {
+  margin-top: 32px;
+}
+
+.playlist-beats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.playlist-beats-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.playlist-beat-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 140px 50px 40px;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--card-bg, #121212);
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.playlist-beat-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+
+.playlist-beat-row > div:first-child {
+  font-weight: 600;
+  color: #888;
+  text-align: center;
+}
+
+.playlist-beat-row strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.playlist-beat-row .text-muted {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 2px;
+}
+
+.playlist-beat-row > div:nth-child(3) {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.beat-cover-small {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #1e1e1e;
+}
+
+.playlist-beat-row button {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.playlist-beat-row:hover button {
+  opacity: 1;
+}
+
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .playlist-beat-row {
+    grid-template-columns: 24px 1fr 40px;
+  }
+
+  .playlist-beat-row > div:nth-child(3),
+  .playlist-beat-row img {
+    display: none;
+  }
+
+  .playlist-beat-row button {
+    opacity: 1;
+  }
+}
