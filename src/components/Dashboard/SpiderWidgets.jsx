@@ -3,9 +3,9 @@ import './BaseWidget.css';
 import './SpiderWidget.css';
 import { mockBeatMetrics } from '../../utils/mockMetrics';
 
-const SpiderWidget = () => {
-  // Convertir los datos mockeados al formato del gráfico
-  const metrics = mockBeatMetrics.coreMetrics;
+const SpiderWidget = ({ coreMetrics = null }) => {
+  // Preferir métricas reales pasadas por prop; si no, usar mocks
+  const metrics = coreMetrics || mockBeatMetrics.coreMetrics;
 
   const metricDescriptions = {
     'Energía': 'Mide la intensidad sonora general del beat. Valores altos indican mayor potencia y presencia, mientras que valores bajos sugieren un sonido más suave y sutil.',
@@ -15,15 +15,48 @@ const SpiderWidget = () => {
     'Densidad': 'Mide la cantidad de ataques y eventos sonoros por segundo. Alta densidad implica muchos elementos simultáneos, baja densidad sugiere más espacio y minimalismo.',
     'Riqueza': 'Evalúa la complejidad armónica y tímbrica del beat. Valores altos indican múltiples capas y texturas sonoras, mientras que bajos sugieren simplicidad y claridad.'
   };
+  // Normaliza un valor a porcentaje 0..100. Si value > 1 aplicamos x/(x+1)
+  const normalizeToPercent = (value) => {
+    if (value === null || value === undefined) return 0;
+    const num = Number(value);
+    if (Number.isNaN(num)) return 0;
+    const v = Math.max(0, num);
+    const scaled = v > 1 ? (v / (v + 1)) : v;
+    return scaled * 100;
+  };
 
   const spiderData = [
-    { metric: 'Energía', value: metrics.energy * 100, fullMark: 100, description: metricDescriptions['Energía'] },
-    { metric: 'Dinamismo', value: metrics.dynamism * 100, fullMark: 100, description: metricDescriptions['Dinamismo'] },
-    { metric: 'Percusión', value: metrics.percussiveness * 100, fullMark: 100, description: metricDescriptions['Percusión'] },
-    { metric: 'Brillo', value: metrics.brigthness * 100, fullMark: 100, description: metricDescriptions['Brillo'] },
-    { metric: 'Densidad', value: metrics.density * 100, fullMark: 100, description: metricDescriptions['Densidad'] },
-    { metric: 'Riqueza', value: metrics.richness * 100, fullMark: 100, description: metricDescriptions['Riqueza'] }
+    { metric: 'Energía', value: normalizeToPercent(metrics.energy), fullMark: 100, description: metricDescriptions['Energía'] },
+    { metric: 'Dinamismo', value: normalizeToPercent(metrics.dynamism), fullMark: 100, description: metricDescriptions['Dinamismo'] },
+    { metric: 'Percusión', value: normalizeToPercent(metrics.percussiveness), fullMark: 100, description: metricDescriptions['Percusión'] },
+    { metric: 'Brillo', value: normalizeToPercent(metrics.brigthness), fullMark: 100, description: metricDescriptions['Brillo'] },
+    { metric: 'Densidad', value: normalizeToPercent(metrics.density), fullMark: 100, description: metricDescriptions['Densidad'] },
+    { metric: 'Riqueza', value: normalizeToPercent(metrics.richness), fullMark: 100, description: metricDescriptions['Riqueza'] }
   ];
+
+  // Custom tick renderer for PolarAngleAxis: push labels slightly outward
+  const CustomAngleTick = (props) => {
+    const { payload, x, y, cx, cy } = props;
+    // compute vector from center to tick and move outward by offset px
+    const offset = 18; // pixels to push labels outward
+    let nx = x;
+    let ny = y;
+    try {
+      const dx = x - cx;
+      const dy = y - cy;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      nx = x + (dx / len) * offset;
+      ny = y + (dy / len) * offset;
+    } catch (e) {
+      // fallback, keep original
+    }
+
+    return (
+      <text x={nx} y={ny} fill="#e2e8f0" fontSize={16} fontWeight={700} textAnchor="middle">
+        {payload.value}
+      </text>
+    );
+  };
 
   // Tooltip personalizado
   const CustomTooltip = ({ active, payload }) => {
@@ -65,7 +98,12 @@ const SpiderWidget = () => {
 
       <div style={{ width: '100%', height: '550px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={spiderData} margin={{top: 60, right: 60, bottom: 60, left: 60}}>
+          {/*
+            Increase margins and decrease outerRadius so metric labels have more space
+            between the chart edge and the labels. Adjust values if your container
+            size changes.
+          */}
+          <RadarChart data={spiderData} outerRadius={160} margin={{top: 100, right: 120, bottom: 80, left: 120}}>
             <defs>
               <linearGradient id="spiderGradient" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#e879f9" stopOpacity={0.8} />
@@ -79,11 +117,7 @@ const SpiderWidget = () => {
             />
             <PolarAngleAxis
               dataKey="metric"
-              tick={{
-                fill: '#e2e8f0',
-                fontSize: 16,
-                fontWeight: 700
-              }}
+              tick={<CustomAngleTick />}
               tickLine={false}
             />
             <PolarRadiusAxis

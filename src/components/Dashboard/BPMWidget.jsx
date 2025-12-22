@@ -1,5 +1,6 @@
 import './BaseWidget.css';
 import './BPMWidget.css';
+import { formatNumber } from '../../lib/number';
 import { useState, useEffect } from 'react';
 
 const BPMWidget = ({ title, value }) => {
@@ -218,15 +219,15 @@ const BPMWidget = ({ title, value }) => {
           </svg>          {/* Center display */}
           <div className="bpm-center-display">
             <div 
-              className="bpm-value" 
-              style={{ 
-                color: category.color, 
-                textShadow: `0 4px 20px ${category.shadowColor}`,
-                transform: `scale(${scale})`,
-                transition: 'transform 0.15s ease-out'
-              }}>
-              {value}
-            </div>
+                className="bpm-value" 
+                style={{ 
+                  color: category.color, 
+                  textShadow: `0 4px 20px ${category.shadowColor}`,
+                  transform: `scale(${scale})`,
+                  transition: 'transform 0.15s ease-out'
+                }}>
+                {formatNumber(value, 1)}
+              </div>
             <div className="bpm-unit">BPM</div>
           </div>
         </div>

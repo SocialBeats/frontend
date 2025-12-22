@@ -1,5 +1,6 @@
 import './BaseWidget.css';
 import './FrequencyWidget.css';
+import { formatNumber } from '../../lib/number';
 
 const FrequencyWidget = ({ title, value }) => {
   return (
@@ -10,7 +11,7 @@ const FrequencyWidget = ({ title, value }) => {
       <div className="flex flex-col items-center justify-center h-full">
         <div className="frequency-display frequency-display--compact">
           <div className="frequency-value-container">
-            <span className="frequency-value">{value}</span>
+            <span className="frequency-value">{formatNumber(value, 0)}</span>
             <span className="frequency-unit">Hz</span>
           </div>
         </div>

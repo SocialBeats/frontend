@@ -21,6 +21,7 @@ import GaugeWidget from '../../../components/Dashboard/GaugeWidget';
 import RatioWidget from '../../../components/Dashboard/RatioWidget';
 import ChromaWidget from '../../../components/Dashboard/ChromaWidget';
 import { mockBeatMetrics } from '../../../utils/mockMetrics';
+import { getBeatMetrics } from '../../../services/analytics/beatMetrics';
 import BeatsPositionWidget from '../../../components/Dashboard/BeatsPositionWidget';
 
 const ViewDashboard = () => {
@@ -36,6 +37,11 @@ const ViewDashboard = () => {
   const inputRef = useRef(null);
   const addButtonRef = useRef(null);
   const [showFab, setShowFab] = useState(false);
+
+  // Metrics state (moved up so effects can safely reference setters)
+  const [metrics, setMetrics] = useState(mockBeatMetrics.extraMetrics);
+  const [coreMetrics, setCoreMetrics] = useState(mockBeatMetrics.coreMetrics);
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   const WIDGET_SECTIONS = {
     CORE: 'Métricas Core',
@@ -64,6 +70,63 @@ const ViewDashboard = () => {
 
     fetchDashboard();
   }, [id]);
+
+  // Try to load real metrics for a beat if the dashboard contains a beatId (fallback to mocks)
+  useEffect(() => {
+    const tryFetchMetrics = async () => {
+      if (!dashboard) return;
+
+      const beatId = dashboard.beatId || dashboard.beat_id || dashboard.selectedBeatId || dashboard.metadata?.beatId || dashboard.metadata?.beat_id;
+      if (!beatId) {
+        // No beatId available on dashboard; keep using mock metrics
+        return;
+      }
+
+      try {
+        setMetricsLoading(true);
+        console.log('🔍 Fetching metrics for beatId:', beatId);
+        const resp = await getBeatMetrics(beatId);
+
+        // Normalizar la respuesta — el backend puede devolver:
+        // - { data: { data: <payload> } }
+        // - { data: <payload> }
+        // - <payload>
+        // Además el payload puede ser un array de análisis (varias entradas).
+        let payload = resp?.data?.data ?? resp?.data ?? resp;
+
+        if (Array.isArray(payload)) {
+          // Elegir el primer elemento (o el último si prefieres el más reciente)
+          const chosen = payload[0] || payload[payload.length - 1];
+          console.log('ℹ️ Backend returned array of metrics, choosing element:', chosen);
+          payload = chosen;
+        }
+
+        const extra = payload?.extraMetrics ?? payload?.extra_metrics ?? payload;
+        const core = payload?.coreMetrics ?? payload?.core_metrics ?? null;
+
+        if (core && typeof core === 'object') {
+          setCoreMetrics(core);
+        } else {
+          setCoreMetrics(mockBeatMetrics.coreMetrics);
+        }
+
+        if (extra && typeof extra === 'object') {
+          setMetrics(extra);
+          console.log('✅ Metrics loaded for beatId:', beatId, extra);
+        } else {
+          console.warn('⚠️ No extra metrics found in response for beatId (using mocks):', beatId, resp);
+          setMetrics(mockBeatMetrics.extraMetrics);
+        }
+      } catch (err) {
+        console.error('🚨 Error fetching beat metrics for beatId:', beatId, err);
+        setMetrics(mockBeatMetrics.extraMetrics);
+      } finally {
+        setMetricsLoading(false);
+      }
+    };
+
+    tryFetchMetrics();
+  }, [dashboard]);
 
   // Show FAB when the header 'Añadir Widget' button is not visible in viewport
   useEffect(() => {
@@ -195,20 +258,20 @@ const ViewDashboard = () => {
     }
   };
 
-  const renderWidget = (widget) => {
-    const metrics = mockBeatMetrics.extraMetrics;
+  
 
+  const renderWidget = (widget) => {
     switch (widget.type) {
       case 'spider':
-        return <SpiderWidget />;
+        return <SpiderWidget coreMetrics={coreMetrics} />;
 
       // Tempo
       case 'bpm':
         return <BPMWidget title={widget.title} value={metrics.bpm} />;
       case 'num_beats':
-        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats.toLocaleString()} icon="💓" bpm={metrics.bpm} />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats?.toLocaleString?.() ?? metrics.num_beats} icon="💓" bpm={metrics.bpm} />;
       case 'duracion_promedio':
-        return <SimpleNumberWidget title={widget.title} value={metrics.mean_duration.toFixed(3)} unit="s" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.mean_duration ? metrics.mean_duration.toFixed(3) : metrics.mean_duration} unit="s" />;
       case 'beats_position':
         return <BeatsPositionWidget title={widget.title} value={metrics.beats_position} />;
       // Tonalidad

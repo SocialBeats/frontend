@@ -58,7 +58,7 @@ const HzRangeWidget = ({ title, range, mean }) => {
 
           <div className="hz-range__labels">
             <span className="hz-range__label">{minHz} Hz</span>
-            <span className="hz-range__label hz-range__label--mean">{mean} Hz</span>
+            <span className="hz-range__label hz-range__label--mean">{mean ? Math.round(mean) : ''} Hz</span>
             <span className="hz-range__label">{maxHz} Hz</span>
           </div>
         </div>
