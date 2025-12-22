@@ -160,3 +160,16 @@ export function getCurrentUsername() {
   const payload = decodeJWT(accessToken);
   return payload?.username || null;
 }
+
+/**
+ * Obtiene el ID del usuario autenticado desde el token
+ * @returns {string|null} - ID del usuario o null si no está autenticado
+ */
+export function getCurrentUserId() {
+  const accessToken = getAccessToken();
+  if (!accessToken) return null;
+  
+  const payload = decodeJWT(accessToken);
+  // El backend guarda el ID como 'id' en el payload del JWT
+  return payload?.id || payload?.userId || null;
+}

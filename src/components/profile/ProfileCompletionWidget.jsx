@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useProfileCompletion } from '@/hooks/use-profile-completion';
+import { usePersonaVerification } from '@/hooks/use-persona-verification';
 import './ProfileCompletionWidget.css';
 
 // Restricciones de validación por paso
@@ -24,6 +25,15 @@ export default function ProfileCompletionWidget({
 }) {
   const { completionPercentage, verificationLevel, steps, loading, error, refetch } =
     useProfileCompletion();
+  const {
+    isVerifying,
+    showSuccessModal,
+    error: personaError,
+    startVerification,
+    closeSuccessModal,
+    clearError,
+  } = usePersonaVerification();
+  
   const [expanded, setExpanded] = useState(false);
   const [showIdentityInfo, setShowIdentityInfo] = useState(false);
   const [skippedSteps, setSkippedSteps] = useState([]);
@@ -58,7 +68,6 @@ export default function ProfileCompletionWidget({
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep?.id);
   const completedCount = steps.filter((s) => s.completed).length;
-  const skippedCount = skippedSteps.length;
 
   // Scroll a una sección específica
   const scrollToSection = (sectionId) => {
@@ -66,6 +75,12 @@ export default function ProfileCompletionWidget({
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
+
+  // Iniciar verificación con Persona
+  const handleStartVerification = () => {
+    setShowIdentityInfo(false);
+    startVerification();
   };
 
   // Manejador de click en el paso actual
@@ -148,7 +163,7 @@ export default function ProfileCompletionWidget({
           <div className="wizard-content">
             {/* Indicador de pasos */}
             <div className="step-indicator">
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <div
                   key={step.id}
                   className={`step-dot ${step.completed ? 'completed' : ''} ${
@@ -180,15 +195,21 @@ export default function ProfileCompletionWidget({
                   Saltar paso
                 </button>
               )}
-              <button className="action-btn" onClick={handleStepAction}>
-                {currentStep.name === 'identity' ? 'Ver información' : 'Completar'}
+              <button 
+                className="action-btn" 
+                onClick={handleStepAction}
+                disabled={isVerifying}
+              >
+                {currentStep.name === 'identity' 
+                  ? (isVerifying ? 'Verificando...' : 'Iniciar verificación')
+                  : 'Completar'}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Modal de información de verificación de identidad */}
+      {/* Modal de información previo a verificación de identidad */}
       {showIdentityInfo && (
         <div className="identity-info-modal-overlay" onClick={() => setShowIdentityInfo(false)}>
           <div className="identity-info-modal" onClick={(e) => e.stopPropagation()}>
@@ -208,12 +229,67 @@ export default function ProfileCompletionWidget({
                   <li>⏱️ Aproximadamente 5 minutos</li>
                 </ul>
               </div>
-              <button className="persona-btn" disabled>
-                Iniciar verificación (Próximamente)
+              <button 
+                className="persona-btn" 
+                onClick={handleStartVerification}
+                disabled={isVerifying}
+              >
+                {isVerifying ? 'Iniciando...' : 'Iniciar verificación'}
               </button>
               <p className="persona-disclaimer">
                 Tus datos serán procesados de forma segura por Persona Inc.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de éxito después de completar verificación */}
+      {showSuccessModal && (
+        <div className="identity-info-modal-overlay" onClick={closeSuccessModal}>
+          <div className="identity-info-modal verification-success" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeSuccessModal}>×</button>
+            <div className="success-content">
+              <div className="success-icon-wrapper">
+                <div className="success-icon-circle">
+                  <svg className="success-checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div className="success-pulse"></div>
+              </div>
+              <h3>¡Documentos enviados correctamente!</h3>
+              <p className="success-message">
+                Estamos verificando tu identidad. Este proceso puede tardar 
+                unos minutos. Te notificaremos cuando esté listo.
+              </p>
+              <div className="success-info-box">
+                <span className="info-icon">ℹ️</span>
+                <p>
+                  Una vez completada la verificación, podrás ver tu insignia de 
+                  <strong> Perfil Verificado</strong> en tu perfil.
+                </p>
+              </div>
+              <button className="persona-btn success-close-btn" onClick={closeSuccessModal}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de error */}
+      {personaError && (
+        <div className="identity-info-modal-overlay" onClick={clearError}>
+          <div className="identity-info-modal verification-error" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={clearError}>×</button>
+            <div className="error-content">
+              <div className="error-icon">⚠️</div>
+              <h3>Error en la verificación</h3>
+              <p className="error-message">{personaError}</p>
+              <button className="persona-btn" onClick={clearError}>
+                Cerrar
+              </button>
             </div>
           </div>
         </div>

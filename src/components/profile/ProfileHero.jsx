@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import Avatar from '@/components/ui/Avatar';
-import Badge from '@/components/ui/Badge';
+
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
@@ -88,12 +88,7 @@ export default function ProfileHero({
         </div>
         <h2 className="profile-username">{profile.username}</h2>
 
-        {/* Badge de completitud - solo si es tu perfil */}
-        {isOwnProfile && (
-          <div className="profile-completion">
-            <Badge variant="warning">Completa tu perfil</Badge>
-          </div>
-        )}
+
 
         {/* Info de contacto */}
         <div className="profile-contact-list">
