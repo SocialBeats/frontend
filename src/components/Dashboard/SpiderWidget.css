@@ -1,0 +1,3 @@
+.spider-widget-full { padding: 2rem; }
+@media (min-width: 1280px) { .spider-widget-full { padding: 2.5rem; } }
+.spider-widget-full .tooltip-custom { /* placeholder for spider tooltip styles */ }

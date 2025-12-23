@@ -49,7 +49,6 @@ export default function NavBar() {
     { path: '/app/upload', icon: '⬆️', label: 'Subir' },
     { path: '/app/playlists/me', icon: '📚', label: 'Biblioteca' },
     { path: '/app/messages', icon: '💬', label: 'Mensajes' },
-    { path: '/app/profile', icon: '👤', label: 'Perfil' },
     { path: '/app/dashboards', icon: '📊', label: 'Dashboards' },
   ];
 
@@ -78,7 +77,10 @@ export default function NavBar() {
           </div>
 
           {/* User Profile Snippet */}
-          <div className="sidebar-user">
+          <Link 
+            to="/app/profile" 
+            className={`sidebar-user sidebar-link ${isActive('/app/profile') ? 'sidebar-link-active' : ''}`}
+          >
             <Avatar 
               size="medium" 
               src={profile?.avatar || ''} 
@@ -88,7 +90,7 @@ export default function NavBar() {
               <span className="user-name">{profile?.full_name || profile?.username || 'Usuario'}</span>
               <span className="user-handle">@{profile?.username || 'usuario'}</span>
             </div>
-          </div>
+          </Link>
 
           {/* Logout Button */}
           <div style={{ padding: '0 1rem 1rem' }}>

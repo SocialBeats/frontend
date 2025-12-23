@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X, BarChart3, Music, TrendingUp, Sparkles, Activity, Volume2, Layers, Zap } from 'lucide-react';
+import ConfirmModal from '../ui/ConfirmModal';
 import { AVAILABLE_WIDGETS } from './type';
 import { createWidget } from '../../services/analytics/widgets';
 import './AddWidgetModal.css';
 
-const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
+const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId, existingWidgets = [] }) => {
   // Prevenir scroll cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
@@ -18,6 +19,8 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  const [infoModal, setInfoModal] = useState({ open: false, title: '' });
 
   if (!isOpen) return null;
 
@@ -134,32 +137,52 @@ const AddWidgetModal = ({ isOpen, onClose, onAddWidget, dashboardId }) => {
               </div>
 
               <div className="widgets-grid">
-                {widgets.map((widget) => (
-                  <button
-                    key={widget.type}
-                    onClick={() => handleAddWidget(widget)}
-                    className={`widget-card ${getSectionGradient(section)}`}
-                  >
-                    <div className="widget-card-inner">
-                      <div className="widget-icon">
-                        {getSectionIcon(section)}
+                {widgets.map((widget) => {
+                  const isSelected = existingWidgets.some(w => w.type === widget.type);
+                  return (
+                    <button
+                      key={widget.type}
+                      onClick={() => {
+                        if (isSelected) {
+                          setInfoModal({ open: true, title: widget.title });
+                          return;
+                        }
+                        handleAddWidget(widget);
+                      }}
+                      className={`widget-card ${getSectionGradient(section)} ${isSelected ? 'disabled' : ''}`}
+                      aria-disabled={isSelected}
+                    >
+                      <div className="widget-card-inner">
+                        <div className="widget-icon">
+                          {getSectionIcon(section)}
+                        </div>
+                        <h4 className="widget-title">{widget.title}</h4>
+                        {widget.description && (
+                          <p className="widget-description">{widget.description}</p>
+                        )}
+                        <div className="widget-add-icon">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 4v12m-6-6h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                        {isSelected && <div className="widget-selected-badge">✓</div>}
                       </div>
-                      <h4 className="widget-title">{widget.title}</h4>
-                      {widget.description && (
-                        <p className="widget-description">{widget.description}</p>
-                      )}
-                      <div className="widget-add-icon">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                          <path d="M10 4v12m-6-6h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
+        <ConfirmModal
+          isOpen={infoModal.open}
+          onClose={() => setInfoModal({ open: false, title: '' })}
+          onConfirm={() => {}}
+          title="Widget ya seleccionado"
+          message={infoModal.title + ' ya ha sido añadido al dashboard anteriormente.'}
+          confirmText="OK"
+          cancelText="Cerrar"
+        />
       </div>
     </div>
   );

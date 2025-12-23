@@ -7,8 +7,23 @@ import SpiderWidget from '../../../components/Dashboard/SpiderWidgets';
 import GenericWidget from '../../../components/Dashboard/GenericWidget';
 import { getDashboardById, updateDashboard } from '../../../services/analytics/dashboards';
 import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
+import { getRandomQuote } from '../../../services/analytics/quotable';
 import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
+import BPMWidget from '../../../components/Dashboard/BPMWidget';
+import KeyWidget from '../../../components/Dashboard/KeyWidget';
+import ProgressBarWidget from '../../../components/Dashboard/ProgressBarWidget';
+import DecibelsWidget from '../../../components/Dashboard/DecibelsWidget';
+import SimpleNumberWidget from '../../../components/Dashboard/SimpleNumberWidget';
+import BadgeWidget from '../../../components/Dashboard/BadgeWidget';
+import HzRangeWidget from '../../../components/Dashboard/HzRangeWidget';
+import FrequencyWidget from '../../../components/Dashboard/FrecuencyWidget';
+import GaugeWidget from '../../../components/Dashboard/GaugeWidget';
+import RatioWidget from '../../../components/Dashboard/RatioWidget';
+import ChromaWidget from '../../../components/Dashboard/ChromaWidget';
+import { mockBeatMetrics } from '../../../utils/mockMetrics';
+import { getBeatMetrics } from '../../../services/analytics/beatMetrics';
+import BeatsPositionWidget from '../../../components/Dashboard/BeatsPositionWidget';
 
 const ViewDashboard = () => {
   const navigate = useNavigate();
@@ -20,7 +35,16 @@ const ViewDashboard = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [widgets, setWidgets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quote, setQuote] = useState(null);
+  const [quoteLoading, setQuoteLoading] = useState(true);
   const inputRef = useRef(null);
+  const addButtonRef = useRef(null);
+  const [showFab, setShowFab] = useState(false);
+
+  // Metrics state (moved up so effects can safely reference setters)
+  const [metrics, setMetrics] = useState(mockBeatMetrics.extraMetrics);
+  const [coreMetrics, setCoreMetrics] = useState(mockBeatMetrics.coreMetrics);
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   const WIDGET_SECTIONS = {
     CORE: 'Métricas Core',
@@ -49,6 +73,101 @@ const ViewDashboard = () => {
 
     fetchDashboard();
   }, [id]);
+
+  // Cargar quote aleatoria
+  useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        const response = await getRandomQuote();
+        const quoteData = response.data || response;
+        setQuote(quoteData);
+      } catch (error) {
+        console.error('Error al cargar quote:', error);
+        setQuote(null);
+      } finally {
+        setQuoteLoading(false);
+      }
+    };
+
+    fetchQuote();
+  }, []);
+
+  // Try to load real metrics for a beat if the dashboard contains a beatId (fallback to mocks)
+  useEffect(() => {
+    const tryFetchMetrics = async () => {
+      if (!dashboard) return;
+
+      const beatId = dashboard.beatId || dashboard.beat_id || dashboard.selectedBeatId || dashboard.metadata?.beatId || dashboard.metadata?.beat_id;
+      if (!beatId) {
+        // No beatId available on dashboard; keep using mock metrics
+        return;
+      }
+
+      try {
+        setMetricsLoading(true);
+        console.log('🔍 Fetching metrics for beatId:', beatId);
+        const resp = await getBeatMetrics(beatId);
+
+        // Normalizar la respuesta — el backend puede devolver:
+        // - { data: { data: <payload> } }
+        // - { data: <payload> }
+        // - <payload>
+        // Además el payload puede ser un array de análisis (varias entradas).
+        let payload = resp?.data?.data ?? resp?.data ?? resp;
+
+        if (Array.isArray(payload)) {
+          // Elegir el primer elemento (o el último si prefieres el más reciente)
+          const chosen = payload[0] || payload[payload.length - 1];
+          console.log('ℹ️ Backend returned array of metrics, choosing element:', chosen);
+          payload = chosen;
+        }
+
+        const extra = payload?.extraMetrics ?? payload?.extra_metrics ?? payload;
+        const core = payload?.coreMetrics ?? payload?.core_metrics ?? null;
+
+        if (core && typeof core === 'object') {
+          setCoreMetrics(core);
+        } else {
+          setCoreMetrics(mockBeatMetrics.coreMetrics);
+        }
+
+        if (extra && typeof extra === 'object') {
+          setMetrics(extra);
+          console.log('✅ Metrics loaded for beatId:', beatId, extra);
+        } else {
+          console.warn('⚠️ No extra metrics found in response for beatId (using mocks):', beatId, resp);
+          setMetrics(mockBeatMetrics.extraMetrics);
+        }
+      } catch (err) {
+        console.error('🚨 Error fetching beat metrics for beatId:', beatId, err);
+        setMetrics(mockBeatMetrics.extraMetrics);
+      } finally {
+        setMetricsLoading(false);
+      }
+    };
+
+    tryFetchMetrics();
+  }, [dashboard]);
+
+  // Show FAB when the header 'Añadir Widget' button is not visible in viewport
+  useEffect(() => {
+    if (!addButtonRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // show FAB when header button is NOT intersecting
+        setShowFab(!entry.isIntersecting);
+      },
+      { root: null, threshold: 0.05 }
+    );
+
+    observer.observe(addButtonRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [addButtonRef.current]);
 
   // Cargar widgets del dashboard
   useEffect(() => {
@@ -160,50 +279,62 @@ const ViewDashboard = () => {
     }
   };
 
+  
+
   const renderWidget = (widget) => {
     switch (widget.type) {
       case 'spider':
-        return <SpiderWidget />;
+        return <SpiderWidget coreMetrics={coreMetrics} />;
 
       // Tempo
       case 'bpm':
-        return <GenericWidget title={widget.title} value="120 BPM" />;
+        return <BPMWidget title={widget.title} value={metrics.bpm} />;
       case 'num_beats':
-        return <GenericWidget title={widget.title} value="1,234" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.num_beats?.toLocaleString?.() ?? metrics.num_beats} icon="💓" bpm={metrics.bpm} />;
       case 'duracion_promedio':
-        return <GenericWidget title={widget.title} value="0.5s" />;
-
+        return <SimpleNumberWidget title={widget.title} value={metrics.mean_duration ? metrics.mean_duration.toFixed(3) : metrics.mean_duration} unit="s" />;
+      case 'beats_position':
+        return <BeatsPositionWidget title={widget.title} value={metrics.beats_position} />;
       // Tonalidad
       case 'clave':
-        return <GenericWidget title={widget.title} value="C Major" />;
+        return <KeyWidget title={widget.title} value={metrics.key} />;
       case 'uniformidad_notas':
-        return <GenericWidget title={widget.title} value="85%" />;
+        return <ProgressBarWidget title={widget.title} value={metrics.uniformity} />;
       case 'estabilidad_tonal':
-        return <GenericWidget title={widget.title} value="92%" />;
+        return <ProgressBarWidget title={widget.title} value={metrics.stability} />;
+      case 'chroma_features':
+        return <ChromaWidget title="Características Cromáticas" chromaFeatures={metrics.chroma_features} />;
+
+      // Potencia Sonora
+      case 'db':
+        return <DecibelsWidget title={widget.title} value={metrics.decibels} />;
 
       // Perfil Melódico
       case 'rango_hz':
-        return <GenericWidget title={widget.title} value="± 250 Hz" />;
+        return <HzRangeWidget title={widget.title} range={metrics.hz_range} mean={metrics.mean_hz} />;
       case 'hz_medios':
-        return <GenericWidget title={widget.title} value="440 Hz" />;
-
-      // Dinámica
-      case 'db':
-        return <GenericWidget title={widget.title} value="75 dB" />;
+        return <FrequencyWidget title={widget.title} value={metrics.mean_hz} />;
 
       // Textura
       case 'caracter':
-        return <GenericWidget title={widget.title} value="Brillante" />;
+        return <BadgeWidget title={widget.title} value={metrics.character} emoji="✨" />;
       case 'apertura':
-        return <GenericWidget title={widget.title} value="Alta" />;
+        return <GaugeWidget title={widget.title} value={metrics.opening} />;
 
       // Articulación
       case 'staccato':
-        return <GenericWidget title={widget.title} value="65%" />;
+        return <BadgeWidget title={widget.title} value={metrics.style} emoji="🎵" />;
       case 'ataques_subitos':
-        return <GenericWidget title={widget.title} value="127" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.suddent_changes} icon="⚡" />;
       case 'ataques_graduales':
-        return <GenericWidget title={widget.title} value="89" />;
+        return <SimpleNumberWidget title={widget.title} value={metrics.soft_changes} icon="〰️" />;
+      case 'ratio_ataques':
+        return <RatioWidget
+          title={widget.title}
+          suddenChanges={metrics.suddent_changes}
+          softChanges={metrics.soft_changes}
+          ratio={metrics.ratio_sudden_soft}
+        />;
 
       default:
         return <GenericWidget title={widget.title} />;
@@ -217,6 +348,8 @@ const ViewDashboard = () => {
     acc[widget.section].push(widget);
     return acc;
   }, {});
+
+  /* Reordering of widgets by section was removed — restoring original rendering order. */
 
   const sections = Object.values(WIDGET_SECTIONS).filter(section => widgetsBySection[section]?.length > 0);
 
@@ -306,10 +439,37 @@ const ViewDashboard = () => {
         </div>
       </div>
 
+      {/* Quote Section */}
+      {!quoteLoading && quote && (
+        <div className="mx-auto max-w-4xl mb-8">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 shadow-md border border-blue-100 dark:border-gray-700">
+            <div className="flex items-start gap-4">
+              <svg
+                className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1"
+                style={{ width: '128px', height: '128px' }}
+                fill="currentColor"
+                viewBox="0 0 24 48"
+              >
+                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-medium italic leading-relaxed mb-3">
+                  "{quote.content}"
+                </p>
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-semibold">
+                  — {quote.author}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="view-dashboard__content">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Visualización del Dashboard</h2>
           <button
+            ref={addButtonRef}
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -333,9 +493,35 @@ const ViewDashboard = () => {
             {sections.map((section) => (
               <div key={section}>
                 <h3 className="text-xl font-semibold mb-4">{section}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                  // Use 2 equal columns on large screens for the "Tonalidad" section
+                  // so `clave` and `Características Cromáticas` can sit side-by-side.
+                }
+                {
+                  // Make Tonalidad and Perfil Melódico use 2 equal columns
+                }
+                <div className={
+                  (section === WIDGET_SECTIONS.TONALIDAD || section === WIDGET_SECTIONS.PERFIL_MELODICO)
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'
+                    : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                }>
                   {widgetsBySection[section].map((widget) => (
-                    <div key={widget.id} className="relative group">
+                    <div
+                      key={widget.id}
+                      className={(() => {
+                        const classes = ['relative', 'group'];
+                        if (widget.type === 'spider') classes.push('spider-widget-container');
+                        if (widget.type === 'bpm') classes.push('bpm-widget-container');
+                        if (widget.type === 'db') classes.push('widget-span-full');
+                        // Make the Ratio widget span the full grid width by applying
+                        // the same `widget-span-full` helper to the grid child wrapper.
+                        if (widget.type === 'ratio_ataques') classes.push('widget-span-full');
+                        if (widget.type === 'apertura') classes.push('widget-span-2');
+                        // No automatic 3-column span applied here; keep wrapper classes minimal.
+                        return classes.join(' ');
+                      })()}
+                      style={widget.type === 'apertura' ? { gridColumn: 'span 2' } : undefined}
+                    >
                       <button
                         onClick={() => handleRemoveWidget(widget.id)}
                         className="absolute top-2 right-2 z-10 p-2 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
@@ -350,14 +536,25 @@ const ViewDashboard = () => {
             ))}
           </div>
         )}
-
-        <AddWidgetModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAddWidget={handleAddWidget}
-          dashboardId={id}
-        />
       </div>
+
+      <AddWidgetModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddWidget={handleAddWidget}
+        dashboardId={id}
+        existingWidgets={widgets}
+      />
+      {showFab && (
+        <button
+          className="view-dashboard__fab"
+          onClick={() => setIsModalOpen(true)}
+          aria-label="Añadir Widget"
+          title="Añadir Widget"
+        >
+          <Plus size={20} />
+        </button>
+      )}
     </div>
   );
 };

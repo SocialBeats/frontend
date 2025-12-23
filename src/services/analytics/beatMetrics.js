@@ -1,4 +1,4 @@
-import { client } from '@api/axiosClient';
+import { client } from '@/api/axiosClient';
 
 export function analyzeBeatMetrics(audioFile) {
   const formData = new FormData();
@@ -11,9 +11,10 @@ export function analyzeBeatMetrics(audioFile) {
   });
 }
 
-export function getAllBeatMetrics() {
-  return client.get('/analytics/beat-metrics');
+export function getBeatMetrics(beatId, params = {}) {
+  return client.get('/analytics/beat-metrics', { params: { beatId, ...params } });
 }
+
 
 export function getBeatMetricById(id) {
   return client.get(`/analytics/beat-metrics/${id}`);
