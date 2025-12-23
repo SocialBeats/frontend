@@ -1,27 +1,46 @@
-import { useNavigate } from 'react-router-dom';
-import './PlaylistLists.css';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./PlaylistLists.css";
+import { getPublicPlaylists } from "../../../../services/beats-interaction/playlistService";
 
-// Mock playlists for now
-const mockPlaylists = [
-  {
-    id: 1,
-    name: 'Favoritas 2024',
-    description: 'Mis canciones más escuchadas del año.'
-  },
-  {
-    id: 2,
-    name: 'Beats para trabajar',
-    description: 'Playlist perfecta para concentrarse.'
-  },
-  {
-    id: 3,
-    name: 'Reggaeton Old School',
-    description: 'Clásicos de reggaeton del 2000 al 2010.'
-  }
-];
+const PAGE_SIZE = 12;
 
 const PublicPlaylists = () => {
   const navigate = useNavigate();
+
+  const [playlists, setPlaylists] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const fetchPublicPlaylists = async () => {
+      setIsLoading(true);
+
+      try {
+        const response = await getPublicPlaylists({
+          page,
+          limit: PAGE_SIZE,
+        });
+
+        const {
+          playlists = [],
+          totalPages: backendTotalPages = 1,
+        } = response.data || {};
+
+        setPlaylists(playlists);
+        setTotalPages(backendTotalPages);
+      } catch (error) {
+        console.error("Error loading public playlists:", error);
+        alert("No se pudieron cargar las playlists públicas");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPublicPlaylists();
+  }, [page]);
 
   const handleOpenPlaylist = (id) => {
     navigate(`/app/playlists/${id}`);
@@ -30,21 +49,68 @@ const PublicPlaylists = () => {
   return (
     <div className="playlist-list">
       <div className="playlist-list__container">
-        <h1 className="playlist-list__title">Tus Playlists</h1>
-        <p className="playlist-list__subtitle">Lista de playlists creadas o compartidas contigo.</p>
+        <h1 className="playlist-list__title">Playlists Públicas</h1>
+        <p className="playlist-list__subtitle">
+          Explora playlists creadas por otros usuarios.
+        </p>
 
-        <div className="playlist-grid">
-          {mockPlaylists.map((pl) => (
-            <div
-              key={pl.id}
-              className="playlist-card"
-              onClick={() => handleOpenPlaylist(pl.id)}
-            >
-              <h2 className="playlist-card__name">{pl.name}</h2>
-              <p className="playlist-card__description">{pl.description || 'Sin descripción'}</p>
+        {isLoading ? (
+          <p className="loading-text">Cargando playlists...</p>
+        ) : playlists.length === 0 ? (
+          <p className="playlist-list__empty">
+            No hay playlists públicas disponibles
+          </p>
+        ) : (
+          <>
+            <div className="playlist-grid">
+              {playlists.map((pl) => (
+                <div
+                  key={pl._id}
+                  className="playlist-card"
+                  onClick={() => handleOpenPlaylist(pl._id)}
+                >
+                  <h2 className="playlist-card__name">{pl.name}</h2>
+                  <p className="playlist-card__description">
+                    {pl.description || "Sin descripción"}
+                  </p>
+
+                  <div className="playlist-card__meta">
+                    <span className="playlist-badge public">🌍 Pública</span>
+
+                    {pl.collaborators?.length > 0 && (
+                      <span className="playlist-badge collaborators">
+                        👥 {pl.collaborators.length}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Pagination */}
+            <div className="pagination">
+              <button
+                className="pagination-btn"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                ← Anterior
+              </button>
+
+              <span className="pagination-info">
+                Página {page} de {totalPages}
+              </span>
+
+              <button
+                className="pagination-btn"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Siguiente →
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

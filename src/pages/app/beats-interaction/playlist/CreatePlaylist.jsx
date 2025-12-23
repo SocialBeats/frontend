@@ -1,36 +1,59 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../../../components/ui/Button';
-import './CreatePlaylist.css';
-
-const mockUsers = [
-  { id: 1, name: "Ana García" },
-  { id: 2, name: "Luis Martínez" },
-  { id: 3, name: "Sara López" },
-  { id: 4, name: "Carlos Ruiz" },
-  { id: 5, name: "Julia Méndez" },
-];
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../../../../components/ui/Button";
+import "./CreatePlaylist.css";
+import { createPlaylist } from "../../../../services/beats-interaction/playlistService";
+import { searchProfiles } from "../../../../services/profileService";
 
 const CreatePlaylist = () => {
   const navigate = useNavigate();
 
-  const [playlistName, setPlaylistName] = useState('');
-  const [playlistDescription, setPlaylistDescription] = useState('');
+  const [playlistName, setPlaylistName] = useState("");
+  const [playlistDescription, setPlaylistDescription] = useState("");
   const [playlistCollaborators, setPlaylistCollaborators] = useState([]);
   const [playlistIsPublic, setPlaylistIsPublic] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const [searchQuery, setSearchQuery] = useState("");  
-  const filteredUsers = mockUsers.filter(u =>
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !playlistCollaborators.includes(u.id)
-  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [foundUsers, setFoundUsers] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const toggleCollaborator = (userId) => {
+  useEffect(() => {
+    if (!playlistIsPublic || searchQuery.trim().length < 2) {
+      setFoundUsers([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      setIsSearching(true);
+
+      try {
+        const { profiles = [] } = await searchProfiles(searchQuery.trim());
+
+        const filtered = profiles.filter(
+          user =>
+            !playlistCollaborators.some(
+              collaborator => collaborator._id === user._id
+            )
+        );
+
+        setFoundUsers(filtered);
+      } catch (error) {
+        console.error("Error buscando usuarios:", error);
+        setFoundUsers([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery, playlistCollaborators, playlistIsPublic]);
+
+  const toggleCollaborator = (user) => {
     setPlaylistCollaborators(prev =>
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+      prev.some(u => u._id === user._id)
+        ? prev.filter(u => u._id !== user._id)
+        : [...prev, user]
     );
   };
 
@@ -38,37 +61,47 @@ const CreatePlaylist = () => {
     e.preventDefault();
 
     if (!playlistName.trim()) {
-      alert('Por favor ingresa un nombre para la playlist');
+      alert("Por favor ingresa un nombre para la playlist");
+      return;
+    }
+
+    if (!playlistIsPublic && playlistCollaborators.length > 0) {
+      alert("No puedes añadir colaboradores a una playlist privada");
+      return;
+    }
+
+    if (playlistCollaborators.length > 30) {
+      alert("Máximo 30 colaboradores");
       return;
     }
 
     setIsCreating(true);
 
     try {
-      const mockPlaylist = {
-        id: Date.now(),
-        name: playlistName,
-        description: playlistDescription,
-        collaborators: playlistCollaborators,
+      const payload = {
+        name: playlistName.trim(),
+        description: playlistDescription.trim(),
         isPublic: playlistIsPublic,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        collaborators: playlistIsPublic
+          ? playlistCollaborators.map(user => user._id)
+          : [],
+        items: [],
       };
 
-      console.log("Playlist creada:", mockPlaylist);
+      const response = await createPlaylist(payload);
+      const createdPlaylist = response.data;
 
-      // navigate(`/app/playlists/${mockPlaylist.id}`);
-
+      navigate(`/app/playlists/${createdPlaylist._id}`);
     } catch (error) {
       console.error("Error al crear playlist:", error);
-      alert("Error al crear la playlist");
+      alert(error?.response?.data?.message || "Error al crear la playlist");
     } finally {
       setIsCreating(false);
     }
   };
 
   const handleCancel = () => {
-    navigate('/app/playlists');
+    navigate("/app/playlists/me");
   };
 
   return (
@@ -84,86 +117,86 @@ const CreatePlaylist = () => {
 
         <form onSubmit={handleSubmit} className="playlist__form">
 
-          {/* Nombre */}
+          {/* Name */}
           <div className="create-playlist__form-group">
-            <label className="create-playlist__label">Nombre de la Playlist *</label>
+            <label className="create-playlist__label">
+              Nombre de la Playlist *
+            </label>
             <input
               type="text"
               className="create-playlist__input"
               value={playlistName}
               onChange={(e) => setPlaylistName(e.target.value)}
-              placeholder="Ej: Favoritas de 2024"
               disabled={isCreating}
               autoFocus
             />
           </div>
 
-          {/* Descripción */}
+          {/* Description */}
           <div className="create-playlist__form-group">
             <label className="create-playlist__label">Descripción</label>
             <textarea
               className="create-playlist__textarea"
               value={playlistDescription}
               onChange={(e) => setPlaylistDescription(e.target.value)}
-              placeholder="Ej: Canciones más escuchadas del año"
               disabled={isCreating}
-            ></textarea>
+            />
           </div>
 
-          {/* Collaborators - estilo GitHub */}
+          {/* collaborators */}
           <div className="create-playlist__form-group">
             <label className="create-playlist__label">Colaboradores</label>
 
-            {/* Chips seleccionados */}
+            {/* Chips */}
             <div className="selected-collaborators">
-              {playlistCollaborators.map(id => {
-                const user = mockUsers.find(u => u.id === id);
-                if (!user) return null;
-                return (
-                  <div
-                    key={id}
-                    className="collab-chip"
+              {playlistCollaborators.map(user => (
+                <div key={user._id} className="collab-chip">
+                  {user.username}
+                  <span
+                    className="remove-chip"
+                    onClick={() => toggleCollaborator(user)}
                   >
-                    {user.name}
-                    <span
-                      className="remove-chip"
-                      onClick={() => toggleCollaborator(id)}
-                    >
-                      ✕
-                    </span>
-                  </div>
-                );
-              })}
+                    ✕
+                  </span>
+                </div>
+              ))}
             </div>
 
-            {/* Search box */}
             <input
               type="text"
               className="create-playlist__input collaborator-search"
-              placeholder="Buscar colaboradores..."
+              placeholder={
+                playlistIsPublic
+                  ? "Buscar colaboradores..."
+                  : "Haz la playlist pública para añadir colaboradores"
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={isCreating}
+              disabled={!playlistIsPublic || isCreating}
             />
 
-            {/* Resultado búsqueda */}
-            {searchQuery.trim() && (
+            {playlistIsPublic && searchQuery.trim() && (
               <div className="collaborator-dropdown">
-                {filteredUsers.length === 0 ? (
+                {isSearching ? (
+                  <div className="collaborator-dropdown__empty">
+                    Buscando...
+                  </div>
+                ) : foundUsers.length === 0 ? (
                   <div className="collaborator-dropdown__empty">
                     No se encontraron usuarios
                   </div>
                 ) : (
-                  filteredUsers.map(user => (
+                  foundUsers.map(user => (
                     <div
-                      key={user.id}
+                      key={user._id}
                       className="collaborator-dropdown__item"
                       onClick={() => {
-                        toggleCollaborator(user.id);
+                        toggleCollaborator(user);
                         setSearchQuery("");
+                        setFoundUsers([]);
                       }}
                     >
-                      {user.name}
+                      <strong>{user.username}</strong>
                     </div>
                   ))
                 )}
@@ -171,15 +204,19 @@ const CreatePlaylist = () => {
             )}
           </div>
 
-          {/* Switch de visibilidad */}
+          {/* Visibility */}
           <div className="create-playlist__form-group switch-row">
             <label className="create-playlist__label">Playlist Pública</label>
-
             <label className="switch">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={playlistIsPublic}
-                onChange={() => setPlaylistIsPublic(prev => !prev)}
+                onChange={() => {
+                  setPlaylistIsPublic(prev => !prev);
+                  setPlaylistCollaborators([]);
+                  setSearchQuery("");
+                  setFoundUsers([]);
+                }}
               />
               <span className="slider"></span>
             </label>
@@ -193,8 +230,8 @@ const CreatePlaylist = () => {
               {isCreating ? "Creando..." : "Crear Playlist"}
             </Button>
           </div>
-        </form>
 
+        </form>
       </div>
     </div>
   );

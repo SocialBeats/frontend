@@ -5,7 +5,7 @@ import { client } from '@/api/axiosClient';
  * body: { score: number, comment?: string }
  */
 export function createBeatRating(beatId, data) {
-  return client.post(`/beats/${beatId}/ratings`, data);
+  return client.post(`/beats-interactions/beats/${beatId}/ratings`, data);
 }
 
 /**
@@ -13,28 +13,28 @@ export function createBeatRating(beatId, data) {
  * body: { score: number, comment?: string }
  */
 export function createPlaylistRating(playlistId, data) {
-  return client.post(`/playlists/${playlistId}/ratings`, data);
+  return client.post(`/beats-interactions/playlists/${playlistId}/ratings`, data);
 }
 
 /**
  * Get rating by id
  */
 export function getRatingById(ratingId) {
-  return client.get(`/ratings/${ratingId}`);
+  return client.get(`/beats-interactions/ratings/${ratingId}`);
 }
 
 /**
  * Get current user's rating for a beat
  */
 export function getMyBeatRating(beatId) {
-  return client.get(`/beats/${beatId}/ratings/me`);
+  return client.get(`/beats-interactions/beats/${beatId}/ratings/me`);
 }
 
 /**
  * Get current user's rating for a playlist
  */
 export function getMyPlaylistRating(playlistId) {
-  return client.get(`/playlists/${playlistId}/ratings/me`);
+  return client.get(`/beats-interactions/playlists/${playlistId}/ratings/me`);
 }
 
 /**
@@ -47,7 +47,7 @@ export function getMyPlaylistRating(playlistId) {
  * }
  */
 export function getBeatRatings(beatId) {
-  return client.get(`/beats/${beatId}/ratings`);
+  return client.get(`/beats-interactions/beats/${beatId}/ratings`);
 }
 
 /**
@@ -60,14 +60,14 @@ export function getBeatRatings(beatId) {
  * }
  */
 export function getPlaylistRatings(playlistId) {
-  return client.get(`/playlists/${playlistId}/ratings`);
+  return client.get(`/beats-interactions/playlists/${playlistId}/ratings`);
 }
 
 /**
  * Delete a rating
  */
 export function deleteRating(ratingId) {
-  return client.delete(`/ratings/${ratingId}`);
+  return client.delete(`/beats-interactions/ratings/${ratingId}`);
 }
 
 /**
@@ -75,7 +75,7 @@ export function deleteRating(ratingId) {
  * body: { score: number, comment?: string }
  */
 export function updateRating(ratingId, data) {
-  return client.put(`/ratings/${ratingId}`, data);
+  return client.put(`/beats-interactions/ratings/${ratingId}`, data);
 }
 
 /**
@@ -83,5 +83,5 @@ export function updateRating(ratingId, data) {
  * body: { score?: number, comment?: string }
  */
 export function patchRating(ratingId, data) {
-  return client.patch(`/ratings/${ratingId}`, data);
+  return client.patch(`/beats-interactions/ratings/${ratingId}`, data);
 }

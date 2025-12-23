@@ -4,37 +4,62 @@
   margin: 0 auto;
 }
 
+/* Container */
 .playlist-list__container {
-  background: white;
+  background: #1f2937;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .playlist-list__title {
   font-size: 2rem;
   font-weight: bold;
-  color: #1f2937;
+  color: #f9fafb;
   margin-bottom: 0.5rem;
   text-align: center;
 }
 
 .playlist-list__subtitle {
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 1rem;
   text-align: center;
   margin-bottom: 2rem;
 }
 
+/* Grid */
 .playlist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
+.btn-create-playlist {
+  background-color: #1db954;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-create-playlist:hover {
+  background-color: #1ed760;
+}
+
+.playlist-list__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Card */
 .playlist-card {
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: #374151;
+  border: 2px solid #4b5563;
   border-radius: 12px;
   padding: 1.5rem;
   cursor: pointer;
@@ -42,72 +67,76 @@
 }
 
 .playlist-card:hover {
-  border-color: #3b82f6;
-  background: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-color: #60a5fa;
+  background: #4b5563;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .playlist-card__name {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #f3f4f6;
   margin-bottom: 0.5rem;
 }
 
 .playlist-card__description {
   font-size: 0.95rem;
-  color: #4b5563;
+  color: #d1d5db;
   line-height: 1.4;
 }
 
 /* --- Menu (3 dots) --- */
 .playlist-card__top {
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
 }
-
 
 .playlist-card__menu-btn {
-background: transparent;
-border: none;
-font-size: 1.5rem;
-cursor: pointer;
-padding: 0 4px;
-color: #6b7280;
-transition: 0.2s;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #d1d5db;
+  transition: 0.2s;
 }
-
 
 .playlist-card__menu-btn:hover {
-color: #111827;
+  color: #f9fafb;
 }
-
 
 .playlist-card__menu {
-position: absolute;
-top: 28px;
-right: 0;
-background: white;
-border: 1px solid #e5e7eb;
-border-radius: 10px;
-box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-padding: 0.5rem 0;
-width: 150px;
-z-index: 20;
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  padding: 0.5rem 0;
+  width: 150px;
+  z-index: 20;
 }
-
 
 .playlist-card__menu-item {
-width: 100%;
-background: transparent;
-border: none;
-text-align: left;
-padding: 0.75rem 1rem;
-font-size: 0.95rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
+.playlist-card__menu-item:hover {
+  background: #4b5563;
+}
+
+/* --- Modal buttons --- */
 .modal-buttons {
   display: flex;
   gap: 1rem;
@@ -125,90 +154,51 @@ font-size: 0.95rem;
 }
 
 .modal-btn.cancel {
-  background: #e5e7eb;
-  color: #374151;
+  background: #4b5563;
+  color: #e5e7eb;
 }
 
 .modal-btn.cancel:hover {
-  background: #d1d5db;
+  background: #6b7280;
 }
 
 .modal-btn.delete {
-  background: #dc2626;
-  color: white;
+  background: #b91c1c;
+  color: #ffffff;
 }
 
 .modal-btn.delete:hover {
-  background: #b91c1c;
+  background: #991b1b;
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  .playlist-list__container {
-    background: #1f2937;
-  }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
 
-  .playlist-list__title {
-    color: #f9fafb;
-  }
+.pagination-btn {
+  background: #374151;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-  .playlist-list__subtitle {
-    color: #9ca3af;
-  }
+.pagination-btn:hover:not(:disabled) {
+  background: #4b5563;
+}
 
-  .playlist-card {
-    background: #374151;
-    border-color: #4b5563;
-  }
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
-  .playlist-card:hover {
-    border-color: #60a5fa;
-    background: #4b5563;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
-
-  .playlist-card__name {
-    color: #f3f4f6;
-  }
-
-  .playlist-card__description {
-    color: #d1d5db;
-  }
-    .playlist-card__menu-btn {
-    color: #d1d5db;
-  }
-
-  .playlist-card__menu-btn:hover {
-    color: #f9fafb;
-  }
-
-  .playlist-card__menu {
-    background: #374151;
-    border-color: #4b5563;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-  }
-
-  .playlist-card__menu-item {
-    color: #e5e7eb;
-  }
-
-  .playlist-card__menu-item:hover {
-    background: #4b5563;
-  }
- .modal-btn.cancel {
-    background: #4b5563;
-    color: #e5e7eb;
-  }
-
-  .modal-btn.cancel:hover {
-    background: #6b7280;
-  }
-
-  .modal-btn.delete {
-    background: #b91c1c;
-  }
-
-  .modal-btn.delete:hover {
-    background: #991b1b;
-  }
+.pagination-info {
+  color: #d1d5db;
+  font-size: 0.95rem;
 }

@@ -5,7 +5,7 @@ import { client } from '@/api/axiosClient';
  * body: { text: string }
  */
 export function createBeatComment(beatId, data) {
-  return client.post(`/beats/${beatId}/comments`, data);
+  return client.post(`/beats-interactions/beats/${beatId}/comments`, data);
 }
 
 /**
@@ -13,14 +13,14 @@ export function createBeatComment(beatId, data) {
  * body: { text: string }
  */
 export function createPlaylistComment(playlistId, data) {
-  return client.post(`/playlists/${playlistId}/comments`, data);
+  return client.post(`/beats-interactions/playlists/${playlistId}/comments`, data);
 }
 
 /**
  * Get comment by id
  */
 export function getCommentById(commentId) {
-  return client.get(`/comments/${commentId}`);
+  return client.get(`/beats-interactions/comments/${commentId}`);
 }
 
 /**
@@ -33,7 +33,7 @@ export function getBeatComments(beatId, options = {}) {
   if (options.page) params.page = options.page;
   if (options.limit) params.limit = options.limit;
 
-  return client.get(`/beats/${beatId}/comments`, { params });
+  return client.get(`/beats-interactions/beats/${beatId}/comments`, { params });
 }
 
 /**
@@ -46,14 +46,14 @@ export function getPlaylistComments(playlistId, options = {}) {
   if (options.page) params.page = options.page;
   if (options.limit) params.limit = options.limit;
 
-  return client.get(`/playlists/${playlistId}/comments`, { params });
+  return client.get(`/beats-interactions/playlists/${playlistId}/comments`, { params });
 }
 
 /**
  * Delete a comment
  */
 export function deleteComment(commentId) {
-  return client.delete(`/comments/${commentId}`);
+  return client.delete(`/beats-interactions/comments/${commentId}`);
 }
 
 /**
@@ -61,7 +61,7 @@ export function deleteComment(commentId) {
  * body: { text: string }
  */
 export function updateComment(commentId, data) {
-  return client.put(`/comments/${commentId}`, data);
+  return client.put(`/beats-interactions/comments/${commentId}`, data);
 }
 
 /**
@@ -69,5 +69,5 @@ export function updateComment(commentId, data) {
  * body: { text: string }
  */
 export function patchComment(commentId, data) {
-  return client.patch(`/comments/${commentId}`, data);
+  return client.patch(`/beats-interactions/comments/${commentId}`, data);
 }

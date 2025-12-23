@@ -1,0 +1,251 @@
+/* BeatCard.css - Estilos para la tarjeta de beat */
+
+.beat-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.beat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), var(--shadow-glow);
+}
+
+/* Carousel variant */
+.beat-card-carousel {
+  flex-shrink: 0;
+  width: 200px;
+  scroll-snap-align: start;
+}
+
+/* Cover Image Container */
+.beat-card-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.beat-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.beat-card:hover .beat-card-image {
+  transform: scale(1.05);
+}
+
+/* Overlay */
+.beat-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.beat-card:hover .beat-card-overlay {
+  opacity: 1;
+}
+
+.beat-card-play-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.beat-card:hover .beat-card-play-btn {
+  transform: scale(1);
+}
+
+.beat-card-play-btn:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+}
+
+/* Badges */
+.beat-card-badges {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.beat-card-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(8px);
+}
+
+.badge-download {
+  background: rgba(16, 185, 129, 0.8);
+  color: white;
+}
+
+/* Duration */
+.beat-card-duration {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-main);
+}
+
+/* Content */
+.beat-card-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.beat-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.beat-card-artist {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+/* Meta info */
+.beat-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+  justify-content: center;
+}
+
+.beat-card-genre,
+.beat-card-key,
+.beat-card-bpm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.beat-card-genre {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--primary-light);
+}
+
+.beat-card-genre .meta-icon {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+.beat-card-key {
+  background: rgba(20, 184, 166, 0.2);
+  color: #5eead4;
+  gap: 0.35rem;
+}
+
+.beat-card-key .meta-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Stats */
+.beat-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.beat-card-plays {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.beat-card-plays svg {
+  color: var(--primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .beat-card-carousel {
+    width: 160px;
+  }
+
+  .beat-card-content {
+    padding: 0.75rem;
+  }
+
+  .beat-card-title {
+    font-size: 0.9rem;
+  }
+
+  .beat-card-artist {
+    font-size: 0.8rem;
+  }
+
+  .beat-card-meta {
+    gap: 0.35rem;
+  }
+
+  .beat-card-genre,
+  .beat-card-key,
+  .beat-card-bpm {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+  }
+}

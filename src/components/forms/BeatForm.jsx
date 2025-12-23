@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
+import {
+  UploadCloud,
+  Music,
+  X,
+  Save,
+  FileAudio,
+  Type,
+  Music2,
+  Binary,
+  AlignLeft,
+  Hash,
+  Eye,
+  DollarSign,
+  FileText,
+  Download
+} from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import IconButton from '../ui/IconButton';
 import Input from '../ui/Input';
+import Select from '../ui/Select';
+import Textarea from '../ui/Textarea';
 import Waveform from '../ui/Waveform';
+import Toggle from '../ui/Toggle';
 import './BeatForm.css';
 
-const BeatForm = ({ 
-  initialData = null, 
-  onSubmit, 
-  onCancel, 
+const BeatForm = ({
+  initialData = null,
+  onSubmit,
+  onCancel,
   loading = false,
-  isEditing = false 
+  isEditing = false
 }) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
@@ -19,27 +39,22 @@ const BeatForm = ({
     key: initialData?.key || '',
     description: initialData?.description || '',
     tags: initialData?.tags || [],
-    pricing: {
-      isFree: initialData?.pricing?.isFree ?? true,
-      price: initialData?.pricing?.price?.toString() || '0',
-      currency: initialData?.pricing?.currency || 'USD'
-    },
     isPublic: initialData?.isPublic ?? true,
     isDownloadable: initialData?.isDownloadable ?? false,
   });
-
-  const [tagInput, setTagInput] = useState('');
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState(
-    initialData?.audio?.s3Key 
-      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
+    initialData?.audio?.s3Key
+      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}`
       : null
   );
+  const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
+  const [tagInput, setTagInput] = useState('');
 
+  // ... (Toda la lógica de handlers se mantiene igual) ...
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (name.startsWith('pricing.')) {
       const pricingField = name.split('.')[1];
       setFormData(prev => ({
@@ -74,76 +89,87 @@ const BeatForm = ({
     }));
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
+  const validateAndProcessFile = async (file) => {
+    if (!file) return false;
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/aac', 'audio/x-m4a'];
     const validExtensions = ['mp3', 'wav', 'flac', 'aac'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
       setError('Invalid file type. Allowed: MP3, WAV, FLAC, AAC');
-      return;
+      return false;
     }
-
-    // Validate size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size too large. Maximum size is 50MB.');
-      return;
+      return false;
     }
-
     try {
-      // Deep validation using music-metadata
       const metadata = await parseBlob(file);
       if (!metadata.format.codec) {
-        setError('Invalid audio file content. Please upload a valid audio file.');
-        return;
+        setError('Invalid audio file content.');
+        return false;
       }
     } catch (err) {
       console.error('Error parsing audio file:', err);
-      setError('Failed to verify audio file. Is it a valid audio file?');
-      return;
+      setError('Failed to verify audio file.');
+      return false;
     }
 
     setAudioFile(file);
     setAudioPreviewUrl(URL.createObjectURL(file));
 
-    // Auto-fill title if empty
     if (!formData.title) {
       const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
       setFormData(prev => ({ ...prev, title: fileNameWithoutExt }));
     }
-
     setError(null);
+    return true;
+  };
+
+  const handleFileChange = async (e) => {
+    await validateAndProcessFile(e.target.files[0]);
+  };
+
+  const dragCounter = useRef(0);
+  const handleDragEnter = (e) => {
+    e.preventDefault(); e.stopPropagation(); dragCounter.current += 1;
+    if (e.dataTransfer.items?.length > 0) setIsDragActive(true);
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault(); e.stopPropagation(); dragCounter.current -= 1;
+    if (dragCounter.current === 0) setIsDragActive(false);
+  };
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); };
+  const handleDrop = async (e) => {
+    e.preventDefault(); e.stopPropagation(); setIsDragActive(false); dragCounter.current = 0;
+    const files = e.dataTransfer.files;
+    if (files?.length > 0 && !isEditing) await validateAndProcessFile(files[0]);
+  };
+
+  const handleClearFile = () => {
+    setAudioFile(null); setAudioPreviewUrl(null); setError(null);
+    const fileInput = document.getElementById('audio-upload');
+    if (fileInput) fileInput.value = '';
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (!isEditing && !audioFile) {
-      setError('Please upload an audio file.');
-      return;
-    }
-
-    // Prepare data
+    if (!isEditing && !audioFile) { setError('Please upload an audio file.'); return; }
     const submitData = {
       ...formData,
-      pricing: {
-        ...formData.pricing,
-        // If not downloadable, always free
-        isFree: !formData.isDownloadable ? true : formData.pricing.isFree,
-        price: (!formData.isDownloadable || formData.pricing.isFree) ? 0 : parseFloat(formData.pricing.price) || 0
-      }
     };
-
     onSubmit(submitData, audioFile);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="beat-form">
+    <form
+      onSubmit={handleSubmit}
+      className="beat-form"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       {error && (
         <Card className="error-card">
           <p className="error-message">{error}</p>
@@ -151,37 +177,59 @@ const BeatForm = ({
       )}
 
       <div className="form-grid">
-        {/* Audio Upload Section - Only for creation */}
+        {/* Audio Upload Section */}
         {!isEditing && (
           <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)</p>
+            <div className="section-header-with-icon">
+              <Music size={24} className="section-icon" />
+              <div className="section-header-text">
+                <h2>Audio File</h2>
+                <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)</p>
+              </div>
             </div>
 
             <div className="form-fields">
               <div className="upload-container">
-                <div className="file-input-wrapper">
-                  <input
-                    type="file"
-                    id="audio-upload"
-                    accept=".mp3,.wav,.flac,.aac"
-                    onChange={handleFileChange}
-                    className="file-input"
-                  />
-                  <label htmlFor="audio-upload" className="file-input-label">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => document.getElementById('audio-upload').click()}
+                <input
+                  type="file"
+                  id="audio-upload"
+                  accept=".mp3,.wav,.flac,.aac"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+
+                {!audioFile ? (
+                  <div
+                    className={`audio-dropzone audio-dropzone-empty ${isDragActive ? 'audio-dropzone-active' : ''}`}
+                    onClick={() => document.getElementById('audio-upload').click()}
+                  >
+                    <div className="dropzone-content">
+                      <UploadCloud size={48} className="dropzone-icon" />
+                      <h3 className="dropzone-title">Drop your beat here</h3>
+                      <p className="dropzone-description">or click to browse files</p>
+                      <p className="dropzone-formats">MP3, WAV, FLAC, AAC • Max 50MB</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="audio-dropzone audio-dropzone-loaded">
+                    <div className="audio-file-info">
+                      <FileAudio size={24} className="file-icon" />
+                      <div className="file-details">
+                        <p className="file-name-loaded">{audioFile.name}</p>
+                        <p className="file-size">{(audioFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                    <IconButton
+                      variant="ghost"
+                      size="medium"
+                      onClick={handleClearFile}
+                      className="file-remove-btn"
+                      aria-label="Remove file"
                     >
-                      {audioFile ? 'Change File' : 'Select Audio File'}
-                    </Button>
-                    <span className="file-name">
-                      {audioFile ? audioFile.name : 'No file selected'}
-                    </span>
-                  </label>
-                </div>
+                      <X size={20} />
+                    </IconButton>
+                  </div>
+                )}
 
                 {audioPreviewUrl && (
                   <div className="waveform-preview mt-4">
@@ -193,115 +241,62 @@ const BeatForm = ({
           </Card>
         )}
 
-        {/* Audio Info - Only when editing */}
-        {isEditing && initialData?.audio && (
-          <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description text-muted">Audio files cannot be modified after creation</p>
-            </div>
-
-            <div className="form-fields">
-              <div className="audio-info">
-                <div className="audio-info-item">
-                  <span className="label">Filename:</span>
-                  <span className="value">{initialData.audio.filename}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Format:</span>
-                  <span className="value">{initialData.audio.format.toUpperCase()}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Size:</span>
-                  <span className="value">{(initialData.audio.size / 1024 / 1024).toFixed(2)} MB</span>
-                </div>
-              </div>
-
-              {audioPreviewUrl && (
-                <div className="waveform-preview mt-4">
-                  <Waveform url={audioPreviewUrl} height={80} />
-                </div>
-              )}
-            </div>
-          </Card>
-        )}
-
-        {/* Basic Information */}
+        {/* Beat Metadata */}
         <Card className="form-section">
-          <div className="section-header">
-            <h2>Basic Information</h2>
+          <div className="section-header-with-icon">
+            <FileText size={24} className="section-icon" />
+            <div className="section-header-text">
+              <h2>Beat Information</h2>
+              <p className="section-description">Add details about your beat</p>
+            </div>
           </div>
 
           <div className="form-fields">
-            <div className="field-group">
-              <label htmlFor="title">Title *</label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter beat title"
-                maxLength={100}
-                required
-              />
-            </div>
+            {/* Title - Full Width Directo */}
+            <Input
+              label="Title"
+              icon={<Type size={16} />}
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Enter beat title"
+              fullWidth
+              required
+            />
 
-            <div className="field-group">
-              <label htmlFor="genre">Genre *</label>
-              <select
-                id="genre"
+            {/* Genre and Key - Grid Row */}
+            <div className="field-row">
+              <Select
+                label="Genre"
+                icon={<Music2 size={16} />}
                 name="genre"
                 value={formData.genre}
                 onChange={handleInputChange}
-                className="genre-select"
+                fullWidth
                 required
               >
-                <option value="">Select a genre</option>
+                <option value="">Select genre</option>
                 <option value="Hip Hop">Hip Hop</option>
                 <option value="Trap">Trap</option>
                 <option value="R&B">R&B</option>
                 <option value="Pop">Pop</option>
-                <option value="Rock">Rock</option>
                 <option value="Electronic">Electronic</option>
+                <option value="Rock">Rock</option>
                 <option value="Jazz">Jazz</option>
-                <option value="Reggaeton">Reggaeton</option>
+                <option value="Lo-Fi">Lo-Fi</option>
+                <option value="Drill">Drill</option>
                 <option value="Other">Other</option>
-              </select>
-            </div>
+              </Select>
 
-            <div className="field-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe your beat..."
-                maxLength={500}
-                rows="4"
-                className="description-textarea"
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Technical Details */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Technical Details</h2>
-          </div>
-
-          <div className="form-fields">
-            <div className="field-group">
-              <label htmlFor="key">Key</label>
-              <select
-                id="key"
+              <Select
+                label="Key"
+                icon={<Binary size={16} />}
                 name="key"
                 value={formData.key}
                 onChange={handleInputChange}
-                className="key-select"
+                fullWidth
               >
-                <option value="">Select a key</option>
+                <option value="">Select key</option>
                 <option value="C">C</option>
                 <option value="C#">C#</option>
                 <option value="D">D</option>
@@ -314,45 +309,70 @@ const BeatForm = ({
                 <option value="A">A</option>
                 <option value="A#">A#</option>
                 <option value="B">B</option>
-              </select>
+                <option value="Cm">Cm</option>
+                <option value="C#m">C#m</option>
+                <option value="Dm">Dm</option>
+                <option value="D#m">D#m</option>
+                <option value="Em">Em</option>
+                <option value="Fm">Fm</option>
+                <option value="F#m">F#m</option>
+                <option value="Gm">Gm</option>
+                <option value="G#m">G#m</option>
+                <option value="Am">Am</option>
+                <option value="A#m">A#m</option>
+                <option value="Bm">Bm</option>
+              </Select>
             </div>
-          </div>
-        </Card>
 
-        {/* Tags */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Tags</h2>
-            <p className="section-description">Add tags to help users discover your beat</p>
-          </div>
+            {/* Description Directo */}
+            <Textarea
+              label="Description"
+              icon={<AlignLeft size={16} />}
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Describe your beat, its vibe, and intended use..."
+              fullWidth
+              rows={4}
+            />
 
-          <div className="form-fields">
-            <div className="tag-input-section">
-              <div className="tag-input-group">
-                <Input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="Add tag..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                />
-                <Button type="button" onClick={handleAddTag} variant="outline">
-                  Add
-                </Button>
-              </div>
+            {/* Tags Section */}
+            {/* Aquí sí mantenemos un div porque tiene lógica compleja de inputs + chips */}
+            <div className="tag-wrapper-block">
+              <label className="input-label tag-label">
+                <Hash size={16} className="label-icon" />
+                Tags
+              </label>
 
-              <div className="tags-display">
-                {formData.tags.map((tag, index) => (
-                  <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
-                    <span className="tag-text">#{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="tag-remove"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+              <div className="tag-input-section">
+                <div className="tag-input-group">
+                  <Input
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    placeholder="Add tag..."
+                    fullWidth
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                  />
+                  <Button type="button" onClick={handleAddTag} variant="outline">
+                    Add
+                  </Button>
+                </div>
+
+                <div className="tags-display">
+                  {formData.tags.map((tag, index) => (
+                    <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
+                      <span className="tag-text">#{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="tag-remove"
+                        aria-label={`Remove ${tag}`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -360,87 +380,38 @@ const BeatForm = ({
 
         {/* Visibility & Pricing */}
         <Card className="form-section">
-          <div className="section-header">
-            <h2>Visibility & Pricing</h2>
+          <div className="section-header-with-icon">
+            <Eye size={24} className="section-icon" />
+            <div className="section-header-text">
+              <h2>Visibility & Download Options</h2>
+              <p className="section-description">Configure who can see and download your beat</p>
+            </div>
           </div>
 
           <div className="form-fields">
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onChange={handleInputChange}
-                />
-                <span className="checkbox-text">Public (visible to everyone)</span>
-              </label>
+            <div className="toggle-row">
+              <Toggle
+                label="Public"
+                description="Visible to everyone"
+                icon={<Eye size={16} />}
+                checked={formData.isPublic}
+                onChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
+              />
 
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isDownloadable"
+              {formData.isPublic && (
+                <Toggle
+                  label="Allow downloads"
+                  description="Users can download this beat"
+                  icon={<Download size={16} />}
                   checked={formData.isDownloadable}
-                  onChange={handleInputChange}
+                  onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
                 />
-                <span className="checkbox-text">Allow downloads</span>
-              </label>
+              )}
             </div>
-
-            {/* Pricing options only if downloadable */}
-            {formData.isDownloadable && (
-              <>
-                <div className="checkbox-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="pricing.isFree"
-                      checked={formData.pricing.isFree}
-                      onChange={handleInputChange}
-                    />
-                    <span className="checkbox-text">Free download</span>
-                  </label>
-                </div>
-
-                {!formData.pricing.isFree && (
-                  <div className="field-row">
-                    <div className="field-group">
-                      <label htmlFor="pricing.price">Price</label>
-                      <Input
-                        id="pricing.price"
-                        name="pricing.price"
-                        type="number"
-                        value={formData.pricing.price}
-                        onChange={handleInputChange}
-                        placeholder="29.99"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-
-                    <div className="field-group">
-                      <label htmlFor="pricing.currency">Currency</label>
-                      <select
-                        id="pricing.currency"
-                        name="pricing.currency"
-                        value={formData.pricing.currency}
-                        onChange={handleInputChange}
-                        className="currency-select"
-                      >
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
           </div>
         </Card>
       </div>
 
-      {/* Submit Buttons */}
       <div className="form-actions">
         <Button
           type="button"
@@ -455,8 +426,9 @@ const BeatForm = ({
           type="submit"
           variant="primary"
           disabled={loading || !formData.title || !formData.genre || (!isEditing && !audioFile)}
-          className="submit-button"
+          className="submit-button gap-2"
         >
+          <Save size={18} />
           {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Beat' : 'Create Beat')}
         </Button>
       </div>
