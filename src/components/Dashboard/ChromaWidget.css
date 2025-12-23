@@ -1,0 +1,116 @@
+/* Chroma widget specific styles (moved from MetricsWidgets.css) */
+.chroma-bars-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.chroma-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chroma-row-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  min-width: 28px;
+  text-align: right;
+}
+
+.chroma-row-track {
+  flex: 1;
+  height: 14px;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chroma-row-bar {
+  height: 100%;
+  border-radius: 7px;
+  transition: all 0.3s ease;
+  animation: chroma-grow 0.6s ease-out;
+}
+
+.chroma-row:hover .chroma-row-bar {
+  filter: brightness(1.2);
+  transform: scaleX(1.02);
+  transform-origin: left;
+}
+
+@keyframes chroma-grow {
+  from {
+    width: 0 !important;
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* New grid layout for chroma widget */
+.chroma-widget {
+  /* make the chroma widget fill its grid cell and allow internal content to stretch */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chroma-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
+  /* let the grid take remaining vertical space and center its rows */
+  flex: 1 1 auto;
+  align-content: center;
+}
+
+.chroma-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chroma-item-left {
+  width: 34px;
+  text-align: right;
+}
+
+.chroma-note {
+  font-size: 0.9rem;
+  color: #e6eef8;
+  font-weight: 700;
+}
+
+
+.chroma-item-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chroma-item-right--bars .chroma-row-track {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chroma-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* percent box */
+.chroma-percent {
+  width: 44px;
+  text-align: right;
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 0.95rem;
+}

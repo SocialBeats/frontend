@@ -1,0 +1,63 @@
+/* Shared base styles for dashboard widgets (replacement for MetricsWidgets.css globals) */
+.widget-base {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 2px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+}
+
+.widget-base:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 20px rgba(139,92,246,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+
+/* Grid span helpers (used by ViewDashboard to size widgets) */
+.spider-widget-container { grid-column: span 1; }
+@media (min-width: 768px) { .spider-widget-container { grid-column: span 2; } }
+@media (min-width: 1024px) { .spider-widget-container { grid-column: span 3; } }
+
+.bpm-widget-container { grid-column: span 1; }
+@media (min-width: 768px) { .bpm-widget-container { grid-column: span 2; } }
+@media (min-width: 1024px) { .bpm-widget-container { grid-column: span 3; } }
+
+.widget-span-2 { /* used to make some widgets span 2 columns on lg */ }
+@media (min-width: 1024px) { .widget-span-2 { grid-column: span 2; } }
+
+/* Span full width of the grid (useful for wide widgets like decibels) */
+.widget-span-full { grid-column: 1 / -1; }
+
+/* Target the Decibels (Staccato) widget without changing JSX.
+   Use :has() to detect the inner marker `.decibels-meter` and
+   make the widget span 2 columns on large screens. Modern browsers
+   (Chrome/Edge/Safari) support :has(); this keeps markup untouched. */
+@media (min-width: 1024px) {
+  .widget-base:has(.decibels-meter) { grid-column: span 2; }
+}
+
+.metric-widget { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height:100%; display:flex; flex-direction:column; }
+.metric-widget--wide { grid-column: span 2; }
+.metric-widget__title { font-size:0.875rem; font-weight:600; color:#64748b; margin:0 0 1rem 0; text-transform:uppercase; letter-spacing:0.05em; }
+.metric-widget__content { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+
+/* Utility to make widgets share the same fixed height and centered content */
+.widget-equal {
+  height: 180px; /* match progress-widget default */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .widget-equal { height: 200px; }
+}
+
+/* Explicit 3-column span helper for dashboards with a 3-column grid */
+@media (min-width: 1024px) {
+  .widget-span-3 { grid-column: span 3; }
+}
