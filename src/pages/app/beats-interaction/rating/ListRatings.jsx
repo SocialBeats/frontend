@@ -463,7 +463,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
           {count > 0 ? (
             <span className="ratings-summary">
-              Media <strong>{average?.toFixed(1) ?? "-"} / 5</strong> · {count}{" "}
+              Media <strong>{average?.toFixed(1) ?? "-"} / 5</strong> <strong>· {count}</strong>{" "}
               valoración{count !== 1 && "es"}
             </span>
           ) : (
