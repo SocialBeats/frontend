@@ -16,7 +16,7 @@
 
 .comments-section-title {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: 0.25rem;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -28,6 +28,7 @@
   opacity: 0.9;
   display: block;
   color: var(--text-muted);
+  font-weight: 700;
 }
 
 .comments-empty {

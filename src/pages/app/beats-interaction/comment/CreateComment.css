@@ -36,7 +36,6 @@
   font-weight: 700;
   padding-inline: 1rem;
   height: 40px;
-
   box-shadow: 0 6px 18px rgba(139, 92, 246, 0.22);
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
