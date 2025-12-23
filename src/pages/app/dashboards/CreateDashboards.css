@@ -173,6 +173,25 @@
   gap: 0.5rem;
 }
 
+.beat-card--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.beat-card__metrics {
+  margin-top: 0.5rem;
+}
+
+.beat-card__metrics-badge {
+  padding: 0.25rem 0.5rem;
+  background: #faf089;
+  border-radius: 8px;
+  color: #92400e;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
 .beat-tag {
   padding: 0.25rem 0.75rem;
   background: #edf2f7;

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import IconButton from '../../../components/ui/IconButton';
+import Modal from '../../../components/ui/Modal';
+import Button from '../../../components/ui/Button';
 import BeatForm from '../../../components/forms/BeatForm';
 import { createBeat, updateBeat, getBeatById, getPresignedUrl, uploadFileToS3 } from '../../../services/beatsService';
 import './BeatFormPage.css';
@@ -15,6 +17,8 @@ const BeatFormPage = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [beatData, setBeatData] = useState(null);
+  const [createdBeatId, setCreatedBeatId] = useState(null);
+  const [showCreatedModal, setShowCreatedModal] = useState(false);
 
   // Load beat data for editing
   useEffect(() => {
@@ -70,7 +74,10 @@ const BeatFormPage = () => {
         navigate(-1);
       } else {
         result = await createBeat(submitData);
-        navigate(`/app/beats/${result._id || result.id}`, { replace: true });
+        // Instead of navigating immediately, show a modal informing the user
+        const idResult = result._id || result.id || result;
+        setCreatedBeatId(idResult);
+        setShowCreatedModal(true);
       }
     } catch (err) {
       setError(`Error ${isEditing ? 'updating' : 'creating'} beat. Please try again.`);
@@ -117,6 +124,23 @@ const BeatFormPage = () => {
         loading={saving}
         isEditing={isEditing}
       />
+
+      <Modal
+        isOpen={showCreatedModal}
+        onClose={() => setShowCreatedModal(false)}
+        title="Métricas en proceso"
+      >
+        <div className="created-beat-modal">
+          <p>Se están calculando las métricas de tu beat. En breve podrás crear tus dashboards basados en este beat.</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <Button variant="secondary" onClick={() => setShowCreatedModal(false)}>Cerrar</Button>
+            <Button variant="primary" onClick={() => {
+              setShowCreatedModal(false);
+              if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);
+            }}>Ver beat</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
