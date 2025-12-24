@@ -14,6 +14,11 @@ import { getCurrentUserId } from "../../../../services/authService";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
 
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
+
 const ListComments = ({ isBeat, resourceId }) => {
   const currentUserId = getCurrentUserId();
 
@@ -68,7 +73,7 @@ const ListComments = ({ isBeat, resourceId }) => {
           : 1;
       if (page > newTotalPages) setPage(newTotalPages);
     } catch (error) {
-      console.error("Error cargando comentarios", error);
+      showApiError(error, "Error cargando comentarios");
       setComments([]);
       setTotalComments(0);
     }
@@ -127,7 +132,7 @@ const ListComments = ({ isBeat, resourceId }) => {
       closeDeleteModal();
       await fetchComments();
     } catch (error) {
-      console.error("Error eliminando comentario", error);
+      showApiError(error, "Error eliminando comentario");
       closeDeleteModal();
     }
   };
@@ -174,7 +179,7 @@ const ListComments = ({ isBeat, resourceId }) => {
 
       cancelEditing();
     } catch (error) {
-      console.error("Error editando comentario", error);
+      showApiError(error, "Error editando comentario");
     }
   };
 

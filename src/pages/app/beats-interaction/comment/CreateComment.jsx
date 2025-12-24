@@ -7,6 +7,11 @@ import {
 } from "../../../../services/beats-interaction/commentService";
 import "./CreateComment.css";
 
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
+
 const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +37,7 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
         onCommentCreated(createdComment);
       }
     } catch (error) {
-      console.error("Error creando comentario", error);
+      showApiError(error, "Error creando comentario");
     } finally {
       setSubmitting(false);
     }
