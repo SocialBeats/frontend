@@ -216,7 +216,7 @@ function computeAverage(ratingsArr) {
 }
 
 // --- Componente -------------------------------------------------------------------
-const ListRatings = ({ isBeat = false, resourceId }) => {
+const ListRatings = ({ isBeat, resourceId }) => {
   const [allRatings, setAllRatings] = useState(MOCK_RATINGS);
 
   const [ratings, setRatings] = useState([]);
@@ -463,8 +463,8 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
           {count > 0 ? (
             <span className="ratings-summary">
-              Media <strong>{average?.toFixed(1) ?? "-"} / 5</strong> <strong>· {count}</strong>{" "}
-              valoración{count !== 1 && "es"}
+              Media <strong>{average?.toFixed(1) ?? "-"} / 5</strong>{" "}
+              <strong>· {count}</strong> valoración{count !== 1 && "es"}
             </span>
           ) : (
             <span className="ratings-summary ratings-summary--empty">

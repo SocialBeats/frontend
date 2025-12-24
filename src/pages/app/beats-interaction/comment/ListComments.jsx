@@ -160,7 +160,7 @@ const MOCK_COMMENTS = [
 ];
 
 // --- Componente ----------------------------------------------------------
-const ListComments = ({ isBeat = false, resourceId }) => {
+const ListComments = ({ isBeat, resourceId }) => {
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -173,7 +173,8 @@ const ListComments = ({ isBeat = false, resourceId }) => {
   const [editingText, setEditingText] = useState("");
 
   const safeLimit = limit <= 0 ? 1 : limit;
-  const totalPages = totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
+  const totalPages =
+    totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
 
   useEffect(() => {
     const startIndex = (page - 1) * safeLimit;
@@ -243,7 +244,8 @@ const ListComments = ({ isBeat = false, resourceId }) => {
 
   const goFirstPage = () => setPage(1);
   const goPrevPage = () => setPage((prev) => (prev <= 1 ? 1 : prev - 1));
-  const goNextPage = () => setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
+  const goNextPage = () =>
+    setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
   const goLastPage = () => setPage(totalPages);
 
   // --- delete handlers -------------------------------------------------------------------------
@@ -517,16 +519,10 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <div className="comment-delete-modal">
             <p>¿Seguro que quieres eliminar este comentario?</p>
             <div className="modal-buttons">
-              <Button
-                variant="primary"
-                onClick={closeDeleteModal}
-              >
+              <Button variant="primary" onClick={closeDeleteModal}>
                 Cancelar
               </Button>
-              <Button
-                variant="danger"
-                onClick={handleConfirmDelete}
-              >
+              <Button variant="danger" onClick={handleConfirmDelete}>
                 Borrar
               </Button>
             </div>
