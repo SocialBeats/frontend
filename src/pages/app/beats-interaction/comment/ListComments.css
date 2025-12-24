@@ -246,6 +246,16 @@
   width: 100%;
 }
 
+.comment-author--link {
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+
+.comment-author--link:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
 @media (max-width: 520px) {
   .comment-row {
     align-items: flex-start;

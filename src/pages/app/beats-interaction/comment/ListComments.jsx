@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
@@ -20,6 +21,8 @@ const showApiError = (error, fallbackMessage) => {
 };
 
 const ListComments = ({ isBeat, resourceId }) => {
+  const navigate = useNavigate();
+
   const currentUserId = getCurrentUserId();
 
   const [comments, setComments] = useState([]);
@@ -211,7 +214,19 @@ const ListComments = ({ isBeat, resourceId }) => {
                   <div className="comment-row">
                     <div className="comment-left">
                       <div className="comment-main-line">
-                        <span className="comment-author">{username}:</span>
+                        <span
+                          className="comment-author comment-author--link"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/app/profile/${username}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ")
+                              navigate(`/app/profile/${username}`);
+                          }}
+                          title={`Ver perfil de ${username}`}
+                        >
+                          {username}:
+                        </span>
 
                         {isEditing ? (
                           <Input
