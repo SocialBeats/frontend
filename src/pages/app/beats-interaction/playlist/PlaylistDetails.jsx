@@ -310,7 +310,7 @@ const PlaylistDetails = () => {
           </div>
         </div>
 
-        {canEditPlaylist && (
+        {playlist && playlist.ownerId === myUserId && (
           <div className="playlist-actions">
             <Button
               onClick={() =>
