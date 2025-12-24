@@ -142,6 +142,10 @@ export default function ProfileView() {
     }
   };
 
+  const handleGoToPlaylists = () => {
+  if (!profile?.userId) return;
+  navigate(`/app/users/${profile.userId}/playlists`);
+  };
   
   // Show error from useProfileData
   useEffect(() => {
@@ -206,6 +210,12 @@ export default function ProfileView() {
           setShowErrorModal(true);
         }}
       />
+        {/* Botón para ver playlists del usuario */}
+      <div style={{ marginTop: '1rem' }}>
+        <Button onClick={handleGoToPlaylists}>
+          Ver playlists
+        </Button>
+      </div>
       </div>
 
       {/* Edit Form - only if own profile */}
