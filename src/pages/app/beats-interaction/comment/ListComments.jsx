@@ -344,7 +344,7 @@ const ListComments = ({ isBeat, resourceId }) => {
           <h2 className="comments-section-title">Comentarios</h2>
           {totalComments > 0 && (
             <span className="comments-count">
-              {totalComments} comentario{totalComments !== 1 && "s"}
+              <strong>{totalComments}</strong> comentario{totalComments !== 1 && "s"}
             </span>
           )}
         </div>

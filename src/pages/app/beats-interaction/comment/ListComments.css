@@ -15,28 +15,36 @@
 }
 
 .comments-section-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 900;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  color: azure;
 }
 
 .comments-count {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   opacity: 0.9;
   display: block;
   color: var(--text-muted);
   font-weight: 700;
 }
 
+.comments-count strong {
+  font-weight: 800;
+  color: var(--text-light);
+}
+
 .comments-empty {
+  font-style: italic;
   font-size: 0.95rem;
   opacity: 0.85;
   text-align: center;
   color: var(--text-muted);
   padding: 1rem 0;
+  font-weight: 700;
 }
 
 .comments-list {

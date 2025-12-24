@@ -16,18 +16,20 @@
 
 .ratings-section-title {
   font-size: 1.1rem;
-  font-weight: 800;
+  font-weight: 900;
   margin-bottom: 0.35rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  color: azure;
 }
 
 .ratings-summary {
   font-size: 0.9rem;
+  opacity: 0.9;
   display: block;
   color: var(--text-muted);
-  opacity: 0.9;
+  font-weight: 700;
 }
 
 .ratings-summary strong {
@@ -37,6 +39,11 @@
 
 .ratings-summary--empty {
   font-style: italic;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1rem 0;
 }
 
 .my-rating-section {
