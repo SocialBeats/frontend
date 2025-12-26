@@ -12,14 +12,28 @@ import './BeatCard.css';
 export default function BeatCard({ beat, variant = 'default', onClick }) {
   const {
     title,
-    uploaderName ,
     genre,
     key: musicalKey,
     plays = 0,
     duration,
     isDownloadable,
-    coverImageUrl
+    // coverImageUrl <-- This property likely doesn't exist on the root object
   } = beat;
+
+  const getCoverUrl = (beatData) => {
+    if (!beatData?.audio) return null;
+    if (beatData.audio.coverUrl) return beatData.audio.coverUrl;
+    if (beatData.audio.s3CoverKey) {
+      const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+      const key = beatData.audio.s3CoverKey.startsWith('/')
+        ? beatData.audio.s3CoverKey.slice(1)
+        : beatData.audio.s3CoverKey;
+      return `${domain}/${key}`;
+    }
+    return null;
+  };
+
+  const coverImageUrl = getCoverUrl(beat);
 
   // Formatear duración de segundos a mm:ss
   const formatDuration = (seconds) => {
@@ -46,19 +60,20 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
   `);
 
   return (
-    <div 
+    <div
       className={`beat-card ${variant === 'carousel' ? 'beat-card-carousel' : ''}`}
       onClick={onClick}
     >
       {/* Cover Image */}
       <div className="beat-card-cover">
-        <img 
-          src={coverImageUrl || defaultCover} 
+        <img
+          src={coverImageUrl || defaultCover}
           alt={beat.title}
           className="beat-card-image"
           loading="lazy"
+          onError={(e) => { e.target.src = defaultCover; }}
         />
-        
+
         {/* Overlay con play button */}
         <div className="beat-card-overlay">
           <button className="beat-card-play-btn" aria-label="Reproducir">
@@ -89,7 +104,7 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
         <h4 className="beat-card-title" title={beat.title}>
           {title}
         </h4>
-        
+
         <p className="beat-card-artist">
           {beat.createdBy?.username || 'Artista desconocido'}
         </p>

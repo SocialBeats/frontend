@@ -1,0 +1,102 @@
+.living-waveform-container {
+    position: relative;
+    width: 100%;
+    /* Altura en reposo: línea delgada */
+    height: 4px;
+    cursor: pointer;
+    /* Transición suave de altura */
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+}
+
+/* Estado Hover: Se expande la altura */
+.living-waveform-container:hover {
+    height: 64px; /* Altura expandida */
+}
+
+/* Contenedor Flex para las barras */
+.waveform-bars {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    gap: 1px; /* Espacio mínimo entre barras */
+    pointer-events: none; /* Dejamos que el click lo capture el container padre */
+}
+
+.waveform-bar {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.3); /* Color inactivo (fondo) */
+    border-radius: 999px;
+    /* Transición para la animación de escala/altura */
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+    height: 100%; /* Por defecto altura completa del contenedor */
+}
+
+/* 
+   Truco "Squash":
+   En estado Idle (por defecto), aunque las barras tienen altura variable por el style inline (height: peak%),
+   el contenedor padre fuerza todo a 4px.
+   Pero para que parezca una línea sólida, podemos forzar a las barras a llenar el alto en reposo
+   o simplemente dejar que se aplasten.
+   Si queremos que en reposo sea una línea RECTA constante, necesitamos anular la altura variable en reposo.
+*/
+
+.living-waveform-container:not(:hover) .waveform-bar {
+    height: 100% !important; /* En reposo, todas llenan los 4px del padre -> linea sólida */
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Estado Hover: Las barras recuperan su altura relativa real definida en el style inline */
+.living-waveform-container:hover .waveform-bar {
+    /* La altura viene del style inline (data-height) */
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* CAPA DE PROGRESO (Overlay) */
+/* 
+   Para el efecto "Karaoke" (colorear solo hasta el progreso),
+   podemos usar un contenedor duplicado con overflow: hidden
+   O usar un background gradient lineal en el contenedor padre si fuera sólido.
+   Dado que son barras separadas, la mejor opción performante es renderizar las barras dos veces (fondo y frente)
+   O usar mask-image.
+   Opción más sencilla y potente: mask-image o clip-path en un wrapper duplicado.
+*/
+
+.waveform-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1px;
+}
+
+.waveform-layer.background {
+    z-index: 1;
+}
+
+.waveform-layer.foreground {
+    z-index: 2;
+    pointer-events: none;
+    /* Usamos clip-path para revelar el progreso sin afectar el layout interno */
+    /* inset(top right bottom left) -> variamos right para descubrir */
+    /* La transición se manejará inline en el componente o aquí si usamos custom property */
+    transition: clip-path 0.1s linear;
+    will-change: clip-path;
+}
+
+.waveform-layer.foreground .waveform-bar {
+    background-color: #8b5cf6; /* Color Primario (Violet-500) */
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5); /* Glow effect */
+}
+
+.living-waveform-container:hover .waveform-layer.foreground .waveform-bar {
+     background-color: #a78bfa; /* Violet-400 en hover para más brillo */
+}
