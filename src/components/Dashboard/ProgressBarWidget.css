@@ -1,0 +1,28 @@
+.progress-container { width:100%; display:flex; align-items:center; gap:1rem; }
+.progress-bar { flex:1; height:12px; background:#e5e7eb; border-radius:6px; overflow:hidden; }
+.progress-bar__fill { height:100%; transition: width 0.3s ease; border-radius:6px; }
+.progress-value { font-size:1.5rem; font-weight:700; color:#667eea; min-width:60px; text-align:right; }
+
+/* Ensure all progress-bar-based widgets have a consistent size */
+.progress-widget {
+	height: 180px; /* fixed height so widgets always match and allow 2-line titles */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow: hidden;
+	padding: 1.25rem; /* tighten inner spacing slightly for better fit */
+}
+
+@media (min-width: 1024px) {
+	.progress-widget { height: 200px; }
+}
+
+/* Allow titles to wrap to two lines but keep them centered */
+.progress-widget h3 {
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	line-height: 1.05;
+	margin-bottom: 1rem;
+}

@@ -148,3 +148,15 @@ export function isAuthenticated() {
   
   return isValid;
 }
+
+/**
+ * Obtiene el username del usuario autenticado desde el token
+ * @returns {string|null} - Username del usuario o null si no está autenticado
+ */
+export function getCurrentUsername() {
+  const accessToken = getAccessToken();
+  if (!accessToken) return null;
+  
+  const payload = decodeJWT(accessToken);
+  return payload?.username || null;
+}
