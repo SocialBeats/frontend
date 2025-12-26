@@ -1,3 +1,102 @@
+# Release v0.0.3
+
+## Features
+- feat: add random quote fetching functionality to ViewDashboard
+- feat: implement number formatting utility and update widgets to use formatted values; enhance SpiderWidget to accept core metrics
+- feat: steps profile verification (except for identity verification)
+- feat: added new endpoints in profile service and fix profile section
+- feat: add disabled state and selection badge for widgets in AddWidgetModal; integrate existing widgets into modal
+- feat: add Floating Action Button (FAB) for adding widgets; implement visibility toggle based on header button visibility
+- feat: update BeatsPositionWidget to display timestamp of first beat and improve widget title and description
+- feat: add bump animation to BPM widget based on BPM value
+- feat: enhance BPM widget with new speedometer visualization and improved layout
+- feat: enhance BPM widget with improved styling and layout adjustments
+- feat: add new widgets and enhance dashboard metrics
+- feat: Enhance widget management with loading and error handling for dashboard widgets
+- feat: Reimplement dashboard widget management with new AddWidgetModal and widget types
+- feat: Add success and error modals for dashboard creation and update processes
+- feat: Integrate API calls for fetching, deleting, and updating dashboards
+- feat: added studies section
+- feat: add ProfileCertifications component with S3 upload functionality
+- feat: integrate S3 avatar upload
+- feat: Add .env to .gitignore for environment variable management
+- feat: implement routes to visit profiles
+- feat: load user profile in NavBar
+- feat: enhance profile editing functionality
+- feat: profile page in frontend (preliminary)
+- feat: List Beats in CreateDashboard component
+
+## Tests
+No test changes.
+## Documentation
+- docs: add LICENSE
+
+## Fixes
+- fix: add base url to frontend
+- fix: refactor RatioWidget styles for improved layout and responsiveness; update CSS classes and structure
+- fix: enhance widget layout and styling; add responsive span classes for Decibels and Ratio widgets
+- fix: update BadgeWidget and GaugeWidget styles for improved layout; add new widget span class for 'apertura' type in ViewDashboard
+- fix: add full-width span class for widgets; update DecibelsWidget for improved layout and accessibility
+- fix: refactor SimpleNumberWidget and BeatsPositionWidget for improved structure and styling; add utility classes for better layout
+- fix: enhance widget styles for consistent sizing and layout; add utility class for equal height widgets
+- fix: add styling to prevent title wrapping in ProgressBarWidget for consistent height
+- fix: update ProgressBarWidget styling for consistent sizing and layout
+- fix: enhance ChromaWidget and KeyWidget for improved responsiveness and layout; adjust ViewDashboard for better section alignment
+- fix: refactor dashboard widgets with new styles and structure; replace MetricsWidgets.css with individual stylesheets for better maintainability
+- fix: implement KeyWidget with Circle of Fifths visualization and update styling for improved layout
+- fix: enhance widget styling and layout for improved visualization and user experience
+- fix: navbar overflow
+- fix: prevent duplicate tags in handleAddTag function
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #34 from SocialBeats/develop
+- Merge pull request #33 from SocialBeats/feat/quotable
+- Merge branch 'develop' into feat/quotable
+- Merge pull request #32 from SocialBeats/feat/widget-visualization
+- Merge pull request #31 from SocialBeats/feat/profile-steps-verification
+- Merge pull request #30 from SocialBeats/feature/fix-profile-navbar
+- Merge pull request #29 from SocialBeats/feat/crud-widgets
+- Merge pull request #26 from SocialBeats/feat/create-dashboard
+- Fix error while merging
+- Merge pull request #24 from SocialBeats/feat/s3-profile-integration
+- Merge branch 'develop' into feat/s3-profile-integration
+- Merge pull request #25 from SocialBeats/feat/profile-studies
+- Update src/components/profile/ProfileStudiesSection.css
+- Update src/components/profile/StudiesModal.jsx
+- Update src/components/ui/Modal.jsx
+- Update src/components/profile/StudiesModal.jsx
+- Update src/components/profile/StudiesModal.css
+- Merge pull request #23 from SocialBeats/feat/s3-profile-integration
+- refactor: profile page refactor
+- Merge pull request #22 from SocialBeats/copilot/sub-pr-15-one-more-time
+- Merge branch 'feat/s3-profile-integration' into copilot/sub-pr-15-one-more-time
+- Remove unnecessary catch clauses that only re-throw errors
+- Use dynamic isOwnProfile value from hook instead of hardcoding
+- Fix code review issues: prevent infinite re-render and remove duplicate setSaving
+- Merge pull request #15 from SocialBeats/feat/profile-page
+- Refactor Profile components to eliminate code duplication
+- Merge pull request #21 from SocialBeats/copilot/sub-pr-15-yet-again
+- Merge branch 'feat/profile-page' into copilot/sub-pr-15-yet-again
+- Merge pull request #19 from SocialBeats/copilot/sub-pr-15-again
+- Merge pull request #18 from SocialBeats/copilot/sub-pr-15
+- refactor: extract magic number to MAX_TAGS constant
+- Initial plan
+- refactor: extract magic number to MAX_ABOUT_ME_LENGTH constant
+- Initial plan
+- Update src/pages/app/profile/ProfileView.jsx
+- Update src/pages/app/profile/Profile.jsx
+- Initial plan
+- Initial plan
+- Merge remote-tracking branch 'origin/main' into develop
+- Merge pull request #17 from SocialBeats/feat/crud-dashboards
+- Merge branch 'develop' into feat/crud-dashboards
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v0.0.2...v0.0.3).
+
 # Release v0.0.2
 
 ## Features
