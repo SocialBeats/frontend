@@ -1,3 +1,23 @@
+# Release v0.0.5
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: add base: '/socialbeats/' to vite.config.js
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #38 from SocialBeats/develop
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v0.0.4...v0.0.5).
+
 # Release v0.0.4
 
 ## Features
