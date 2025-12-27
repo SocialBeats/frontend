@@ -1,0 +1,374 @@
+.ratings-section {
+  margin-top: 2rem;
+}
+
+.ratings-section-card {
+  padding: 1.5rem;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.ratings-section-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.ratings-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #000000;
+}
+
+.ratings-summary {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  display: block;
+  color: #000000;
+}
+
+.ratings-summary strong {
+  font-weight: 700;
+}
+
+.ratings-summary--empty {
+  font-style: italic;
+}
+
+.ratings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ratings-list--scroll {
+  height: 300px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.ratings-empty {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-align: center;
+  color: #000000;
+}
+
+.rating-item {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  color: #000000;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+  text-align: left;
+}
+
+.rating-item:hover {
+  background-color: #f1f1f1;
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.rating-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rating-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.rating-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 100%;
+}
+
+.rating-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.rating-main-line {
+  font-size: 0.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  color: #000000;
+}
+
+.rating-username {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #000000;
+}
+
+.rating-stars-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.rating-star {
+  font-size: 1.1rem;
+  color: #d4d4d4;
+}
+
+.rating-star--filled {
+  color: #facc15;
+}
+
+.rating-score-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.rating-meta {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-align: left;
+  color: #000000;
+}
+
+.rating-comment {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  color: #000000;
+}
+
+.rating-edit-input {
+  margin-top: 0.35rem;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.rating-edit-actions {
+  margin-top: 0.4rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.rating-edit-actions--center {
+  justify-content: center;
+}
+
+.rating-edit-stars {
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.rating-edit-star {
+  font-size: 1.45rem;
+  cursor: pointer;
+  color: #d4d4d4;
+  transition: transform 0.1s ease, color 0.1s ease;
+  user-select: none;
+}
+
+.rating-edit-star:hover {
+  transform: scale(1.1);
+}
+
+.rating-edit-star--filled {
+  color: #facc15;
+}
+
+.rating-edit-score-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000000;
+  margin-left: 0.25rem;
+}
+
+.my-rating-section {
+  margin-bottom: 1.25rem;
+}
+
+.my-rating-card {
+  background: #f3f4ff;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.2rem;
+  color: #000000;
+  display: block;
+  text-align: center;
+}
+
+.my-rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.my-rating-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.my-rating-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 40px;
+}
+
+.my-rating-card--empty {
+  background: #f5f5f5;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.my-rating-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.my-rating-actions {
+  position: absolute;
+  right: 0.75rem;
+  top: 2px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.my-rating-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.my-rating-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.my-rating-stars {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.my-rating-score-number {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.my-rating-comment {
+  font-size: 0.9rem;
+  max-width: 420px;
+}
+
+.ratings-footer {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.ratings-pagination-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ratings-pagination-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  height: 30px;
+}
+
+.ratings-pagination-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 0.35rem;
+}
+
+.ratings-input-wrapper {
+  width: 50px;
+}
+
+.ratings-input {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 0.4rem;
+  height: 26px;
+  font-size: 0.85rem;
+}
+
+.ratings-input::-webkit-inner-spin-button,
+.ratings-input::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .rating-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rating-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .ratings-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .my-rating-actions {
+    right: -2px;
+  }
+}

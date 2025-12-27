@@ -1,0 +1,41 @@
+.create-rating {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.create-rating-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.create-rating-stars {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.create-rating-star {
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #d4d4d4;
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.create-rating-star:hover {
+  transform: scale(1.1);
+}
+
+.create-rating-star--filled {
+  color: #facc15;
+}
+
+.create-rating-input {
+  background-color: #ffffff;
+  color: #000000;
+}

@@ -1,0 +1,71 @@
+/* Textarea.css */
+.textarea-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.textarea-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  margin-left: 4px;
+}
+
+.textarea-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  min-height: 120px;
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.textarea-with-icon { padding-left: var(--icon-space); }
+
+.textarea-icon {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  color: var(--primary-soft);
+  pointer-events: none;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.textarea:hover {
+  border-color: var(--primary-soft);
+  background-color: var(--glass-bg-hover);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-glow);
+  background-color: var(--bg-glass);
+}
+
+.textarea-container:focus-within .textarea-icon,
+.textarea:hover ~ .textarea-icon {
+  color: var(--primary);
+}
+
+.textarea-error { border-color: var(--text-error); }
+.textarea-error-text { color: var(--text-error); font-size: 0.75rem; margin-top: 0.25rem; }
