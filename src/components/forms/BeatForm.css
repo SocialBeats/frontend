@@ -77,107 +77,7 @@
   z-index: 5;
 }
 
-/* --- AUDIO DROPZONE --- */
-.upload-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
 
-.file-input { display: none; }
-
-.audio-dropzone {
-  border-radius: var(--radius-md);
-  transition: all 0.3s ease;
-  border: 2px dashed var(--primary-border-light);
-  background: var(--bg-glass);
-  position: relative;
-  overflow: hidden;
-}
-
-.audio-dropzone-empty {
-  padding: 3rem 2rem;
-  text-align: center;
-  cursor: pointer;
-}
-
-.audio-dropzone-empty:hover {
-  border-color: var(--primary);
-  background: var(--glass-bg-hover);
-}
-
-.audio-dropzone-active {
-  border-color: var(--primary);
-  border-style: solid;
-  background: var(--primary-bg-subtle);
-  box-shadow: 0 0 0 4px var(--primary-bg-subtle);
-  transform: scale(1.005);
-}
-
-.dropzone-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.dropzone-icon {
-  color: var(--primary);
-  opacity: 0.8;
-  transition: transform 0.3s;
-}
-
-.audio-dropzone-active .dropzone-icon {
-  transform: scale(1.1);
-  opacity: 1;
-}
-
-.dropzone-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.dropzone-description, .dropzone-formats {
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* Cargado */
-.audio-dropzone-loaded {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  background: var(--bg-glass);
-}
-
-.audio-file-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.file-icon { color: var(--primary); }
-.file-name-loaded {
-  font-weight: 500;
-  color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.file-size { color: var(--text-muted); font-size: 0.75rem; margin: 0; }
-
-.waveform-preview {
-  margin-top: 1rem;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--bg-overlay-dark);
-}
 
 /* --- TAGS --- */
 .tag-input-section {
@@ -287,4 +187,25 @@ input[type="number"] {
   .field-row { grid-template-columns: 1fr; }
   .form-actions { flex-direction: column-reverse; }
   .form-actions button { width: 100%; }
+}
+
+/* --- RESPONSIVE LAYOUT (COLUMNS) --- */
+@media (min-width: 1024px) {
+  .form-grid {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0; /* Prevent flex overflow */
+  }
+
+  /* Make the right column (metadata) slightly wider if needed, or equal */
+  .form-column:nth-child(2) {
+      flex: 1.2;
+  }
 }

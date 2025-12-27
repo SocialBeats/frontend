@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Filter, X, Music, Key, Tag, Download } from 'lucide-react';
+import { Filter, X, Music, Tag, Download } from 'lucide-react';
 import './FilterBar.css';
 
 /**
@@ -27,23 +27,6 @@ const GENRES = [
   { value: 'Other', label: 'Otro' }
 ];
 
-// Opciones de clave musical del modelo Beat
-const KEYS = [
-  { value: '', label: 'Todas las claves' },
-  { value: 'C', label: 'C (Do)' },
-  { value: 'C#', label: 'C# (Do#)' },
-  { value: 'D', label: 'D (Re)' },
-  { value: 'D#', label: 'D# (Re#)' },
-  { value: 'E', label: 'E (Mi)' },
-  { value: 'F', label: 'F (Fa)' },
-  { value: 'F#', label: 'F# (Fa#)' },
-  { value: 'G', label: 'G (Sol)' },
-  { value: 'G#', label: 'G# (Sol#)' },
-  { value: 'A', label: 'A (La)' },
-  { value: 'A#', label: 'A# (La#)' },
-  { value: 'B', label: 'B (Si)' }
-];
-
 // Opciones de descargable
 const DOWNLOADABLE_OPTIONS = [
   { value: '', label: 'Todos' },
@@ -62,7 +45,6 @@ export default function FilterBar({ filters, onFilterChange, onClearFilters }) {
   // Contar filtros activos
   const activeFiltersCount = [
     filters.genre,
-    filters.key,
     filters.tags,
     filters.isDownloadable
   ].filter(Boolean).length;
@@ -102,26 +84,6 @@ export default function FilterBar({ filters, onFilterChange, onClearFilters }) {
                 {GENRES.map((genre) => (
                   <option key={genre.value} value={genre.value}>
                     {genre.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Clave */}
-            <div className="filter-group">
-              <label className="filter-label">
-                <Key size={14} />
-                Clave
-              </label>
-              <select
-                name="key"
-                value={filters.key}
-                onChange={handleChange}
-                className="filter-select"
-              >
-                {KEYS.map((key) => (
-                  <option key={key.value} value={key.value}>
-                    {key.label}
                   </option>
                 ))}
               </select>
