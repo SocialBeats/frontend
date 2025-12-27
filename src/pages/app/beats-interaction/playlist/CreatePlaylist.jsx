@@ -33,7 +33,7 @@ const CreatePlaylist = () => {
         const filtered = profiles.filter(
           user =>
             !playlistCollaborators.some(
-              collaborator => collaborator._id === user._id
+              collaborator => collaborator.userId === user.userId
             )
         );
 
@@ -51,8 +51,8 @@ const CreatePlaylist = () => {
 
   const toggleCollaborator = (user) => {
     setPlaylistCollaborators(prev =>
-      prev.some(u => u._id === user._id)
-        ? prev.filter(u => u._id !== user._id)
+      prev.some(u => u.userId === user.userId)
+        ? prev.filter(u => u.userId !== user.userId)
         : [...prev, user]
     );
   };
@@ -83,7 +83,7 @@ const CreatePlaylist = () => {
         description: playlistDescription.trim(),
         isPublic: playlistIsPublic,
         collaborators: playlistIsPublic
-          ? playlistCollaborators.map(user => user._id)
+          ? playlistCollaborators.map(user => user.userId)
           : [],
         items: [],
       };
@@ -150,7 +150,7 @@ const CreatePlaylist = () => {
             {/* Chips */}
             <div className="selected-collaborators">
               {playlistCollaborators.map(user => (
-                <div key={user._id} className="collab-chip">
+                <div key={user.userId} className="collab-chip">
                   {user.username}
                   <span
                     className="remove-chip"
@@ -188,7 +188,7 @@ const CreatePlaylist = () => {
                 ) : (
                   foundUsers.map(user => (
                     <div
-                      key={user._id}
+                      key={user.userId}
                       className="collaborator-dropdown__item"
                       onClick={() => {
                         toggleCollaborator(user);
