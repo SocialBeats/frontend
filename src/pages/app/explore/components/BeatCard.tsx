@@ -155,12 +155,6 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
             <span className="meta-icon">♪</span>
             {beat.genre}
           </span>
-          {beat.key && (
-            <span className="beat-card-key">
-              <span className="meta-label">Key</span>
-              {beat.key}
-            </span>
-          )}
         </div>
 
         <div className="beat-card-stats">

@@ -5,7 +5,6 @@ import {
   Save,
   Type,
   Music2,
-  Binary,
   AlignLeft,
   Hash,
   Eye,
@@ -34,7 +33,6 @@ const BeatForm = ({
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     genre: initialData?.genre || '',
-    key: initialData?.key || '',
     description: initialData?.description || '',
     tags: initialData?.tags || [],
     isPublic: initialData?.isPublic ?? true,
@@ -66,7 +64,6 @@ const BeatForm = ({
       setFormData({
         title: initialData.title || '',
         genre: initialData.genre || '',
-        key: initialData.key || '',
         description: initialData.description || '',
         tags: initialData.tags || [],
         isPublic: initialData.isPublic ?? true,
@@ -282,67 +279,30 @@ const BeatForm = ({
                 required
               />
 
-              {/* Genre and Key - Grid Row */}
-              <div className="field-row">
-                <Select
-                  label="Genre"
-                  icon={<Music2 size={16} />}
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                >
-                  <option value="">Select genre</option>
-                  <option value="Hip Hop">Hip Hop</option>
-                  <option value="Trap">Trap</option>
-                  <option value="R&B">R&B</option>
-                  <option value="Pop">Pop</option>
-                  <option value="Electronic">Electronic</option>
-                  <option value="Rock">Rock</option>
-                  <option value="Jazz">Jazz</option>
-                  <option value="Lo-Fi">Lo-Fi</option>
-                  <option value="Drill">Drill</option>
-                  <option value="Other">Other</option>
-                </Select>
+              {/* Genre */}
+              <Select
+                label="Genre"
+                icon={<Music2 size={16} />}
+                name="genre"
+                value={formData.genre}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              >
+                <option value="">Select genre</option>
+                <option value="Hip Hop">Hip Hop</option>
+                <option value="Trap">Trap</option>
+                <option value="R&B">R&B</option>
+                <option value="Pop">Pop</option>
+                <option value="Electronic">Electronic</option>
+                <option value="Rock">Rock</option>
+                <option value="Jazz">Jazz</option>
+                <option value="Lo-Fi">Lo-Fi</option>
+                <option value="Drill">Drill</option>
+                <option value="Other">Other</option>
+              </Select>
 
-                <Select
-                  label="Key"
-                  icon={<Binary size={16} />}
-                  name="key"
-                  value={formData.key}
-                  onChange={handleInputChange}
-                  fullWidth
-                >
-                  <option value="">Select key</option>
-                  <option value="C">C</option>
-                  <option value="C#">C#</option>
-                  <option value="D">D</option>
-                  <option value="D#">D#</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="F#">F#</option>
-                  <option value="G">G</option>
-                  <option value="G#">G#</option>
-                  <option value="A">A</option>
-                  <option value="A#">A#</option>
-                  <option value="B">B</option>
-                  <option value="Cm">Cm</option>
-                  <option value="C#m">C#m</option>
-                  <option value="Dm">Dm</option>
-                  <option value="D#m">D#m</option>
-                  <option value="Em">Em</option>
-                  <option value="Fm">Fm</option>
-                  <option value="F#m">F#m</option>
-                  <option value="Gm">Gm</option>
-                  <option value="G#m">G#m</option>
-                  <option value="Am">Am</option>
-                  <option value="A#m">A#m</option>
-                  <option value="Bm">Bm</option>
-                </Select>
-              </div>
-
-              {/* Description Directo */}
+              {/* Description Directo */}}
               <Textarea
                 label="Description"
                 icon={<AlignLeft size={16} />}

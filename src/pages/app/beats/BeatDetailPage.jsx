@@ -135,12 +135,6 @@ const BeatDetailPage = () => {
                     <span className="meta-icon">♪</span>
                     {beat.genre}
                   </span>
-                  {beat.key && (
-                    <span className="beat-card-key">
-                      <span className="meta-label">Key</span>
-                      {beat.key}
-                    </span>
-                  )}
                 </div>
 
                 <div className="tags-section">

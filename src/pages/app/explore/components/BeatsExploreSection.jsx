@@ -33,7 +33,6 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
     // Estado de filtros específicos de beats (sin búsqueda)
     const [filters, setFilters] = useState({
         genre: '',
-        key: '',
         tags: '',
         isDownloadable: ''
     });
@@ -91,9 +90,6 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                 if (currentFilters.genre) {
                     beats = beats.filter(b => b.genre === currentFilters.genre);
                 }
-                if (currentFilters.key) {
-                    beats = beats.filter(b => b.key === currentFilters.key);
-                }
                 if (currentFilters.isDownloadable !== '') {
                     beats = beats.filter(b => b.isDownloadable === (currentFilters.isDownloadable === 'true'));
                 }
@@ -114,9 +110,6 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                 let beats = Array.isArray(data) ? data : data.beats || [];
 
                 // Filtros adicionales en cliente
-                if (currentFilters.key) {
-                    beats = beats.filter(b => b.key === currentFilters.key);
-                }
                 if (currentFilters.isDownloadable !== '') {
                     beats = beats.filter(b => b.isDownloadable === (currentFilters.isDownloadable === 'true'));
                 }
@@ -142,7 +135,6 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
         const hasActiveFilters =
             searchTerm ||
             filters.genre ||
-            filters.key ||
             filters.tags ||
             filters.isDownloadable !== '';
 
@@ -162,7 +154,6 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
     const handleClearFilters = () => {
         setFilters({
             genre: '',
-            key: '',
             tags: '',
             isDownloadable: ''
         });
