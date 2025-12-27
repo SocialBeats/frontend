@@ -161,6 +161,14 @@ export function getCurrentUsername() {
   return payload?.username || null;
 }
 
+export function getCurrentUserId() {
+  const accessToken = getAccessToken();
+  if (!accessToken) return null;
+
+  const payload = decodeJWT(accessToken);
+  return payload?.id || null;
+}
+
 /**
  * Verifica el email del usuario usando el token de verificación
  * @param {string} token - Token de verificación enviado por email

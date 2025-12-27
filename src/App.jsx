@@ -3,6 +3,7 @@ import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
 import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
+import Pricing from './pages/Pricing';
 // import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
@@ -43,6 +44,7 @@ function App() {
 
           {/* Private Routes - Only for authenticated users */}
           <Route path="/app" element={<PrivateLayout />}>
+            <Route path="pricing" element={<Pricing />} />
             {/* <Route path="beats" element={<BeatsListPage />} /> */}
             <Route path="my-beats" element={<MyBeatsListPage />} />
             <Route path="beats/new" element={<BeatFormPage />} />
