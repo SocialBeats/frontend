@@ -4,6 +4,7 @@ const BASE_URL = window.RUNTIME_CONFIG.VITE_BASE_URL || 'http://localhost:3000/a
 
 export const client = createAxiosClient({
   options: {
+    withCredentials: false, // Cambiado a false para evitar conflicto CORS
     baseURL: BASE_URL,
     timeout: 30000,
     headers: {

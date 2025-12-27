@@ -5,6 +5,8 @@ import { getMyProfile } from '../../services/profileService';
 import NavBar from '../ui/NavBar';
 import Footer from '../ui/Footer';
 import './PrivateLayout.css';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import GlobalPlayerDock from '../features/player/GlobalPlayerDock';
 
 export default function PrivateLayout() {
   const location = useLocation();
@@ -15,6 +17,8 @@ export default function PrivateLayout() {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
+
+  const { currentBeat } = usePlayerStore();
 
   useEffect(() => {
     const checkEmailVerification = async () => {
@@ -76,13 +80,13 @@ export default function PrivateLayout() {
 
       {/* Main Content Area */}
       <div className="private-content-wrapper">
-        <main className="private-main">
+        <main className={`private-main ${currentBeat ? 'pb-28' : ''}`}>
           <Outlet />
         </main>
 
-        {/* Footer - Full width but respects sidebar */}
         <Footer />
       </div>
+      <GlobalPlayerDock />
     </div>
   );
 }

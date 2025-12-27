@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
-import PrivateLayout from './components/layouts/PrivateLayout';
+import PrivateLayout from './components/layouts/PrivateLayout.tsx';
 import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
 // import Dashboard from './pages/app/Dashboard';
@@ -8,6 +8,7 @@ import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
 import BeatDetailPage from './pages/app/beats/BeatDetailPage';
 import BeatFormPage from './pages/app/beats/BeatFormPage';
+import ExplorePage from './pages/app/explore/ExplorePage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -20,6 +21,12 @@ import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboards from './pages/app/dashboards/CreateDashboards';
 import EditDashboard from './pages/app/dashboards/EditDashboard';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
+import CreatePlaylist from './pages/app/beats-interaction/playlist/CreatePlaylist';
+import EditPlaylist from './pages/app/beats-interaction/playlist/EditPlaylist';
+import UserPlaylists from './pages/app/beats-interaction/playlist/UserPlaylists';
+import MyPlaylists from './pages/app/beats-interaction/playlist/MyPlaylists';
+import PublicPlaylists from './pages/app/beats-interaction/playlist/PublicPlaylists';
+import PlaylistDetails from './pages/app/beats-interaction/playlist/PlaylistDetails';
 
 function App() {
   return (
@@ -56,13 +63,13 @@ function App() {
             {/* Ruta principal: Feed */}
             <Route path="feed" element={<Feed />} />
 
-            {/* Rutas placeholder apuntando a Feed por ahora */}
-            <Route path="explore" element={<Feed />} />
-            <Route path="upload" element={<Feed />} />
-            <Route path="library" element={<Feed />} />
-            <Route path="messages" element={<Feed />} />
-            <Route path="profile" element={<ProfileView />} />
-            <Route path="profile/:username" element={<ProfileView />} />
+          {/* Rutas placeholder apuntando a Feed por ahora */}
+          <Route path="explore" element={<ExplorePage />} />
+          <Route path="upload" element={<Feed />} />
+          <Route path="library" element={<Feed />} />
+          <Route path="messages" element={<Feed />} />
+          <Route path="profile" element={<ProfileView />} />
+          <Route path="profile/:username" element={<ProfileView />} />
 
             {/* Rutas del microservicio Dashboards */}
             <Route path="/app/dashboards" element={<DashboardsPage />} />
