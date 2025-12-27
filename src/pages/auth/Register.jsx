@@ -74,14 +74,14 @@ export default function Register() {
                     email: formData.email,
                     password: formData.password,
                 });
-                
+
                 console.log('Usuario registrado exitosamente');
-                
+
                 // 2. Auto-login después del registro exitoso
                 await login(formData.username, formData.password);
-                
-                // 3. Redirigir al feed
-                navigate('/app/feed');
+
+                // 3. Redirigir a verificar correo
+                navigate('/verify-email');
             } catch (error) {
                 console.error('Error en el registro:', error);
                 const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error al registrar usuario';
