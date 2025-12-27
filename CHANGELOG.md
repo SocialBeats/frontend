@@ -1,3 +1,100 @@
+# Release v0.0.4
+
+## Features
+- feat: adapt ui according to key attribute removal
+- feat: new global beat player
+- feat: cover, wave and download feats
+- feat: new email pages and routes
+- feat: add play button in playlists details to reproduce beats
+- feat: add initial version of playlistDetails
+- feat: add initial version of playlistDetails screen
+- feat: finish public playlists screen
+- feat: add initial version of user playlists screen
+- feat: add create playlists button to myPlaylist screen
+- feat: add editplaylist and myplaylistsviews views
+- feat: add complete create playlist screen
+- feat: add prepath to api-routes in order to communicate properly with api-gateway
+- feat: add delete my rating view (mock data)
+- feat: allow edit rating (stars)
+- feat: add edit my rating view (mock data)
+- feat: add create my rating view (mock data)
+- feat: explore page first version including top played beats, recent beats and advance search
+- feat: add my rating view (mock data)
+- feat: add rating list view (mock data)
+- feat: add rating service endpoints
+- feat: add edit comments view (mock data)
+- feat: add delete comments view (mock data)
+- feat: improved visibility and download section
+- feat: add create comments view (mock data)
+- feat: finish list comments view (mock data)
+- feat: add pagination in list comments view and improve styles
+- feat: add first version of list comments with mock data
+- feat: replaced emojis for icons and added drag and drop for audio upload
+- feat: add first version of listComments
+- feat: add comment service endpoints
+- feat: add initial version of playlistDetails screen
+- feat: add initial versions of MyPlaylists, UserPlaylists and PublicPlaylists screens
+- feat: add editplaylist screen
+- feat: add createPlaylist screen
+- feat: add playlistService endpoints
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: delete base url from vite.config.js
+- fix: minnor changes
+- fix: fix error of white comments in ratings
+- fix: change beat visibility to Owner only
+- fix: minnor changes on download button
+- fix: change beat search bar for global search bar
+- fix: remove Beat pricing atributes and minnor logical view changes
+- fix: fix comment mensage in rating
+- fix: beat player justified
+- fix: removed unused attributes
+- fix: currency selector overflow
+- fix: unified styles
+- fix: improved css management avoiding duplicity
+- fix: improved user experience with drag and drop component
+- fix: basic beat information  section improved
+- fix: improved basic beat information section
+- fix: delete .env from git tracking
+- fix: fix dashboards imports errors
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #37 from SocialBeats/develop
+- Merge pull request #36 from SocialBeats/feat/beats-download
+- Merge branch 'develop' into feat/beats-download
+- Merge branch 'feat/beats-download' of https://github.com/SocialBeats/frontend into feat/beats-download
+- Merge pull request #35 from SocialBeats/feat/email-pages
+- Merge remote-tracking branch 'origin/feat/beats-download' into feat-playlists-views
+- Merge remote-tracking branch 'origin/develop' into feat-playlists-views
+- style: add public playlists pagination css
+- Merge remote-tracking branch 'origin/develop' into feat-playlists-views
+- style: adapt playlists views css to be always dark theme
+- Merge remote-tracking branch 'origin/develop' into feat-playlists-views
+- style: fix pagination input width
+- style: center edit buttons in comments edit view
+- Merge branch 'develop' into feat/beats-download
+- Merge branch 'develop' into feat/ratings-views
+- Merge branch 'develop' into feat/ratings-views
+- style: adjust delete comments modal buttons to app styles
+- Merge branch 'develop' into feat/comments-views
+- Merge branch 'develop' into feat/comments-views
+- style: improve list comments styles
+- Merge branch 'develop' into feat/comments-views
+- style: change favicon
+- Merge remote-tracking branch 'origin/feat/P3/beat-page' into feat-playlists-views
+- chore: restructure playlists css files
+- chore: add skeleton for playlist views development
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v0.0.3...v0.0.4).
+
 # Release v0.0.3
 
 ## Features
