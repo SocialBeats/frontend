@@ -8,7 +8,7 @@ import IconButton from '../../../components/ui/IconButton';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
 import BeatDetailPlayer from '../../../components/features/player/BeatDetailPlayer';
 
-import { getBeatById, deleteBeat } from '../../../services/beatsService';
+import { getBeatById, deleteBeat, downloadBeat } from '../../../services/beatsService';
 import { getCurrentUserId } from '../../../services/authService';
 import './BeatDetailPage.css';
 
@@ -22,12 +22,20 @@ const BeatDetailPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [isOwner, setIsOwner] = useState(false); // Placeholder for ownership logic
+  // Stats state to update download count locally
+  const [stats, setStats] = useState({ plays: 0, downloads: 0 });
 
   useEffect(() => {
     const fetchBeat = async () => {
       try {
         const beatData = await getBeatById(id);
-        if (beatData) setBeat(beatData);
+        if (beatData) {
+          setBeat(beatData);
+          setStats({
+            plays: beatData.stats?.plays || 0,
+            downloads: beatData.stats?.downloads || 0
+          });
+        }
         else setError('Beat not found.');
         if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
       } catch (err) {
@@ -51,6 +59,43 @@ const BeatDetailPage = () => {
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      // Optimistic feedback or loading state could be added here
+      const data = await downloadBeat(beat._id);
+      if (data && data.downloadUrl) {
+        // Updated stats if returned
+        if (data.stats) {
+          setStats(prev => ({
+            ...prev,
+            downloads: data.stats.downloads,
+            plays: data.stats.plays || prev.plays
+          }));
+          // Also update the main beat object to keep consistency if passed down
+          setBeat(prev => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              downloads: data.stats.downloads,
+              plays: data.stats.plays || prev.stats.plays
+            }
+          }));
+        }
+
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.setAttribute('download', '');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error("Error downloading beat:", error);
+      // Error handling/toast could be added here
     }
   };
 
@@ -90,12 +135,6 @@ const BeatDetailPage = () => {
                     <span className="meta-icon">♪</span>
                     {beat.genre}
                   </span>
-                  {beat.key && (
-                    <span className="beat-card-key">
-                      <span className="meta-label">Key</span>
-                      {beat.key}
-                    </span>
-                  )}
                 </div>
 
                 <div className="tags-section">
@@ -132,22 +171,22 @@ const BeatDetailPage = () => {
                 <div className="license-section">
 
                   {isOwner && (
-                  <div className="status-container">
-                    <div className={`status-badge ${beat.isPublic ? 'status-public' : 'status-private'}`}>
-                      {beat.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
-                      <span>{beat.isPublic ? 'Public Beat' : 'Private Beat'}</span>
-                    </div>
-                  </div>)}
+                    <div className="status-container">
+                      <div className={`status-badge ${beat.isPublic ? 'status-public' : 'status-private'}`}>
+                        {beat.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
+                        <span>{beat.isPublic ? 'Public Beat' : 'Private Beat'}</span>
+                      </div>
+                    </div>)}
 
                   {/* Botón Principal */}
                   {beat.isDownloadable && !isOwner && (
                     <Button
                       variant="primary"
                       className="w-full justify-center btn-buy-large"
-                      onClick={() => console.log('Download', beat.title)}
+                      onClick={handleDownload}
                     >
                       <Download size={20} className="mr-2" />
-                        Download
+                      Download
                     </Button>
                   )}
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
-import PrivateLayout from './components/layouts/PrivateLayout';
+import PrivateLayout from './components/layouts/PrivateLayout.tsx';
 import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
 // import Dashboard from './pages/app/Dashboard';
