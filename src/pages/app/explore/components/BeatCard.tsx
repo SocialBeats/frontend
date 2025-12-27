@@ -1,5 +1,7 @@
-import { Play, Download, Clock } from 'lucide-react';
+import { Play, Pause, Download, Clock } from 'lucide-react';
 import './BeatCard.css';
+import { usePlayerStore } from '../../../../store/usePlayerStore';
+import { Beat } from '../../../../store/usePlayerStore';
 
 /**
  * BeatCard - Tarjeta de beat para la vista de exploración
@@ -7,9 +9,20 @@ import './BeatCard.css';
  * Props:
  * - beat: Objeto con los datos del beat
  * - variant: 'default' | 'carousel' - Estilo de la tarjeta
- * - onClick: Función al hacer clic en la tarjeta
+ * - onClick: Función al hacer clic en la tarjeta (opcional si se usa play interno)
  */
-export default function BeatCard({ beat, variant = 'default', onClick }) {
+interface BeatCardProps {
+  beat: any; // Using any for now to match strict backend object until unified
+  variant?: 'default' | 'carousel';
+  onClick?: () => void;
+}
+
+export default function BeatCard({ beat, variant = 'default', onClick }: BeatCardProps) {
+  const { currentBeat, isPlaying, play, pause } = usePlayerStore();
+  
+  const isActive = currentBeat?.id === beat.id || currentBeat?._id === beat._id;
+  const isPlayingThis = isActive && isPlaying;
+
   const {
     title,
     genre,
@@ -17,10 +30,9 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
     plays = 0,
     duration,
     isDownloadable,
-    // coverImageUrl <-- This property likely doesn't exist on the root object
   } = beat;
 
-  const getCoverUrl = (beatData) => {
+  const getCoverUrl = (beatData: any) => {
     if (!beatData?.audio) return null;
     if (beatData.audio.coverUrl) return beatData.audio.coverUrl;
     if (beatData.audio.s3CoverKey) {
@@ -36,7 +48,7 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
   const coverImageUrl = getCoverUrl(beat);
 
   // Formatear duración de segundos a mm:ss
-  const formatDuration = (seconds) => {
+  const formatDuration = (seconds: number) => {
     if (!seconds) return '--:--';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -44,10 +56,31 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
   };
 
   // Formatear número de reproducciones
-  const formatPlays = (num) => {
+  const formatPlays = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
+  };
+
+  const handlePlayToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); // Por si es un enlace
+    e.stopPropagation(); // CRÍTICO: Para que no salte el click de la tarjeta padre
+    
+    if (isPlayingThis) {
+      pause();
+    } else {
+      // Map current beat object to store Beat if necessary
+      // Assuming beat object structure is compatible or handled by store
+      // We might need to map _id to id if store expects id
+       const beatForStore: Beat = {
+          ...beat,
+          id: beat.id || beat._id, // Ensure id is present
+          author: beat.createdBy?.username || 'Unknown', // Map author
+          cover: coverImageUrl || undefined
+      };
+      
+      play(beatForStore);
+    }
   };
 
   // Imagen por defecto si no hay cover
@@ -71,13 +104,21 @@ export default function BeatCard({ beat, variant = 'default', onClick }) {
           alt={beat.title}
           className="beat-card-image"
           loading="lazy"
-          onError={(e) => { e.target.src = defaultCover; }}
+          onError={(e) => { (e.target as HTMLImageElement).src = defaultCover; }}
         />
 
         {/* Overlay con play button */}
         <div className="beat-card-overlay">
-          <button className="beat-card-play-btn" aria-label="Reproducir">
-            <Play size={24} fill="currentColor" />
+          <button 
+            className="beat-card-play-btn" 
+            aria-label={isPlayingThis ? "Pausar" : "Reproducir"}
+            onClick={handlePlayToggle}
+          >
+            {isPlayingThis ? (
+               <Pause size={24} fill="currentColor" />
+            ) : (
+               <Play size={24} fill="currentColor" />
+            )}
           </button>
         </div>
 

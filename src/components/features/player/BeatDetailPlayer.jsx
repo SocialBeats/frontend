@@ -1,28 +1,49 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Play, Pause, SkipBack, SkipForward,
-    Volume2, VolumeX, Heart, Share2, Download
+    Volume2, VolumeX, Download
 } from 'lucide-react';
 import logo from '../../../assets/logo-dark-no-fondo.png';
 import { incrementPlayCount, downloadBeat } from '../../../services/beatsService';
 import LivingWaveform from './LivingWaveform';
+import { usePlayerStore } from '../../../store/usePlayerStore';
 import './BeatDetailPlayer.css';
 
 const BeatDetailPlayer = ({ beat, isOwner }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
+    // Global player store - SINGLE SOURCE OF TRUTH
+    const { 
+        currentBeat, 
+        isPlaying: globalIsPlaying,
+        currentTime,
+        duration,
+        volume: globalVolume,
+        play: globalPlay, 
+        pause: globalPause,
+        togglePlay: globalTogglePlay,
+        setVolume: globalSetVolume,
+        seek,
+        next: globalNext,
+        prev: globalPrev
+    } = usePlayerStore();
+    
+    // Check if THIS beat is the one playing globally
+    const isThisBeatActive = currentBeat?.id === beat?._id || currentBeat?.id === beat?.id;
+    const isPlaying = isThisBeatActive && globalIsPlaying;
+    
+    // Use global time/duration only if this beat is active
+    const displayTime = isThisBeatActive ? currentTime : 0;
+    const displayDuration = isThisBeatActive ? duration : (beat?.duration || 0);
+    const progress = displayDuration > 0 ? displayTime / displayDuration : 0;
+    
     const [isMuted, setIsMuted] = useState(false);
 
-    // Stats state - initialized from prop but can update locally on action
+    // Stats state
     const [stats, setStats] = useState({
         plays: beat?.stats?.plays || 0,
         downloads: beat?.stats?.downloads || 0
     });
 
-    // Update stats if prop changes (e.g. initial load or re-fetch)
-    React.useEffect(() => {
+    useEffect(() => {
         if (beat?.stats) {
             setStats({
                 plays: beat.stats.plays || 0,
@@ -31,114 +52,115 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
         }
     }, [beat]);
 
-    const audioRef = useRef(null);
-
     const audioUrl = beat?.audio?.s3Key
         ? `${import.meta.env.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`
         : null;
+    
+    const getCoverUrl = () => {
+        if (beat?.audio?.coverUrl) return beat.audio.coverUrl;
+        if (beat?.audio?.s3CoverKey) {
+            const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+            const key = beat.audio.s3CoverKey.startsWith('/')
+                ? beat.audio.s3CoverKey.slice(1)
+                : beat.audio.s3CoverKey;
+            return `${domain}/${key}`;
+        }
+        return logo;
+    };
 
     const formatTime = (time) => {
-        if (isNaN(time)) return "0:00";
+        if (isNaN(time) || time === undefined) return "0:00";
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
-    const togglePlay = async () => {
-        if (!audioRef.current) return;
-
-        if (isPlaying) {
-            audioRef.current.pause();
+    const handlePlayPause = async () => {
+        if (isThisBeatActive) {
+            // This beat is already loaded - just toggle
+            globalTogglePlay();
         } else {
-            audioRef.current.play();
+            // Different beat or no beat - load this one
+            const beatForStore = {
+                ...beat,
+                id: beat._id || beat.id,
+                author: beat.createdBy?.username || 'Unknown',
+                cover: getCoverUrl(),
+                audio: {
+                    url: audioUrl,
+                    coverUrl: getCoverUrl(),
+                    duration: beat.duration
+                }
+            };
+            globalPlay(beatForStore);
 
-            // Track play only when starting (not when pausing)
-            // We could add a debounce or session check here if needed
+            // Track play count
             try {
                 const response = await incrementPlayCount(beat._id);
-                if (response && response.plays !== undefined) {
+                if (response?.plays !== undefined) {
                     setStats(prev => ({ ...prev, plays: response.plays }));
                 }
             } catch (error) {
                 console.error("Error tracking play:", error);
             }
         }
-        setIsPlaying(!isPlaying);
+    };
+
+    const handleScrub = (newProgress) => {
+        if (!isThisBeatActive) return; // Can only scrub if this beat is active
+        const newTime = newProgress * displayDuration;
+        seek(newTime);
     };
 
     const handleDownload = async () => {
         try {
             const data = await downloadBeat(beat._id);
-            if (data && data.downloadUrl) {
-                // Update stats
+            if (data?.downloadUrl) {
                 if (data.stats) {
                     setStats(prev => ({
                         ...prev,
                         downloads: data.stats.downloads,
-                        plays: data.stats.plays || prev.plays // sync plays too if returned
+                        plays: data.stats.plays || prev.plays
                     }));
                 }
 
-                // Trigger download via temporary link
                 const link = document.createElement('a');
                 link.href = data.downloadUrl;
-                link.setAttribute('download', ''); // hint to browser
+                link.setAttribute('download', '');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
         } catch (error) {
             console.error("Error downloading beat:", error);
-            // Optionally show toast error here
         }
-    };
-
-    const handleTimeUpdate = () => {
-        setCurrentTime(audioRef.current.currentTime);
-    };
-
-    const handleSeek = (e) => {
-        const time = parseFloat(e.target.value);
-        audioRef.current.currentTime = time;
-        setCurrentTime(time);
     };
 
     const handleVolume = (e) => {
         const vol = parseFloat(e.target.value);
-        setVolume(vol);
-        audioRef.current.volume = vol;
+        globalSetVolume(vol);
         setIsMuted(vol === 0);
+    };
+
+    const handleMuteToggle = () => {
+        if (isMuted) {
+            globalSetVolume(0.8);
+            setIsMuted(false);
+        } else {
+            globalSetVolume(0);
+            setIsMuted(true);
+        }
     };
 
     return (
         <div className="bd-player">
-            {audioUrl && (
-                <audio
-                    ref={audioRef}
-                    src={audioUrl}
-                    onTimeUpdate={handleTimeUpdate}
-                    onLoadedMetadata={(e) => setDuration(e.target.duration)}
-                    onEnded={() => setIsPlaying(false)}
-                />
-            )}
-
             {/* PORTADA */}
             <div className="bd-player__cover-wrapper">
                 <img
-                    src={(() => {
-                        if (beat?.audio?.coverUrl) return beat.audio.coverUrl;
-                        if (beat?.audio?.s3CoverKey) {
-                            const domain = import.meta.env.VITE_CDN_DOMAIN || '';
-                            const key = beat.audio.s3CoverKey.startsWith('/')
-                                ? beat.audio.s3CoverKey.slice(1)
-                                : beat.audio.s3CoverKey;
-                            return `${domain}/${key}`;
-                        }
-                        return logo; // Fallback to default logo
-                    })()}
+                    src={getCoverUrl()}
                     alt={beat?.title || 'Beat'}
                     className={`bd-player__cover ${isPlaying ? 'bd-player__cover--playing' : ''}`}
-                    onError={(e) => { e.target.src = logo; }} // Fallback if URL fails
+                    onError={(e) => { e.target.src = logo; }}
                 />
                 <div className="bd-player__cover-glow" />
             </div>
@@ -158,13 +180,11 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
 
                         {/* STATS BADGES */}
                         <div className="bd-player__badges" style={{ marginTop: '0.5rem' }}>
-                            {/* Privacy Check: Only show plays if public */}
                             {beat.isPublic && (
                                 <span className="bd-meta-badge" title="Plays">
                                     <Play size={14} fill="currentColor" /> {stats.plays}
                                 </span>
                             )}
-                            {/* Privacy + Downloadability Check: Only show downloads if public AND downloadable */}
                             {beat.isPublic && beat.isDownloadable && (
                                 <span className="bd-meta-badge" title="Downloads">
                                     <Download size={14} /> {stats.downloads}
@@ -179,54 +199,64 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
                                 <Download size={20} />
                             </button>
                         )}
-                        {/* <button className="bd-btn-icon" title="Like"><Heart size={20} /></button> */}
-                        {/* <button className="bd-btn-icon" title="Share"><Share2 size={20} /></button> */}
                     </div>
 
                 </div>
 
-                {/* TIMELINE & WAVEFORM */}
+                {/* TIMELINE & WAVEFORM - Synchronized with Global Player */}
                 <div className="bd-player__timeline">
-                    <span className="bd-time">{formatTime(currentTime)}</span>
+                    <span className="bd-time">{formatTime(displayTime)}</span>
 
-                    <div className="bd-waveform-wrapper" style={{ flexGrow: 1, margin: '0 1rem' }}>
+                    <div className="bd-waveform-wrapper">
                         <LivingWaveform
                             peaks={beat?.audio?.waveform}
-                            progress={duration ? currentTime / duration : 0}
-                            onScrub={(newProgress) => {
-                                const newTime = newProgress * duration;
-                                if (audioRef.current) {
-                                    audioRef.current.currentTime = newTime;
-                                }
-                                setCurrentTime(newTime);
-                            }}
+                            progress={progress}
+                            onScrub={handleScrub}
                         />
                     </div>
 
-                    <span className="bd-time">{formatTime(duration)}</span>
+                    <span className="bd-time">{formatTime(displayDuration)}</span>
                 </div>
 
-                {/* CONTROLES: GRUPO ÚNICO CENTRADO */}
+                {/* CONTROLES */}
                 <div className="bd-player__controls-row">
                     <div className="bd-controls-group">
-                        <button className="bd-btn-skip"><SkipBack size={24} /></button>
-                        <button className="bd-btn-play" onClick={togglePlay}>
-                            {isPlaying ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
+                        <button 
+                            className="bd-btn-skip" 
+                            onClick={globalPrev}
+                            disabled={!isThisBeatActive}
+                        >
+                            <SkipBack size={24} />
                         </button>
-                        <button className="bd-btn-skip"><SkipForward size={24} /></button>
+                        
+                        <button className="bd-btn-play" onClick={handlePlayPause}>
+                            {isPlaying ? (
+                                <Pause size={32} fill="currentColor" />
+                            ) : (
+                                <Play size={32} fill="currentColor" className="ml-1" />
+                            )}
+                        </button>
+                        
+                        <button 
+                            className="bd-btn-skip" 
+                            onClick={globalNext}
+                            disabled={!isThisBeatActive}
+                        >
+                            <SkipForward size={24} />
+                        </button>
 
-                        {/* Volumen como parte del mismo grupo */}
+                        {/* Volumen */}
                         <div className="bd-volume-wrapper">
-                            <button onClick={() => setIsMuted(!isMuted)} className="bd-btn-icon">
-                                {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                            <button onClick={handleMuteToggle} className="bd-btn-icon">
+                                {isMuted || globalVolume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
                             </button>
                             <input
                                 type="range"
                                 min="0" max="1" step="0.05"
-                                value={isMuted ? 0 : volume}
+                                value={isMuted ? 0 : globalVolume}
                                 onChange={handleVolume}
                                 className="bd-slider bd-slider--vol"
-                                style={{ backgroundSize: `${(isMuted ? 0 : volume) * 100}% 100%` }}
+                                style={{ backgroundSize: `${(isMuted ? 0 : globalVolume) * 100}% 100%` }}
                             />
                         </div>
                     </div>

@@ -3,12 +3,16 @@ import { isAuthenticated } from '../../services/authService';
 import NavBar from '../ui/NavBar';
 import Footer from '../ui/Footer';
 import './PrivateLayout.css';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import GlobalPlayerDock from '../features/player/GlobalPlayerDock';
 
 export default function PrivateLayout() {
   // Proteger rutas privadas - redirigir a login si no está autenticado
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
+
+  const { currentBeat } = usePlayerStore();
 
   return (
     <div className="private-layout">
@@ -17,13 +21,13 @@ export default function PrivateLayout() {
 
       {/* Main Content Area */}
       <div className="private-content-wrapper">
-        <main className="private-main">
+        <main className={`private-main ${currentBeat ? 'pb-28' : ''}`}>
           <Outlet />
         </main>
 
-        {/* Footer - Full width but respects sidebar */}
         <Footer />
       </div>
+      <GlobalPlayerDock />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getBeats, searchBeats } from '../../../../services/beatsService';
 import FilterBar from './FilterBar';
-import BeatCard from './BeatCard';
+import BeatCard from './BeatCard.tsx';
 import './BeatsExploreSection.css';
 
 /**

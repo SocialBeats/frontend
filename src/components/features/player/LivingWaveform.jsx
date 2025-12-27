@@ -41,6 +41,7 @@ const LivingWaveform = ({
                 // Opcional: Implementar drag/scrubbing continuo si se presiona el botón
                 if (e.buttons === 1) handleInteraction(e);
             }}
+            style={{ '--progress': `${progress * 100}%` }}
         >
             {/* CAPA DE FONDO (Gris tenue) */}
             <div className="waveform-layer background">

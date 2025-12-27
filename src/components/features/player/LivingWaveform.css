@@ -1,19 +1,23 @@
 .living-waveform-container {
     position: relative;
     width: 100%;
-    /* Altura en reposo: línea delgada */
-    height: 4px;
+    height: 100%;
+    min-height: 50px;
     cursor: pointer;
-    /* Transición suave de altura */
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: transparent;
-    display: flex;
-    align-items: center;
+    padding: 8px 12px; /* Consistent horizontal padding */
+    box-sizing: border-box;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    background: transparent; /* Let parent handle background */
+    border-radius: 10px;
+    overflow: hidden; /* Prevent bar overflow */
 }
 
-/* Estado Hover: Se expande la altura */
+/* Hover state - subtle enhancement */
 .living-waveform-container:hover {
-    height: 64px; /* Altura expandida */
+    background: rgba(15, 15, 25, 0.5);
+    box-shadow: 
+        inset 0 0 0 1px rgba(139, 92, 246, 0.25),
+        0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Contenedor Flex para las barras */
@@ -28,32 +32,27 @@
 }
 
 .waveform-bar {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.3); /* Color inactivo (fondo) */
-    border-radius: 999px;
+    flex: 1;
+    min-width: 2px;
+    max-width: 4px;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
     /* Transición para la animación de escala/altura */
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
-    height: 100%; /* Por defecto altura completa del contenedor */
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.2s ease,
+                box-shadow 0.2s ease;
+    /* Height comes from inline style */
 }
 
-/* 
-   Truco "Squash":
-   En estado Idle (por defecto), aunque las barras tienen altura variable por el style inline (height: peak%),
-   el contenedor padre fuerza todo a 4px.
-   Pero para que parezca una línea sólida, podemos forzar a las barras a llenar el alto en reposo
-   o simplemente dejar que se aplasten.
-   Si queremos que en reposo sea una línea RECTA constante, necesitamos anular la altura variable en reposo.
-*/
-
-.living-waveform-container:not(:hover) .waveform-bar {
-    height: 100% !important; /* En reposo, todas llenan los 4px del padre -> linea sólida */
-    background-color: rgba(255, 255, 255, 0.2);
+/* Bars always show their real height in the DetailPlayer */
+.living-waveform-container .waveform-bar {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
 }
 
-/* Estado Hover: Las barras recuperan su altura relativa real definida en el style inline */
+/* Estado Hover: Las barras se iluminan */
 .living-waveform-container:hover .waveform-bar {
-    /* La altura viene del style inline (data-height) */
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.45);
 }
 
 /* CAPA DE PROGRESO (Overlay) */
@@ -70,12 +69,15 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1px;
+    justify-content: center; /* Center bars horizontally */
+    gap: 2px;
+    padding: 8px 12px; /* Match container padding exactly */
+    box-sizing: border-box;
+    pointer-events: none;
 }
 
 .waveform-layer.background {
@@ -86,17 +88,47 @@
     z-index: 2;
     pointer-events: none;
     /* Usamos clip-path para revelar el progreso sin afectar el layout interno */
-    /* inset(top right bottom left) -> variamos right para descubrir */
-    /* La transición se manejará inline en el componente o aquí si usamos custom property */
     transition: clip-path 0.1s linear;
     will-change: clip-path;
 }
 
+/* Foreground bars (played portion) with gradient */
 .waveform-layer.foreground .waveform-bar {
-    background-color: #8b5cf6; /* Color Primario (Violet-500) */
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5); /* Glow effect */
+    background: linear-gradient(
+        180deg,
+        #a78bfa 0%,
+        #8b5cf6 50%,
+        #ec4899 100%
+    );
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
 }
 
+/* Hover enhancement for foreground bars */
 .living-waveform-container:hover .waveform-layer.foreground .waveform-bar {
-     background-color: #a78bfa; /* Violet-400 en hover para más brillo */
+    box-shadow: 
+        0 0 12px rgba(139, 92, 246, 0.7),
+        0 0 24px rgba(139, 92, 246, 0.3);
+}
+
+/* Progress indicator - playhead line */
+.living-waveform-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--progress, 0%);
+    width: 2px;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 
+        0 0 8px rgba(255, 255, 255, 0.8),
+        0 0 16px rgba(139, 92, 246, 0.5);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.living-waveform-container:hover::after {
+    opacity: 1;
 }
