@@ -302,7 +302,7 @@ const BeatForm = ({
                 <option value="Other">Other</option>
               </Select>
 
-              {/* Description Directo */}}
+              {/* Description Directo */}
               <Textarea
                 label="Description"
                 icon={<AlignLeft size={16} />}
