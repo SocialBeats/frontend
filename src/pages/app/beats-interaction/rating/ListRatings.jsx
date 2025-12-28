@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
@@ -56,6 +57,8 @@ function formatDate(dateStr) {
 
 
 const ListRatings = ({ isBeat, resourceId }) => {
+  const navigate = useNavigate();
+
   const currentUserId = getCurrentUserId();
 
   const [ratings, setRatings] = useState([]);
@@ -441,7 +444,19 @@ const ListRatings = ({ isBeat, resourceId }) => {
                   <div className="rating-row">
                     <div className="rating-left">
                       <div className="rating-main-line">
-                        <span className="rating-username">{username}</span>
+                        <span
+                          className="rating-username rating-username--link"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/app/profile/${username}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ")
+                              navigate(`/app/profile/${username}`);
+                          }}
+                          title={`Ver perfil de ${username}`}
+                        >
+                          {username}:
+                        </span>
 
                         {!isEditing ? (
                           <span className="rating-stars-wrapper">

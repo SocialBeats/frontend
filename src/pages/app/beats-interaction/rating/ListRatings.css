@@ -221,6 +221,16 @@
   color: var(--text-main);
 }
 
+.rating-username--link {
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+
+.rating-username--link:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
 .rating-stars-wrapper {
   display: inline-flex;
   align-items: center;
