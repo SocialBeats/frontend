@@ -1,9 +1,16 @@
 import axios from 'axios';
-// AÑADIDO: Necesitamos getRefreshToken para saber si vale la pena intentar refrescar
-import { getAccessToken, refreshAccessToken, logout, getRefreshToken } from '@/services/authService';
+import { getAccessToken, refreshAccessToken, logout } from '@/services/authService';
 
 let failedQueue = [];
 let isRefreshing = false;
+
+// Variable para almacenar la función de actualización de token de Space
+let spaceTokenUpdater = null;
+
+// Función para registrar el actualizador (se llamará desde React)
+export const registerSpaceTokenUpdater = (updater) => {
+  spaceTokenUpdater = updater;
+};
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -34,31 +41,35 @@ export function createAxiosClient({ options }) {
     }
   );
 
-  // Response interceptor: Manejar errores y refresh token
+  // Response interceptor: Manejar errores y Pricing Token
   client.interceptors.response.use(
     (response) => {
+      // 1. Detectar Pricing-Token en los headers
+      const pricingToken = response.headers['Pricing-Token'];
+      
+      // 2. Si existe y tenemos el updater registrado, actualizamos Space
+      if (pricingToken && spaceTokenUpdater) {
+        spaceTokenUpdater(pricingToken);
+      }
+
       return response;
     },
     async (error) => {
       const originalRequest = error.config;
 
-      // Normalizar headers para axios 1.x
       if (originalRequest.headers) {
         originalRequest.headers = JSON.parse(
           JSON.stringify(originalRequest.headers || {})
         );
       }
 
-      // Caso 1: Token expirado o inválido (401 o 403) - Intentar refresh
-      // El gateway/backend devuelve 401 cuando el access token expiró o es inválido
+      // Lógica de refresh token
       if (
         (error.response?.status === 401 || error.response?.status === 403) &&
         !originalRequest._retry &&
-        // No intentar refresh si es el endpoint de refresh o login
         !originalRequest.url?.includes('/auth/refresh') &&
         !originalRequest.url?.includes('/auth/login')
       ) {
-        // Si ya estamos refrescando, encolar la petición (CÓDIGO ORIGINAL MANTENIDO)
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -76,17 +87,11 @@ export function createAxiosClient({ options }) {
         isRefreshing = true;
 
         try {
-          // Intentar refrescar el token
           const newToken = await refreshAccessToken();
-          
-          // Procesar cola de peticiones fallidas
           processQueue(null, newToken);
-          
-          // Reintentar la petición original con el nuevo token
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return client(originalRequest);
         } catch (refreshError) {
-          // Si el refresh falla, procesar la cola con error y desloguear
           processQueue(refreshError, null);
           logout();
           return Promise.reject(refreshError);
@@ -95,9 +100,6 @@ export function createAxiosClient({ options }) {
         }
       }
 
-      // Caso 2: Error 401 ESPECÍFICO en endpoint de refresh (Tu lógica original)
-      // Si falló el refreshAccessToken de arriba, caerá en el catch,
-      // pero esto cubre si la petición original era directamente un refresh manual.
       if (
         error.response?.status === 401 &&
         originalRequest.url.includes('/auth/refresh')
@@ -106,10 +108,6 @@ export function createAxiosClient({ options }) {
         return Promise.reject(error);
       }
 
-      // Caso 3: Eliminado explícitamente porque ahora el 401 general
-      // que NO cumpla las condiciones del Caso 1 caerá aquí abajo por defecto.
-      
-      // Cualquier otro error, rechazar
       return Promise.reject(error);
     }
   );

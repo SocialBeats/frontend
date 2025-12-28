@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useSpaceClient } from 'space-react-client';
+import { registerSpaceTokenUpdater } from '@/api/createAxiosClient';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout';
 import { ProfileProvider } from './contexts/ProfileContext';
@@ -19,6 +22,18 @@ import EditDashboard from './pages/app/dashboards/EditDashboard';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 
 function App() {
+  const spaceClient = useSpaceClient();
+
+  useEffect(() => {
+    // Conectar Axios con Space para actualizar tokens automáticamente en cada respuesta del backend
+    registerSpaceTokenUpdater((token) => {
+      // "Update the token on every request" (como pide el tutorial)
+      spaceClient.token.update(token); 
+    });
+
+    return () => registerSpaceTokenUpdater(null);
+  }, [spaceClient]);
+
   return (
     <BrowserRouter>
       <ProfileProvider>
