@@ -10,12 +10,20 @@
   flex-direction: column;
   margin-left: 260px;
   min-height: 100vh;
+  transition: padding-bottom 0.3s ease;
 }
 
 .private-main {
   flex: 1;
   padding: 2rem;
+  padding-bottom: 2rem;
   width: 100%;
+  transition: padding-bottom 0.3s ease;
+}
+
+/* Cuando el player está activo, añadir espacio inferior */
+.private-main.pb-28 {
+  padding-bottom: calc(80px + 2rem); /* Altura del player + padding extra */
 }
 
 .loading-container {
@@ -32,6 +40,10 @@
   .private-content-wrapper {
     margin-left: 80px;
   }
+  
+  .private-main.pb-28 {
+    padding-bottom: calc(70px + 1.5rem);
+  }
 }
 
 @media (max-width: 480px) {
@@ -42,5 +54,9 @@
 
   .private-main {
     padding: 1rem;
+  }
+  
+  .private-main.pb-28 {
+    padding-bottom: calc(65px + 1rem);
   }
 }

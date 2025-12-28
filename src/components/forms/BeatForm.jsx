@@ -1,45 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { parseBlob } from 'music-metadata';
+import {
+  Music,
+  Save,
+  Type,
+  Music2,
+  AlignLeft,
+  Hash,
+  Eye,
+  DollarSign,
+  FileText,
+  Download,
+  Image,
+  X // Used in tags
+} from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import Waveform from '../ui/Waveform';
+import Select from '../ui/Select';
+import Textarea from '../ui/Textarea';
+import Toggle from '../ui/Toggle';
+import FileUploader from '../ui/FileUploader';
 import './BeatForm.css';
 
-const BeatForm = ({ 
-  initialData = null, 
-  onSubmit, 
-  onCancel, 
+const BeatForm = ({
+  initialData = null,
+  onSubmit,
+  onCancel,
   loading = false,
-  isEditing = false 
+  isEditing = false
 }) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     genre: initialData?.genre || '',
-    key: initialData?.key || '',
     description: initialData?.description || '',
     tags: initialData?.tags || [],
-    pricing: {
-      isFree: initialData?.pricing?.isFree ?? true,
-      price: initialData?.pricing?.price?.toString() || '0',
-      currency: initialData?.pricing?.currency || 'USD'
-    },
     isPublic: initialData?.isPublic ?? true,
     isDownloadable: initialData?.isDownloadable ?? false,
   });
-
-  const [tagInput, setTagInput] = useState('');
   const [audioFile, setAudioFile] = useState(null);
-  const [audioPreviewUrl, setAudioPreviewUrl] = useState(
-    initialData?.audio?.s3Key 
-      ? `${window.RUNTIME_CONFIG.VITE_CDN_DOMAIN}/${initialData.audio.s3Key}` 
-      : null
-  );
+  const [coverFile, setCoverFile] = useState(null);
+
+  // Helper to resolve cover URL safely
+  const getCoverUrl = (data) => {
+    if (!data?.audio) return null;
+    if (data.audio.coverUrl) return data.audio.coverUrl;
+    if (data.audio.s3CoverKey) {
+      const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || '';
+      const key = data.audio.s3CoverKey.startsWith('/')
+        ? data.audio.s3CoverKey.slice(1)
+        : data.audio.s3CoverKey;
+      return `${domain}/${key}`;
+    }
+    return null;
+  };
+
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(getCoverUrl(initialData));
+
+  // Sync state with initialData if it changes (async load)
+  useEffect(() => {
+    if (initialData) {
+      console.log('BeatForm received initialData:', initialData);
+      setFormData({
+        title: initialData.title || '',
+        genre: initialData.genre || '',
+        description: initialData.description || '',
+        tags: initialData.tags || [],
+        isPublic: initialData.isPublic ?? true,
+        isDownloadable: initialData.isDownloadable ?? false,
+      });
+
+      const derivedCoverUrl = getCoverUrl(initialData);
+      console.log('Derived Cover URL:', derivedCoverUrl);
+      setCoverPreviewUrl(derivedCoverUrl);
+    }
+  }, [initialData]);
+
+  const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
+  const [tagInput, setTagInput] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (name.startsWith('pricing.')) {
       const pricingField = name.split('.')[1];
       setFormData(prev => ({
@@ -74,76 +116,79 @@ const BeatForm = ({
     }));
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
+  const validateAndProcessFile = async (file) => {
+    if (!file) return false;
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/aac', 'audio/x-m4a'];
     const validExtensions = ['mp3', 'wav', 'flac', 'aac'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
       setError('Invalid file type. Allowed: MP3, WAV, FLAC, AAC');
-      return;
+      return false;
     }
-
-    // Validate size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
       setError('File size too large. Maximum size is 50MB.');
-      return;
+      return false;
     }
-
     try {
-      // Deep validation using music-metadata
       const metadata = await parseBlob(file);
       if (!metadata.format.codec) {
-        setError('Invalid audio file content. Please upload a valid audio file.');
-        return;
+        setError('Invalid audio file content.');
+        return false;
       }
     } catch (err) {
       console.error('Error parsing audio file:', err);
-      setError('Failed to verify audio file. Is it a valid audio file?');
-      return;
+      setError('Failed to verify audio file.');
+      return false;
     }
 
     setAudioFile(file);
-    setAudioPreviewUrl(URL.createObjectURL(file));
 
-    // Auto-fill title if empty
     if (!formData.title) {
       const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
       setFormData(prev => ({ ...prev, title: fileNameWithoutExt }));
     }
-
     setError(null);
+    return true;
+  };
+
+  const handleAudioChange = async (e) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) await validateAndProcessFile(file);
+  };
+
+  const handleClearAudio = () => {
+    setAudioFile(null);
+    setError(null);
+  };
+
+  const handleCoverChange = (e) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setCoverFile(file);
+      setCoverPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleClearCover = () => {
+    setCoverFile(null);
+    setCoverPreviewUrl(null);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (!isEditing && !audioFile) {
-      setError('Please upload an audio file.');
-      return;
-    }
-
-    // Prepare data
+    if (!isEditing && !audioFile) { setError('Please upload an audio file.'); return; }
     const submitData = {
       ...formData,
-      pricing: {
-        ...formData.pricing,
-        // If not downloadable, always free
-        isFree: !formData.isDownloadable ? true : formData.pricing.isFree,
-        price: (!formData.isDownloadable || formData.pricing.isFree) ? 0 : parseFloat(formData.pricing.price) || 0
-      }
     };
-
-    onSubmit(submitData, audioFile);
+    onSubmit(submitData, audioFile, coverFile);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="beat-form">
+    <form
+      onSubmit={handleSubmit}
+      className="beat-form"
+    >
       {error && (
         <Card className="error-card">
           <p className="error-message">{error}</p>
@@ -151,296 +196,200 @@ const BeatForm = ({
       )}
 
       <div className="form-grid">
-        {/* Audio Upload Section - Only for creation */}
-        {!isEditing && (
-          <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC - max 50MB)</p>
-            </div>
-
-            <div className="form-fields">
-              <div className="upload-container">
-                <div className="file-input-wrapper">
-                  <input
-                    type="file"
-                    id="audio-upload"
-                    accept=".mp3,.wav,.flac,.aac"
-                    onChange={handleFileChange}
-                    className="file-input"
-                  />
-                  <label htmlFor="audio-upload" className="file-input-label">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => document.getElementById('audio-upload').click()}
-                    >
-                      {audioFile ? 'Change File' : 'Select Audio File'}
-                    </Button>
-                    <span className="file-name">
-                      {audioFile ? audioFile.name : 'No file selected'}
-                    </span>
-                  </label>
-                </div>
-
-                {audioPreviewUrl && (
-                  <div className="waveform-preview mt-4">
-                    <Waveform url={audioPreviewUrl} height={80} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Audio Info - Only when editing */}
-        {isEditing && initialData?.audio && (
-          <Card className="form-section">
-            <div className="section-header">
-              <h2>Audio File</h2>
-              <p className="section-description text-muted">Audio files cannot be modified after creation</p>
-            </div>
-
-            <div className="form-fields">
-              <div className="audio-info">
-                <div className="audio-info-item">
-                  <span className="label">Filename:</span>
-                  <span className="value">{initialData.audio.filename}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Format:</span>
-                  <span className="value">{initialData.audio.format.toUpperCase()}</span>
-                </div>
-                <div className="audio-info-item">
-                  <span className="label">Size:</span>
-                  <span className="value">{(initialData.audio.size / 1024 / 1024).toFixed(2)} MB</span>
+        {/* Left Column: Audio & Cover */}
+        <div className="form-column">
+          {/* Audio Upload Section */}
+          {!isEditing && (
+            <Card className="form-section">
+              <div className="section-header-with-icon">
+                <Music size={24} className="section-icon" />
+                <div className="section-header-text">
+                  <h2>Audio File</h2>
+                  <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC)</p>
                 </div>
               </div>
 
-              {audioPreviewUrl && (
-                <div className="waveform-preview mt-4">
-                  <Waveform url={audioPreviewUrl} height={80} />
-                </div>
-              )}
+              <div className="form-fields">
+                <FileUploader
+                  id="audio-upload"
+                  accept=".mp3,.wav,.flac,.aac"
+                  file={audioFile}
+                  onChange={handleAudioChange}
+                  onClear={handleClearAudio}
+                  title="Drop your beat here"
+                  description="or click to browse files"
+                  formats="MP3, WAV, FLAC, AAC"
+                  maxSizeText="Max 50MB"
+                />
+              </div>
+            </Card>
+          )}
+
+          {/* Cover Art Section */}
+          <Card className="form-section">
+            <div className="section-header-with-icon">
+              <Image size={24} className="section-icon" />
+              <div className="section-header-text">
+                <h2>Cover Art</h2>
+                <p className="section-description">Upload an image for your beat</p>
+              </div>
+            </div>
+
+            <div className="form-fields">
+              <FileUploader
+                id="cover-upload"
+                accept=".jpg,.jpeg,.png,.webp"
+                file={coverFile}
+                onChange={handleCoverChange}
+                onClear={handleClearCover}
+                title="Drop your cover here"
+                description="or click to upload image"
+                formats="JPG, PNG, WEBP"
+                maxSizeText="Max 5MB"
+                isImage={true}
+                previewUrl={coverPreviewUrl}
+                icon={Image}
+              />
             </div>
           </Card>
-        )}
+        </div>
 
-        {/* Basic Information */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Basic Information</h2>
-          </div>
+        {/* Right Column: Metadata */}
+        <div className="form-column">
+          {/* Beat Metadata */}
+          <Card className="form-section">
+            <div className="section-header-with-icon">
+              <FileText size={24} className="section-icon" />
+              <div className="section-header-text">
+                <h2>Beat Information</h2>
+                <p className="section-description">Add details about your beat</p>
+              </div>
+            </div>
 
-          <div className="form-fields">
-            <div className="field-group">
-              <label htmlFor="title">Title *</label>
+            <div className="form-fields">
+              {/* Title - Full Width Directo */}
               <Input
-                id="title"
+                label="Title"
+                icon={<Type size={16} />}
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Enter beat title"
-                maxLength={100}
+                fullWidth
                 required
               />
-            </div>
 
-            <div className="field-group">
-              <label htmlFor="genre">Genre *</label>
-              <select
-                id="genre"
+              {/* Genre */}
+              <Select
+                label="Genre"
+                icon={<Music2 size={16} />}
                 name="genre"
                 value={formData.genre}
                 onChange={handleInputChange}
-                className="genre-select"
+                fullWidth
                 required
               >
-                <option value="">Select a genre</option>
+                <option value="">Select genre</option>
                 <option value="Hip Hop">Hip Hop</option>
                 <option value="Trap">Trap</option>
                 <option value="R&B">R&B</option>
                 <option value="Pop">Pop</option>
-                <option value="Rock">Rock</option>
                 <option value="Electronic">Electronic</option>
+                <option value="Rock">Rock</option>
                 <option value="Jazz">Jazz</option>
-                <option value="Reggaeton">Reggaeton</option>
+                <option value="Lo-Fi">Lo-Fi</option>
+                <option value="Drill">Drill</option>
                 <option value="Other">Other</option>
-              </select>
-            </div>
+              </Select>
 
-            <div className="field-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
+              {/* Description Directo */}
+              <Textarea
+                label="Description"
+                icon={<AlignLeft size={16} />}
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Describe your beat..."
-                maxLength={500}
-                rows="4"
-                className="description-textarea"
+                placeholder="Describe your beat, its vibe, and intended use..."
+                fullWidth
+                rows={4}
               />
-            </div>
-          </div>
-        </Card>
 
-        {/* Technical Details */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Technical Details</h2>
-          </div>
+              {/* Tags Section */}
+              <div className="tag-wrapper-block">
+                <label className="input-label tag-label">
+                  <Hash size={16} className="label-icon" />
+                  Tags
+                </label>
 
-          <div className="form-fields">
-            <div className="field-group">
-              <label htmlFor="key">Key</label>
-              <select
-                id="key"
-                name="key"
-                value={formData.key}
-                onChange={handleInputChange}
-                className="key-select"
-              >
-                <option value="">Select a key</option>
-                <option value="C">C</option>
-                <option value="C#">C#</option>
-                <option value="D">D</option>
-                <option value="D#">D#</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="F#">F#</option>
-                <option value="G">G</option>
-                <option value="G#">G#</option>
-                <option value="A">A</option>
-                <option value="A#">A#</option>
-                <option value="B">B</option>
-              </select>
-            </div>
-          </div>
-        </Card>
-
-        {/* Tags */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Tags</h2>
-            <p className="section-description">Add tags to help users discover your beat</p>
-          </div>
-
-          <div className="form-fields">
-            <div className="tag-input-section">
-              <div className="tag-input-group">
-                <Input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="Add tag..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                />
-                <Button type="button" onClick={handleAddTag} variant="outline">
-                  Add
-                </Button>
-              </div>
-
-              <div className="tags-display">
-                {formData.tags.map((tag, index) => (
-                  <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
-                    <span className="tag-text">#{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="tag-remove"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Visibility & Pricing */}
-        <Card className="form-section">
-          <div className="section-header">
-            <h2>Visibility & Pricing</h2>
-          </div>
-
-          <div className="form-fields">
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onChange={handleInputChange}
-                />
-                <span className="checkbox-text">Public (visible to everyone)</span>
-              </label>
-
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isDownloadable"
-                  checked={formData.isDownloadable}
-                  onChange={handleInputChange}
-                />
-                <span className="checkbox-text">Allow downloads</span>
-              </label>
-            </div>
-
-            {/* Pricing options only if downloadable */}
-            {formData.isDownloadable && (
-              <>
-                <div className="checkbox-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="pricing.isFree"
-                      checked={formData.pricing.isFree}
-                      onChange={handleInputChange}
+                <div className="tag-input-section">
+                  <div className="tag-input-group">
+                    <Input
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      placeholder="Add tag..."
+                      fullWidth
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                     />
-                    <span className="checkbox-text">Free download</span>
-                  </label>
-                </div>
-
-                {!formData.pricing.isFree && (
-                  <div className="field-row">
-                    <div className="field-group">
-                      <label htmlFor="pricing.price">Price</label>
-                      <Input
-                        id="pricing.price"
-                        name="pricing.price"
-                        type="number"
-                        value={formData.pricing.price}
-                        onChange={handleInputChange}
-                        placeholder="29.99"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-
-                    <div className="field-group">
-                      <label htmlFor="pricing.currency">Currency</label>
-                      <select
-                        id="pricing.currency"
-                        name="pricing.currency"
-                        value={formData.pricing.currency}
-                        onChange={handleInputChange}
-                        className="currency-select"
-                      >
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                      </select>
-                    </div>
+                    <Button type="button" onClick={handleAddTag} variant="outline">
+                      Add
+                    </Button>
                   </div>
+
+                  <div className="tags-display">
+                    {formData.tags.map((tag, index) => (
+                      <div key={tag} className="tag-chip" style={{ '--tag-index': index }}>
+                        <span className="tag-text">#{tag}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="tag-remove"
+                          aria-label={`Remove ${tag}`}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Visibility & Pricing */}
+          <Card className="form-section">
+            <div className="section-header-with-icon">
+              <Eye size={24} className="section-icon" />
+              <div className="section-header-text">
+                <h2>Visibility & Download Options</h2>
+                <p className="section-description">Configure who can see and download your beat</p>
+              </div>
+            </div>
+
+            <div className="form-fields">
+              <div className="toggle-row">
+                <Toggle
+                  label="Public"
+                  description="Visible to everyone"
+                  icon={<Eye size={16} />}
+                  checked={formData.isPublic}
+                  onChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
+                />
+
+                {formData.isPublic && (
+                  <Toggle
+                    label="Allow downloads"
+                    description="Users can download this beat"
+                    icon={<Download size={16} />}
+                    checked={formData.isDownloadable}
+                    onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
+                  />
                 )}
-              </>
-            )}
-          </div>
-        </Card>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
 
-      {/* Submit Buttons */}
       <div className="form-actions">
         <Button
           type="button"
@@ -455,8 +404,9 @@ const BeatForm = ({
           type="submit"
           variant="primary"
           disabled={loading || !formData.title || !formData.genre || (!isEditing && !audioFile)}
-          className="submit-button"
+          className="submit-button gap-2"
         >
+          <Save size={18} />
           {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Beat' : 'Create Beat')}
         </Button>
       </div>
