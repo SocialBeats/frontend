@@ -169,17 +169,6 @@ export function getCurrentUserId() {
   return payload?.id || null;
 }
 
-/**
- * Obtiene el id del usuario autenticado desde el token
- * @returns {string|null} - id del usuario o null si no está autenticado
- */
-export function getCurrentUserId() {
-  const accessToken = getAccessToken();
-  if (!accessToken) return null;
-  
-  const payload = decodeJWT(accessToken);
-  return payload?.id || null;
-}
 
 /**
  * Verifica el email del usuario usando el token de verificación
