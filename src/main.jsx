@@ -4,10 +4,10 @@ import { SpaceProvider } from 'space-react-client';
 import './styles/index.css';
 import App from './App.jsx';
 
-// Configuración de Space
+// Configuración de Space (desde variables de entorno)
 const spaceConfig = {
-  url: window.RUNTIME_CONFIG?.VITE_SPACE_URL || 'http://localhost:5403',
-  apiKey: window.RUNTIME_CONFIG?.VITE_SPACE_API_KEY || '',
+  url: import.meta.env.VITE_SPACE_URL || 'http://localhost:5403',
+  apiKey: import.meta.env.VITE_SPACE_API_KEY || '',
   allowConnectionWithSpace: true,
 };
 

@@ -27,19 +27,18 @@ import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 
 function App() {
   const spaceClient = useSpaceClient();
-
+  
   useEffect(() => {
-    // Conectar Axios con Space para actualizar tokens automáticamente en cada respuesta del backend
+    // Conectar Axios con Space para actualizar tokens automáticamente
     registerSpaceTokenUpdater((token) => {
-      // "Update the token on every request" (como pide el tutorial)
-      spaceClient.token.update(token); 
+      spaceClient.token.update(token);
     });
 
     return () => registerSpaceTokenUpdater(null);
   }, [spaceClient]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/socialbeats">
       <ProfileProvider>
         <Routes>
           {/* Public Routes - Accessible to everyone */}

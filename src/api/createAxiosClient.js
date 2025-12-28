@@ -44,10 +44,10 @@ export function createAxiosClient({ options }) {
   // Response interceptor: Manejar errores y Pricing Token
   client.interceptors.response.use(
     (response) => {
-      // 1. Detectar Pricing-Token en los headers
-      const pricingToken = response.headers['Pricing-Token'];
-      
-      // 2. Si existe y tenemos el updater registrado, actualizamos Space
+      // Detectar Pricing-Token en los headers (Axios los normaliza a minúsculas)
+      const pricingToken = response.headers['pricing-token'] || response.headers['Pricing-Token'];
+
+      // Si existe y tenemos el updater registrado, actualizamos Space
       if (pricingToken && spaceTokenUpdater) {
         spaceTokenUpdater(pricingToken);
       }
