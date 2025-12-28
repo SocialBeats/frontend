@@ -38,14 +38,22 @@ const BeatFormPage = () => {
     }
   }, [id, isEditing]);
 
-  const handleSubmit = async (formData, audioFile) => {
+  const handleSubmit = async (formData, audioFile, coverFile) => {
     setSaving(true);
     setError(null);
 
     try {
       let submitData = { ...formData };
 
-      // Handle file upload for new beats
+      // Si estamos editando, necesitamos asegurarnos de no perder los datos de audio existentes
+      // Si estamos creando, submitData.audio se construirá abajo
+      if (isEditing && beatData && beatData.audio) {
+        // Empezamos copiando lo existente para preservar s3Key, filename, duration, waveform, etc.
+        // Importante: No queremos que submitData (que viene de formData) sobrescriba accidentalmente audio si formData lo tuviera (no lo tiene por ahora).
+        submitData.audio = { ...beatData.audio };
+      }
+
+      // 1. Handle Audio Upload (Only for NEW beats currently)
       if (audioFile && !isEditing) {
         const extension = audioFile.name.split('.').pop().toLowerCase();
 
@@ -59,14 +67,40 @@ const BeatFormPage = () => {
         // Upload to S3
         await uploadFileToS3(presignedData.uploadUrl, audioFile);
 
-        // Add audio info to submit data
+        // Add/Overwrite audio info
+        // Si ya habíamos copiado algo (caso raro en create si reintentamos), sobrescribimos
         submitData.audio = {
+          ...submitData.audio,
           s3Key: presignedData.s3Key,
           filename: audioFile.name,
           size: audioFile.size,
           format: extension,
         };
       }
+
+      // 2. Handle Cover Upload (For both Create and Edit)
+      if (coverFile) {
+        const extension = coverFile.name.split('.').pop().toLowerCase();
+        // Get Presigned URL for Image
+        const presignedCoverData = await getPresignedUrl({
+          extension,
+          mimetype: coverFile.type || 'image/jpeg', // Fallback
+          size: coverFile.size
+        });
+
+        // Upload Image to S3
+        await uploadFileToS3(presignedCoverData.uploadUrl, coverFile);
+
+        // Add s3CoverKey to audio object
+        submitData.audio = {
+          ...(submitData.audio || {}), // Ensure object exists
+          s3CoverKey: presignedCoverData.s3Key
+        };
+      }
+
+      // Si estamos editando y NO subimos nada, submitData.audio debería ser lo que era (preservado arriba)
+      // Si subimos solo cover, submitData.audio tiene todo lo viejo + nuevo s3CoverKey
+      // Si estamos creando, submitData.audio tiene lo del audio nuevo + cover (si hay)
 
       let result;
       if (isEditing) {

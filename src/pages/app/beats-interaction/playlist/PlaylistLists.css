@@ -1,0 +1,204 @@
+.playlist-list {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Container */
+.playlist-list__container {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.playlist-list__title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #f9fafb;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.playlist-list__subtitle {
+  color: #9ca3af;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Grid */
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.btn-create-playlist {
+  background-color: #1db954;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-create-playlist:hover {
+  background-color: #1ed760;
+}
+
+.playlist-list__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Card */
+.playlist-card {
+  background: #374151;
+  border: 2px solid #4b5563;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.playlist-card:hover {
+  border-color: #60a5fa;
+  background: #4b5563;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.playlist-card__name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f3f4f6;
+  margin-bottom: 0.5rem;
+}
+
+.playlist-card__description {
+  font-size: 0.95rem;
+  color: #d1d5db;
+  line-height: 1.4;
+}
+
+/* --- Menu (3 dots) --- */
+.playlist-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.playlist-card__menu-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #d1d5db;
+  transition: 0.2s;
+}
+
+.playlist-card__menu-btn:hover {
+  color: #f9fafb;
+}
+
+.playlist-card__menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  padding: 0.5rem 0;
+  width: 150px;
+  z-index: 20;
+}
+
+.playlist-card__menu-item {
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.playlist-card__menu-item:hover {
+  background: #4b5563;
+}
+
+/* --- Modal buttons --- */
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modal-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+  font-weight: 500;
+}
+
+.modal-btn.cancel {
+  background: #4b5563;
+  color: #e5e7eb;
+}
+
+.modal-btn.cancel:hover {
+  background: #6b7280;
+}
+
+.modal-btn.delete {
+  background: #b91c1c;
+  color: #ffffff;
+}
+
+.modal-btn.delete:hover {
+  background: #991b1b;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.pagination-btn {
+  background: #374151;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #4b5563;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: #d1d5db;
+  font-size: 0.95rem;
+}

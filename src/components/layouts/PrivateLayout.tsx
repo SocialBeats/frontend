@@ -92,7 +92,4 @@ export default function PrivateLayout() {
       <GlobalPlayerDock />
     </div>
   );
-
-
-
 }

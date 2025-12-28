@@ -1,0 +1,19 @@
+.create-comment {
+  margin: 0.75rem 0 0.75rem 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.create-comment-input-wrapper {
+  flex: 1;
+}
+
+.create-comment-input {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.create-comment-button {
+  white-space: nowrap;
+}

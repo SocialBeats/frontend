@@ -20,11 +20,11 @@ export function login(identifier, password) {
     password,
   }).then(response => {
     const { accessToken, refreshToken } = response.data;
-    
+
     // Guardar tokens en localStorage
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-    
+
     return response.data;
   });
 }
@@ -36,11 +36,11 @@ export function login(identifier, password) {
 export async function logout() {
   const refreshToken = getRefreshToken();
   const accessToken = getAccessToken();
-  
+
   // Limpiar tokens del localStorage primero
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
-  
+
   // Intentar revocar tokens en el backend (best effort)
   if (refreshToken) {
     try {
@@ -59,22 +59,22 @@ export async function logout() {
  */
 export async function refreshAccessToken() {
   const refreshToken = getRefreshToken();
-  
+
   if (!refreshToken) {
     throw new Error('No refresh token available');
   }
-  
+
   try {
     const response = await client.post('/auth/refresh', {
       refreshToken,
     });
-    
+
     const { accessToken, refreshToken: newRefreshToken } = response.data;
-    
+
     // Actualizar tokens en localStorage (rotación de refresh token)
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', newRefreshToken);
-    
+
     return accessToken;
   } catch (error) {
     // Si el refresh falla, desloguear al usuario
@@ -106,7 +106,7 @@ function decodeJWT(token) {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    
+
     const payload = JSON.parse(atob(parts[1]));
     return payload;
   } catch (error) {
@@ -121,14 +121,14 @@ function decodeJWT(token) {
  */
 function isValidJWTStructure(token) {
   if (!token || typeof token !== 'string') return false;
-  
+
   const parts = token.split('.');
   if (parts.length !== 3) return false;
-  
+
   // Intentar decodificar el payload
   const payload = decodeJWT(token);
   if (!payload) return false;
-  
+
   // Validar que tenga campos básicos esperados (cualquier campo indica que es válido)
   return typeof payload === 'object' && payload !== null && Object.keys(payload).length > 0;
 }
@@ -140,12 +140,12 @@ function isValidJWTStructure(token) {
 export function isAuthenticated() {
   const accessToken = getAccessToken();
   const refreshToken = getRefreshToken();
-  
+
   // Verificar que ambos tokens existan y tengan estructura JWT válida
   const isValid = (
     isValidJWTStructure(accessToken) && !!refreshToken
   );
-  
+
   return isValid;
 }
 
@@ -156,7 +156,56 @@ export function isAuthenticated() {
 export function getCurrentUsername() {
   const accessToken = getAccessToken();
   if (!accessToken) return null;
-  
+
   const payload = decodeJWT(accessToken);
   return payload?.username || null;
+}
+
+/**
+ * Obtiene el id del usuario autenticado desde el token
+ * @returns {string|null} - id del usuario o null si no está autenticado
+ */
+export function getCurrentUserId() {
+  const accessToken = getAccessToken();
+  if (!accessToken) return null;
+  
+  const payload = decodeJWT(accessToken);
+  return payload?.id || null;
+}
+
+/**
+ * Verifica el email del usuario usando el token de verificación
+ * @param {string} token - Token de verificación enviado por email
+ */
+export function verifyEmail(token) {
+  return client.get(`/auth/verify-email?token=${token}`)
+    .then(response => response.data);
+}
+
+/**
+ * Reenvía el email de verificación
+ * @param {string} email - Email del usuario
+ */
+export function resendVerificationEmail(email) {
+  return client.post('/auth/resend-verification', { email })
+    .then(response => response.data);
+}
+
+/**
+ * Solicita el restablecimiento de contraseña
+ * @param {string} email - Email del usuario
+ */
+export function forgotPassword(email) {
+  return client.post('/auth/forgot-password', { email })
+    .then(response => response.data);
+}
+
+/**
+ * Restablece la contraseña usando el token de reset
+ * @param {string} token - Token de reset enviado por email
+ * @param {string} password - Nueva contraseña
+ */
+export function resetPassword(token, password) {
+  return client.post('/auth/reset-password', { token, password })
+    .then(response => response.data);
 }

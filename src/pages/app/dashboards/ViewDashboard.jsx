@@ -7,6 +7,7 @@ import SpiderWidget from '../../../components/Dashboard/SpiderWidgets';
 import GenericWidget from '../../../components/Dashboard/GenericWidget';
 import { getDashboardById, updateDashboard } from '../../../services/analytics/dashboards';
 import { getWidgetsByDashboard, deleteWidget } from '../../../services/analytics/widgets';
+import { getRandomQuote } from '../../../services/analytics/quotable';
 import { AVAILABLE_WIDGETS } from '../../../components/Dashboard/type';
 import './ViewDashboard.css';
 import BPMWidget from '../../../components/Dashboard/BPMWidget';
@@ -34,6 +35,8 @@ const ViewDashboard = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [widgets, setWidgets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quote, setQuote] = useState(null);
+  const [quoteLoading, setQuoteLoading] = useState(true);
   const inputRef = useRef(null);
   const addButtonRef = useRef(null);
   const [showFab, setShowFab] = useState(false);
@@ -70,6 +73,24 @@ const ViewDashboard = () => {
 
     fetchDashboard();
   }, [id]);
+
+  // Cargar quote aleatoria
+  useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        const response = await getRandomQuote();
+        const quoteData = response.data || response;
+        setQuote(quoteData);
+      } catch (error) {
+        console.error('Error al cargar quote:', error);
+        setQuote(null);
+      } finally {
+        setQuoteLoading(false);
+      }
+    };
+
+    fetchQuote();
+  }, []);
 
   // Try to load real metrics for a beat if the dashboard contains a beatId (fallback to mocks)
   useEffect(() => {
@@ -417,6 +438,32 @@ const ViewDashboard = () => {
           </Button>
         </div>
       </div>
+
+      {/* Quote Section */}
+      {!quoteLoading && quote && (
+        <div className="mx-auto max-w-4xl mb-8">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 shadow-md border border-blue-100 dark:border-gray-700">
+            <div className="flex items-start gap-4">
+              <svg
+                className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1"
+                style={{ width: '128px', height: '128px' }}
+                fill="currentColor"
+                viewBox="0 0 24 48"
+              >
+                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-medium italic leading-relaxed mb-3">
+                  "{quote.content}"
+                </p>
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-semibold">
+                  — {quote.author}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="view-dashboard__content">
         <div className="flex justify-between items-center mb-6">
