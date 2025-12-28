@@ -52,6 +52,7 @@ function formatDate(dateStr) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   });
 }
 
@@ -92,31 +93,39 @@ const ListRatings = ({ isBeat, resourceId }) => {
 
       const payload = response?.data ?? {};
       const items = payload.data ?? payload?.data?.data ?? [];
-      const total =
+
+      const rawTotal =
         payload.total ??
         payload.count ??
         payload?.data?.total ??
-        payload?.data?.count ??
-        items.length;
+        payload?.data?.count;
 
-      setRatings(items || []);
+      const totalNumber = Number(rawTotal);
+      const safeTotal = Number.isFinite(totalNumber)
+        ? totalNumber
+        : items.length;
+
+      setRatings(items);
+
       setAverage(
         typeof payload.average === "number"
           ? payload.average
           : payload?.data?.average ?? null
       );
+
       setCount(
         typeof payload.count === "number"
           ? payload.count
-          : payload?.data?.count ?? Number(total) ?? items.length
+          : typeof payload?.data?.count === "number"
+          ? payload.data.count
+          : safeTotal
       );
 
-      setTotalRatings(Number(total) || 0);
+      setTotalRatings(safeTotal);
 
       const newTotalPages =
-        (Number(total) || 0) > 0
-          ? Math.ceil((Number(total) || 0) / safeLimit)
-          : 1;
+        safeTotal > 0 ? Math.ceil(safeTotal / safeLimit) : 1;
+
       if (page > newTotalPages) setPage(newTotalPages);
     } catch (error) {
       showApiError(error, "Error cargando valoraciones");
