@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
-import PrivateLayout from './components/layouts/PrivateLayout';
+import PrivateLayout from './components/layouts/PrivateLayout.tsx';
 import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
 // import Dashboard from './pages/app/Dashboard';
@@ -39,15 +39,14 @@ function App() {
           <Route path="/pricing" element={<Landing />} />
           <Route path="/about" element={<Landing />} />
           <Route path="/contact" element={<Landing />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
         </Route>
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         {/* Private Routes - Only for authenticated users */}
         <Route path="/app" element={<PrivateLayout />}>
           {/* <Route path="beats" element={<BeatsListPage />} /> */}
