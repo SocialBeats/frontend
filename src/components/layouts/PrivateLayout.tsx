@@ -7,6 +7,7 @@ import Footer from '../ui/Footer';
 import './PrivateLayout.css';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import GlobalPlayerDock from '../features/player/GlobalPlayerDock';
+import MetricsNotifier from '../MetricsNotifier';
 
 export default function PrivateLayout() {
   const location = useLocation();
@@ -77,6 +78,8 @@ export default function PrivateLayout() {
     <div className="private-layout">
       {/* Sidebar Navigation - Fixed on the left */}
       <NavBar />
+
+      <MetricsNotifier />;
 
       {/* Main Content Area */}
       <div className="private-content-wrapper">
