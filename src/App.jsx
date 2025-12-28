@@ -24,6 +24,9 @@ import UserPlaylists from './pages/app/beats-interaction/playlist/UserPlaylists'
 import MyPlaylists from './pages/app/beats-interaction/playlist/MyPlaylists';
 import PublicPlaylists from './pages/app/beats-interaction/playlist/PublicPlaylists';
 import PlaylistDetails from './pages/app/beats-interaction/playlist/PlaylistDetails';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import VerifyEmail from './pages/auth/VerifyEmail';
 
 function App() {
   return (
@@ -36,6 +39,9 @@ function App() {
           <Route path="/pricing" element={<Landing />} />
           <Route path="/about" element={<Landing />} />
           <Route path="/contact" element={<Landing />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Route>
 
         {/* Auth Routes */}
