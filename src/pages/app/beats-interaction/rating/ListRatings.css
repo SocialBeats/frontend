@@ -96,7 +96,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  min-width: 44px;
+  padding: 0.35rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .my-rating-title {
@@ -204,6 +207,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .rating-main-line {
@@ -219,6 +226,16 @@
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--text-main);
+}
+
+.rating-username--link {
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+
+.rating-username--link:hover {
+  opacity: 0.85;
+  text-decoration: underline;
 }
 
 .rating-stars-wrapper {

@@ -17,6 +17,8 @@ import Button from "../../../components/ui/Button";
 import IconButton from "../../../components/ui/IconButton";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import BeatDetailPlayer from "../../../components/features/player/BeatDetailPlayer";
+import ListComments from "../beats-interaction/comment/ListComments";
+import ListRatings from "../beats-interaction/rating/ListRatings";
 
 import {
   getBeatById,
