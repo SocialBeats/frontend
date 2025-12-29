@@ -80,9 +80,20 @@ const MyBeatsListPage = () => {
             <Card className="beat-card" hover={true}>
               <div className="beat-cover-container">
                 <img
-                  src={logo}
+                  src={(() => {
+                    if (beat.audio?.coverUrl) return beat.audio.coverUrl;
+                    if (beat.audio?.s3CoverKey) {
+                      const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+                      const key = beat.audio.s3CoverKey.startsWith('/')
+                        ? beat.audio.s3CoverKey.slice(1)
+                        : beat.audio.s3CoverKey;
+                      return `${domain}/${key}`;
+                    }
+                    return logo;
+                  })()}
                   alt={beat.title}
                   className="beat-cover"
+                  onError={(e) => { e.target.src = logo; }}
                 />
                 <div className="beat-overlay">
                   <div className="play-button">

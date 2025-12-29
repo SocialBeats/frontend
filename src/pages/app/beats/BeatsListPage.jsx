@@ -81,8 +81,13 @@ const BeatsListPage = () => {
         const formattedBeats = data.map((beat) => ({
           ...beat,
           formattedDuration: formatDuration(beat.duration || 0),
-          formattedPlays: (beat.stats?.plays || 0).toLocaleString(),
-          formattedDownloads: (beat.stats?.downloads || 0).toLocaleString(),
+          // Format data for display with Privacy Rules
+          formattedPlays: beat.isPublic
+            ? (beat.stats?.plays || 0).toLocaleString()
+            : "-",
+          formattedDownloads: (beat.isPublic && beat.isDownloadable)
+            ? (beat.stats?.downloads || 0).toLocaleString()
+            : "-",
           formattedLikes: (beat.stats?.likes || 0).toLocaleString(),
           formattedComments: (beat.stats?.comments || 0).toLocaleString(),
           formattedDate: beat.createdAt ? new Intl.DateTimeFormat("en-US", {
@@ -292,9 +297,20 @@ const BeatsListPage = () => {
                     )}
                     <div className="col-cover">
                       <img
-                        src={logo}
+                        src={(() => {
+                          if (beat.audio?.coverUrl) return beat.audio.coverUrl;
+                          if (beat.audio?.s3CoverKey) {
+                            const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+                            const key = beat.audio.s3CoverKey.startsWith('/')
+                              ? beat.audio.s3CoverKey.slice(1)
+                              : beat.audio.s3CoverKey;
+                            return `${domain}/${key}`;
+                          }
+                          return logo;
+                        })()}
                         alt="Cover"
                         className="beat-cover-small"
+                        onError={(e) => { e.target.src = logo; }}
                       />
                     </div>
                   </Card>

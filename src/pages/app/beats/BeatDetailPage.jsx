@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Edit,
   Trash2,
+  ShoppingCart,
   Eye,
   EyeOff,
   Tag,
@@ -16,10 +17,12 @@ import Button from "../../../components/ui/Button";
 import IconButton from "../../../components/ui/IconButton";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import BeatDetailPlayer from "../../../components/features/player/BeatDetailPlayer";
-import ListComments from "../beats-interaction/comment/ListComments";
-import ListRatings from "../beats-interaction/rating/ListRatings";
 
-import { getBeatById, deleteBeat } from "../../../services/beatsService";
+import {
+  getBeatById,
+  deleteBeat,
+  downloadBeat,
+} from "../../../services/beatsService";
 import { getCurrentUserId } from "../../../services/authService";
 import "./BeatDetailPage.css";
 
@@ -33,13 +36,20 @@ const BeatDetailPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [isOwner, setIsOwner] = useState(false); // Placeholder for ownership logic
+  // Stats state to update download count locally
+  const [stats, setStats] = useState({ plays: 0, downloads: 0 });
 
   useEffect(() => {
     const fetchBeat = async () => {
       try {
         const beatData = await getBeatById(id);
-        if (beatData) setBeat(beatData);
-        else setError("Beat not found.");
+        if (beatData) {
+          setBeat(beatData);
+          setStats({
+            plays: beatData.stats?.plays || 0,
+            downloads: beatData.stats?.downloads || 0,
+          });
+        } else setError("Beat not found.");
         if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
       } catch (err) {
         setError("Error fetching beat.");
@@ -62,6 +72,43 @@ const BeatDetailPage = () => {
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      // Optimistic feedback or loading state could be added here
+      const data = await downloadBeat(beat._id);
+      if (data && data.downloadUrl) {
+        // Updated stats if returned
+        if (data.stats) {
+          setStats((prev) => ({
+            ...prev,
+            downloads: data.stats.downloads,
+            plays: data.stats.plays || prev.plays,
+          }));
+          // Also update the main beat object to keep consistency if passed down
+          setBeat((prev) => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              downloads: data.stats.downloads,
+              plays: data.stats.plays || prev.stats.plays,
+            },
+          }));
+        }
+
+        // Trigger download
+        const link = document.createElement("a");
+        link.href = data.downloadUrl;
+        link.setAttribute("download", "");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error("Error downloading beat:", error);
+      // Error handling/toast could be added here
     }
   };
 
@@ -103,12 +150,6 @@ const BeatDetailPage = () => {
                     <span className="meta-icon">♪</span>
                     {beat.genre}
                   </span>
-                  {beat.key && (
-                    <span className="beat-card-key">
-                      <span className="meta-label">Key</span>
-                      {beat.key}
-                    </span>
-                  )}
                 </div>
 
                 <div className="tags-section">
@@ -172,7 +213,7 @@ const BeatDetailPage = () => {
                     <Button
                       variant="primary"
                       className="w-full justify-center btn-buy-large"
-                      onClick={() => console.log("Download", beat.title)}
+                      onClick={handleDownload}
                     >
                       <Download size={20} className="mr-2" />
                       Download
@@ -221,11 +262,11 @@ const BeatDetailPage = () => {
             </Card>
           </div>
         </div>
+      </div>
 
-        <div>
-          <ListComments isBeat={true} resourceId={beat._id} />
-          <ListRatings isBeat={true} resourceId={beat._id} />
-        </div>
+      <div>
+        <ListComments isBeat={true} resourceId={beat._id} />
+        <ListRatings isBeat={true} resourceId={beat._id} />
       </div>
 
       <ConfirmModal
