@@ -6,8 +6,8 @@ import App from './App.jsx';
 
 // Configuración de Space (desde variables de entorno)
 const spaceConfig = {
-  url: import.meta.env.VITE_SPACE_URL || 'http://localhost:5403',
-  apiKey: import.meta.env.VITE_SPACE_API_KEY || '',
+  url: window.RUNTIME_CONFIG?.VITE_SPACE_URL || import.meta.env.VITE_SPACE_URL || 'http://localhost:5403',
+  apiKey: window.RUNTIME_CONFIG?.VITE_SPACE_API_KEY || import.meta.env.VITE_SPACE_API_KEY || '',
   allowConnectionWithSpace: true,
 };
 

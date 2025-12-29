@@ -36,7 +36,7 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
     if (!beatData?.audio) return null;
     if (beatData.audio.coverUrl) return beatData.audio.coverUrl;
     if (beatData.audio.s3CoverKey) {
-      const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+      const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN || '';
       const key = beatData.audio.s3CoverKey.startsWith('/')
         ? beatData.audio.s3CoverKey.slice(1)
         : beatData.audio.s3CoverKey;

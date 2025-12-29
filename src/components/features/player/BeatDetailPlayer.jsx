@@ -52,14 +52,15 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
         }
     }, [beat]);
 
+    const cdnDomainURL = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN 
     const audioUrl = beat?.audio?.s3Key
-        ? `${import.meta.env.VITE_CDN_DOMAIN}/${beat.audio.s3Key}`
+        ? `${cdnDomainURL}/${beat.audio.s3Key}`
         : null;
     
     const getCoverUrl = () => {
         if (beat?.audio?.coverUrl) return beat.audio.coverUrl;
         if (beat?.audio?.s3CoverKey) {
-            const domain = import.meta.env.VITE_CDN_DOMAIN || '';
+            const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN || '';
             const key = beat.audio.s3CoverKey.startsWith('/')
                 ? beat.audio.s3CoverKey.slice(1)
                 : beat.audio.s3CoverKey;
