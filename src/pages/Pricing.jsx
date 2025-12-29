@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { redirectToCheckout, getSubscriptionStatus } from '../services/paymentService';
+import { updateSubscriptionPlan, completeUpgrade, getSubscriptionStatus } from '../services/paymentService';
 import { getCurrentUserId, getCurrentUsername } from '../services/authService';
 import { logger } from '../logger';
 
@@ -28,23 +28,37 @@ const Pricing = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Verificar parámetros de URL (success/cancel de Stripe)
+  // Verificar parámetros de URL (success/cancel de Stripe y setup)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const canceled = urlParams.get('canceled');
+    const setup = urlParams.get('setup');
+    const sessionId = urlParams.get('session_id');
+    const upgradeTo = urlParams.get('upgrade_to');
 
+    // Retorno de setup (después de añadir método de pago)
+    if (setup === 'success' && sessionId) {
+      logger.info('Setup completed, completing upgrade...');
+      handleCompleteUpgrade(sessionId, upgradeTo);
+      return;
+    }
+
+    if (setup === 'canceled') {
+      setErrorMessage('Añadir método de pago cancelado. Puedes intentar de nuevo cuando quieras.');
+      window.history.replaceState({}, '', '/pricing');
+      return;
+    }
+
+    // Retorno de checkout (flujo antiguo, por si acaso)
     if (success === 'true') {
       setSuccessMessage('¡Suscripción creada exitosamente! Tu plan se activará en breve.');
-      // Limpiar parámetros de URL
       window.history.replaceState({}, '', '/pricing');
-      // Recargar estado de suscripción
       loadSubscriptionStatus();
     }
 
     if (canceled === 'true') {
       setErrorMessage('Pago cancelado. Puedes intentar de nuevo cuando quieras.');
-      // Limpiar parámetros de URL
       window.history.replaceState({}, '', '/pricing');
     }
   }, []);
@@ -65,24 +79,41 @@ const Pricing = () => {
     loadSubscriptionStatus();
   }, []);
 
+  const handleCompleteUpgrade = async (setupSessionId, upgradeTo) => {
+    try {
+      setLoading(true);
+      setErrorMessage('');
+      setSuccessMessage('Completando upgrade...');
+
+      const result = await completeUpgrade(setupSessionId);
+
+      setSuccessMessage(`¡Upgrade a ${result.subscription.planType} completado exitosamente!`);
+      
+      // Limpiar URL
+      window.history.replaceState({}, '', '/pricing');
+      
+      // Recargar estado de suscripción
+      await loadSubscriptionStatus();
+    } catch (error) {
+      logger.error('Error completing upgrade:', error);
+      setErrorMessage(error.message || 'Error al completar el upgrade. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubscribe = async (planName) => {
     const userId = getCurrentUserId();
     const username = getCurrentUsername();
 
     if (!userId || !username) {
-      setErrorMessage('Por favor inicia sesión para suscribirte');
+      setErrorMessage('Por favor inicia sesión para cambiar de plan');
       return;
     }
 
-    // Verificar si ya tiene una suscripción activa
-    if (currentPlan?.isActive && currentPlan?.planType !== 'FREE') {
-      setErrorMessage(`Ya tienes una suscripción activa al plan ${currentPlan.planType}`);
-      return;
-    }
-
-    // Plan BASIC es gratis, no requiere pago
-    if (planName === 'BASIC') {
-      setErrorMessage('El plan BASIC es gratuito y ya está activo para todos los usuarios');
+    // Verificar si ya tiene este plan
+    if (currentPlan?.planType === planName) {
+      setErrorMessage(`Ya tienes el plan ${planName} activo`);
       return;
     }
 
@@ -91,14 +122,36 @@ const Pricing = () => {
       setErrorMessage('');
       setSuccessMessage('');
 
-      logger.info(`Redirecting to checkout for plan: ${planName}`);
+      logger.info(`Updating plan to: ${planName}`);
 
-      // Redirigir a Stripe Checkout
-      await redirectToCheckout(planName);
-      // La redirección ocurre aquí, el código siguiente no se ejecutará
+      // Intentar actualizar el plan
+      const result = await updateSubscriptionPlan(planName);
+
+      // Si fue exitoso, mostrar mensaje
+      setSuccessMessage(
+        `¡Plan actualizado a ${result.subscription.planType} exitosamente! ${result.proration.note}`
+      );
+      
+      // Recargar estado de suscripción
+      await loadSubscriptionStatus();
     } catch (error) {
-      logger.error('Error subscribing:', error);
-      setErrorMessage(error.message || 'Error al crear la sesión de pago. Intenta de nuevo.');
+      logger.error('Error updating plan:', error);
+
+      // Si requiere setup de método de pago
+      if (error.requiresSetup) {
+        logger.info('Redirecting to payment method setup...');
+        setSuccessMessage('Redirigiendo para añadir método de pago...');
+        
+        // Redirigir a Stripe para añadir tarjeta
+        setTimeout(() => {
+          window.location.href = error.setupUrl;
+        }, 1000);
+        return;
+      }
+
+      // Otros errores
+      setErrorMessage(error.message || 'Error al actualizar el plan. Intenta de nuevo.');
+    } finally {
       setLoading(false);
     }
   };
@@ -145,19 +198,27 @@ const Pricing = () => {
             </div>
             <button 
               onClick={() => handleSubscribe(plan.name)}
-              disabled={loading || (currentPlan?.isActive && currentPlan?.planType === plan.name)}
+              disabled={loading || (currentPlan?.planType === plan.name)}
               style={{ 
                 padding: '10px 20px', 
-                backgroundColor: (currentPlan?.isActive && currentPlan?.planType === plan.name) ? '#6c757d' : '#007bff', 
+                backgroundColor: (currentPlan?.planType === plan.name) ? '#6c757d' : '#007bff', 
                 color: 'white', 
                 border: 'none', 
                 borderRadius: '4px', 
-                cursor: loading ? 'wait' : (currentPlan?.isActive && currentPlan?.planType === plan.name) ? 'not-allowed' : 'pointer', 
+                cursor: loading ? 'wait' : (currentPlan?.planType === plan.name) ? 'not-allowed' : 'pointer', 
                 fontSize: '16px',
-                opacity: (currentPlan?.isActive && currentPlan?.planType === plan.name) ? 0.6 : 1
+                opacity: (currentPlan?.planType === plan.name) ? 0.6 : 1
               }}
             >
-              {loading ? 'Procesando...' : (currentPlan?.isActive && currentPlan?.planType === plan.name) ? 'Plan Actual' : 'Subscribe'}
+              {loading 
+                ? 'Procesando...' 
+                : (currentPlan?.planType === plan.name) 
+                  ? 'Plan Actual' 
+                  : currentPlan?.planType 
+                    ? (plans.findIndex(p => p.name === plan.name) > plans.findIndex(p => p.name === currentPlan.planType) 
+                        ? 'Upgrade' 
+                        : 'Downgrade')
+                    : 'Seleccionar'}
             </button>
           </div>
         ))}

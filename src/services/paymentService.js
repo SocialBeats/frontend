@@ -73,6 +73,87 @@ export const getSubscriptionStatus = async () => {
 };
 
 /**
+ * Actualizar el plan de suscripción del usuario
+ *
+ * @param {string} planType - Nuevo tipo de plan (BASIC, PREMIUM)
+ * @param {string} prorationBehavior - Comportamiento del prorrateo (opcional)
+ * @returns {Promise<Object>} - Información de la suscripción actualizada
+ */
+export const updateSubscriptionPlan = async (planType, prorationBehavior = 'create_prorations') => {
+  try {
+    logger.info(`Updating subscription plan to: ${planType}`);
+
+    const response = await client.put('/payments/subscription', {
+      planType,
+      prorationBehavior,
+    });
+
+    logger.info('Subscription plan updated successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to update subscription plan', error);
+
+    // Error 402: Requiere método de pago
+    if (error.response?.status === 402) {
+      const data = error.response.data;
+      logger.info('Payment method required, returning setup info');
+      // Re-lanzar con la información de setup
+      throw {
+        requiresSetup: true,
+        setupUrl: data.setupUrl,
+        setupSessionId: data.setupSessionId,
+        message: data.message,
+      };
+    }
+
+    if (error.response?.status === 400 && error.response.data?.error === 'SAME_PLAN') {
+      throw new Error('Ya tienes este plan activo');
+    }
+
+    if (error.response?.status === 401) {
+      throw new Error('Debes iniciar sesión para actualizar tu plan');
+    }
+
+    throw new Error(
+      error.response?.data?.message || 'Error al actualizar el plan'
+    );
+  }
+};
+
+/**
+ * Completar upgrade después de añadir método de pago
+ *
+ * @param {string} setupSessionId - ID de la sesión de setup completada
+ * @returns {Promise<Object>} - Información de la suscripción actualizada
+ */
+export const completeUpgrade = async (setupSessionId) => {
+  try {
+    logger.info('Completing upgrade after payment method setup');
+
+    const response = await client.post('/payments/subscription/complete-upgrade', {
+      setupSessionId,
+    });
+
+    logger.info('Upgrade completed successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to complete upgrade', error);
+
+    if (error.response?.status === 400) {
+      throw new Error(error.response.data?.message || 'La sesión de pago no es válida');
+    }
+
+    if (error.response?.status === 404) {
+      throw new Error('No se encontró tu suscripción');
+    }
+
+    throw new Error(
+      error.response?.data?.message || 'Error al completar el upgrade'
+    );
+  }
+};
+
+/**
  * Cancelar la suscripción del usuario actual
  *
  * @param {boolean} immediate - Si cancelar inmediatamente o al final del período
@@ -126,6 +207,8 @@ export const redirectToCheckout = async (planType, email = null) => {
 export default {
   createCheckoutSession,
   getSubscriptionStatus,
+  updateSubscriptionPlan,
+  completeUpgrade,
   cancelSubscription,
   redirectToCheckout,
 };
