@@ -32,7 +32,7 @@ export default function ProfileView() {
 
   const { profile, loading, error, isOwnProfile, loadProfile } = useProfileData(username, handleRedirect);
   const { notifyProfileUpdate } = useProfileContext();
-  
+
 
   const handleSuccess = async () => {
     // Solo recargar perfil sin mostrar modal (más fluido)
@@ -61,6 +61,7 @@ export default function ProfileView() {
     handleCancelAbout,
     handleCancelTags,
     handleSubmitStudies,
+    handleSocialLinkUpdate,
   } = useProfileForm(profile, isOwnProfile, handleSuccess);
 
   // Handle form submission errors
@@ -143,10 +144,10 @@ export default function ProfileView() {
   };
 
   const handleGoToPlaylists = () => {
-  if (!profile?.userId) return;
-  navigate(`/app/users/${profile.userId}/playlists`);
+    if (!profile?.userId) return;
+    navigate(`/app/users/${profile.userId}/playlists`);
   };
-  
+
   // Show error from useProfileData
   useEffect(() => {
     if (error) {
@@ -190,32 +191,33 @@ export default function ProfileView() {
 
       {/* Hero Section */}
       <div id="profile-hero">
-      <ProfileHero
-        profile={profile}
-        formData={formData}
-        isOwnProfile={isOwnProfile}
-        isEditingBasic={isEditingBasic}
-        isEditingAbout={isEditingAbout}
-        saving={saving}
-        onEditClick={() => setIsEditingBasic(true)}
-        onEditAboutClick={() => setIsEditingAbout(true)}
-        onInputChange={handleInputChange}
-        onSubmitAbout={handleAboutSubmit}
-        onCancelAbout={handleCancelAbout}
-        onAvatarUpdate={handleAvatarUpdate}
-        onAddCertification={handleAddCertification}
-        onRemoveCertification={handleRemoveCertification}
-        onCertificationError={(message) => {
-          setErrorMessage(message);
-          setShowErrorModal(true);
-        }}
-      />
+        <ProfileHero
+          profile={profile}
+          formData={formData}
+          isOwnProfile={isOwnProfile}
+          isEditingBasic={isEditingBasic}
+          isEditingAbout={isEditingAbout}
+          saving={saving}
+          onEditClick={() => setIsEditingBasic(true)}
+          onEditAboutClick={() => setIsEditingAbout(true)}
+          onInputChange={handleInputChange}
+          onSubmitAbout={handleAboutSubmit}
+          onCancelAbout={handleCancelAbout}
+          onAvatarUpdate={handleAvatarUpdate}
+          onAddCertification={handleAddCertification}
+          onRemoveCertification={handleRemoveCertification}
+          onCertificationError={(message) => {
+            setErrorMessage(message);
+            setShowErrorModal(true);
+          }}
+          onSocialLinkUpdate={handleSocialLinkUpdate}
+        />
         {/* Botón para ver playlists del usuario */}
-      <div style={{ marginTop: '1rem' }}>
-        <Button onClick={handleGoToPlaylists}>
-          Ver playlists
-        </Button>
-      </div>
+        <div style={{ marginTop: '1rem' }}>
+          <Button onClick={handleGoToPlaylists}>
+            Ver playlists
+          </Button>
+        </div>
       </div>
 
       {/* Edit Form - only if own profile */}
