@@ -8,8 +8,27 @@
 }
 
 .beat-detail-header { margin-bottom: 2rem; }
-.back-btn { color: var(--text-muted); transition: color 0.2s; }
-.back-btn:hover { color: var(--text-main); }
+.back-btn { 
+    color: var(--text-muted); 
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+.back-btn:hover { 
+    color: var(--text-main); 
+    background: rgba(139, 92, 246, 0.1);
+    transform: translateX(-4px);
+}
+.back-btn svg {
+    transition: transform 0.2s ease;
+}
+.back-btn:hover svg {
+    transform: translateX(-2px);
+}
 
 /* LAYOUT GRID */
 .detail-grid {

@@ -1,0 +1,482 @@
+.playerDock {
+    position: fixed;
+    bottom: 0;
+    left: 260px; /* Respeta el sidebar */
+    right: 0;
+    width: calc(100% - 260px);
+    height: 90px;
+    min-height: 90px;
+    z-index: 1000;
+    background: linear-gradient(
+        180deg,
+        rgba(18, 18, 24, 0.97) 0%,
+        rgba(12, 12, 18, 0.99) 100%
+    );
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(139, 92, 246, 0.25);
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) 1fr minmax(140px, 220px);
+    align-items: center;
+    padding: 0 2rem;
+    box-shadow: 
+        0 -8px 40px rgba(0, 0, 0, 0.5),
+        0 -2px 0 rgba(139, 92, 246, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    gap: 1.5rem;
+    overflow: visible;
+}
+
+/* LEFT SECTION: Info */
+.info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 12px 0;
+}
+
+.cover {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 
+        0 6px 16px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cover:hover {
+    transform: scale(1.06) translateY(-2px);
+    box-shadow: 
+        0 10px 24px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(139, 92, 246, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.title {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    line-height: 1.3;
+}
+
+.author {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    line-height: 1.2;
+    transition: color 0.2s ease;
+}
+
+.author:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* CENTER SECTION: Controls & Waveform */
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 8px 0;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.controlBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.controlBtn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.playBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 
+        0 6px 20px rgba(139, 92, 246, 0.45),
+        0 0 25px rgba(236, 72, 153, 0.25),
+        0 0 0 3px rgba(139, 92, 246, 0.15);
+    transition: all 0.25s ease;
+}
+
+.playBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 
+        0 8px 25px rgba(139, 92, 246, 0.55),
+        0 0 35px rgba(236, 72, 153, 0.35),
+        0 0 0 4px rgba(139, 92, 246, 0.2);
+    color: #fff;
+}
+
+.playBtn:active {
+    transform: scale(0.95);
+}
+
+.waveformContainer {
+    display: none; /* Deprecated - using progressContainer instead */
+}
+
+/* PROGRESS BAR - Spotify-like simple scrubber */
+.progressContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.timeDisplay {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-variant-numeric: tabular-nums;
+    min-width: 40px;
+    text-align: center;
+    user-select: none;
+}
+
+.progressBarWrapper {
+    flex: 1;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.progressBar {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    outline: none;
+    transition: height 0.15s ease;
+    margin: 0;
+    padding: 0;
+}
+
+.progressBarWrapper:hover .progressBar {
+    height: 6px;
+}
+
+.progressBar::-webkit-slider-runnable-track {
+    height: 100%;
+    border-radius: 2px;
+    background: transparent;
+}
+
+.progressBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform-origin: center center;
+    /* Vertical centering: offset by half the difference between thumb height and track height */
+    margin-top: -4px; /* (12px thumb - 4px track) / 2 = 4px */
+}
+
+.progressBarWrapper:hover .progressBar::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+.progressBarWrapper:hover .progressBar::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.5),
+        0 0 12px rgba(139, 92, 246, 0.4),
+        0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+/* When track height changes on hover, adjust thumb offset */
+.progressBarWrapper:hover .progressBar::-webkit-slider-thumb {
+    margin-top: -3px; /* (12px thumb - 6px track) / 2 = 3px */
+}
+
+.progressBar::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+    transform-origin: center center;
+}
+
+.progressBar::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.5),
+        0 0 12px rgba(139, 92, 246, 0.4),
+        0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+.progressBar::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+}
+
+/* RIGHT SECTION: Actions & Volume */
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    height: 100%;
+    padding: 12px 0;
+}
+
+.volume {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 150px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.volume:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.volumeIcon {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px;
+}
+
+.volumeSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+.volumeSlider::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    margin-top: -4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.volume:hover .volumeSlider::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+/* Firefox styles for volume slider */
+.volumeSlider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.volumeSlider::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .playerDock {
+        grid-template-columns: minmax(160px, 240px) 1fr minmax(120px, 180px);
+        padding: 0 1.25rem;
+        height: 85px;
+        min-height: 85px;
+    }
+    
+    .title {
+        max-width: 160px;
+    }
+    
+    .author {
+        max-width: 160px;
+    }
+    
+    .cover {
+        width: 54px;
+        height: 54px;
+    }
+}
+
+@media (max-width: 768px) {
+    .playerDock {
+        left: 80px;
+        width: calc(100% - 80px);
+        grid-template-columns: auto 1fr auto;
+        height: 80px;
+        min-height: 80px;
+        padding: 0 1rem;
+        gap: 1rem;
+    }
+
+    .info {
+        gap: 0.75rem;
+        padding: 10px 0;
+    }
+    
+    .cover {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+    }
+
+    .meta {
+        display: none; /* Ocultar texto en móvil pequeño */
+    }
+
+    .controls {
+        gap: 0.5rem;
+        padding: 6px 0;
+    }
+    
+    .buttons {
+        gap: 1rem;
+    }
+
+    .progressContainer {
+        display: none; /* Hide progress bar on mobile */
+    }
+    
+    .volume {
+        width: auto;
+        padding: 6px 10px;
+    }
+    
+    .volumeSlider {
+        display: none;
+    }
+    
+    .playBtn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .playerDock {
+        left: 0;
+        width: 100%;
+        grid-template-columns: auto 1fr auto;
+        height: 72px;
+        min-height: 72px;
+        padding: 0 0.75rem;
+    }
+    
+    .info {
+        padding: 8px 0;
+    }
+    
+    .cover {
+        width: 46px;
+        height: 46px;
+    }
+    
+    .playBtn {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .controlBtn {
+        padding: 6px;
+    }
+    
+    .actions {
+        padding: 8px 0;
+    }
+    
+    .volume {
+        padding: 4px 8px;
+        border-radius: 20px;
+    }
+}

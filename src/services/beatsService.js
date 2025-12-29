@@ -194,14 +194,14 @@ export const uploadFileToS3 = async (uploadUrl, file) => {
 export const searchBeats = async (query) => {
   try {
     console.log('🔍 Searching beats with query:', query);
-    
+
     if (!query || query.length < 2) {
       console.warn('⚠️ Search query must be at least 2 characters');
       return [];
     }
 
-    const { data } = await client.get('/beats/search', { 
-      params: { q: query } 
+    const { data } = await client.get('/beats/search', {
+      params: { q: query }
     });
 
     if (data.success && data.data) {
@@ -258,6 +258,29 @@ export const incrementPlayCount = async (id) => {
     }
   } catch (error) {
     console.error('🚨 Error incrementing play count:', error);
+    throw error;
+  }
+};
+
+/**
+ * Download beat
+ * @param {string} id - Beat ID
+ * @returns {Promise<Object>} Download URL and updated stats
+ */
+export const downloadBeat = async (id) => {
+  try {
+    console.log('⬇️ Downloading beat:', id);
+    const { data } = await client.get(`/beats/${id}/download`);
+
+    if (data.success && data.data) {
+      console.log('✅ Download initiated', data.data);
+      return data.data;
+    } else {
+      console.warn('⚠️ Unexpected API response structure:', data);
+      return data;
+    }
+  } catch (error) {
+    console.error('🚨 Error downloading beat:', error);
     throw error;
   }
 };
