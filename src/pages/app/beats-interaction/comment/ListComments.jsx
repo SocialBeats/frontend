@@ -11,14 +11,17 @@ import {
   deleteComment,
   updateComment,
 } from "../../../../services/beats-interaction/commentService.js";
+// import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
+
 
 const showApiError = (error, fallbackMessage) => {
   console.error(fallbackMessage, error);
   alert(error?.response?.data?.message || fallbackMessage);
 };
+
 
 const ListComments = ({ isBeat, resourceId }) => {
   const navigate = useNavigate();
@@ -32,6 +35,9 @@ const ListComments = ({ isBeat, resourceId }) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
+
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [commentToReport, setCommentToReport] = useState(null);
 
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState("");
@@ -186,6 +192,42 @@ const ListComments = ({ isBeat, resourceId }) => {
     }
   };
 
+  const openReportModal = (comment) => {
+    if (!comment?._id) return;
+
+    const isMyComment = !!currentUserId && comment.authorId === currentUserId;
+    if (isMyComment) return;
+
+    setCommentToReport(comment);
+    setReportModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpen(false);
+    setCommentToReport(null);
+  };
+
+  const handleConfirmReport = async () => {
+    if (!commentToReport?._id) return;
+
+    try {
+      // BACKEND (cuando esté listo) — descomenta:
+      // await createCommentModerationReport(commentToReport._id);
+
+      // SIMULACIÓN mientras tanto:
+      console.log("🚩 [SIMULATION] Report comment:", {
+        commentId: commentToReport._id,
+        reporterUserId: currentUserId,
+      });
+      alert("Denuncia enviada (simulado).");
+
+      closeReportModal();
+    } catch (error) {
+      showApiError(error, "Error reportando comentario");
+      closeReportModal();
+    }
+  };
+
   return (
     <div className="comments-section">
       <Card className="comments-section-card">
@@ -269,24 +311,35 @@ const ListComments = ({ isBeat, resourceId }) => {
                     </div>
 
                     <div className="comment-right">
-                      {isMyComment && (
-                        <div className="comment-actions">
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => startEditing(comment)}
-                            title="Editar comentario"
+                      <div className="comment-actions">
+                        {isMyComment ? (
+                          <>
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => startEditing(comment)}
+                              title="Editar comentario"
+                            >
+                              ✏️
+                            </IconButton>
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => openDeleteModal(comment)}
+                              title="Eliminar comentario"
+                            >
+                              🗑️
+                            </IconButton>
+                          </>
+                        ) : (
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => openReportModal(comment)}
+                            title="Denunciar comentario"
                           >
-                            ✏️
-                          </IconButton>
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => openDeleteModal(comment)}
-                            title="Eliminar comentario"
-                          >
-                            🗑️
-                          </IconButton>
-                        </div>
-                      )}
+                            Denunciar
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -388,6 +441,27 @@ const ListComments = ({ isBeat, resourceId }) => {
               </Button>
               <Button variant="danger" onClick={handleConfirmDelete}>
                 Borrar
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          isOpen={reportModalOpen}
+          onClose={closeReportModal}
+          title="Denunciar comentario"
+        >
+          <div className="comment-delete-modal">
+            <p>
+              ¿Estás seguro que quieres denunciar este comentario por contenido
+              inapropiado?
+            </p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={closeReportModal}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={handleConfirmReport}>
+                Denunciar
               </Button>
             </div>
           </div>
