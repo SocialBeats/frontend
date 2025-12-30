@@ -469,3 +469,32 @@
   color: var(--text-muted);
   margin-top: 0.25rem;
 }
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 2.75rem;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  background-color: #1f2933;
+  color: #f3f4f6;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+  background-color: #1f2937;
+}

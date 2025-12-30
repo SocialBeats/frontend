@@ -14,7 +14,7 @@ import {
   removeBeatFromPlaylist,
 } from "../../../../services/beats-interaction/playlistService";
 // import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
-import { getMyBeats, getBeatById } from "../../../../services/beatsService";
+import { searchBeats, getBeatById } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
 import "./PlaylistDetails.css";
 
@@ -34,8 +34,9 @@ const PlaylistDetails = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [addBeatModal, setAddBeatModal] = useState(false);
 
-  const [myBeats, setMyBeats] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [loadingBeats, setLoadingBeats] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [fixedWidth, setFixedWidth] = useState(null);
 
@@ -202,23 +203,35 @@ const PlaylistDetails = () => {
   };
 
   useEffect(() => {
-    if (!addBeatModal || !playlist) return;
+    if (!addBeatModal) {
+      setSearchQuery("");
+      setSearchResults([]);
+      return;
+    }
+  }, [addBeatModal]);
 
-    const fetchMyBeats = async () => {
+  useEffect(() => {
+    if (!searchQuery || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const delaySearch = setTimeout(async () => {
       setLoadingBeats(true);
       try {
-        const beats = await getMyBeats();
+        const results = await searchBeats(searchQuery);
         const existingIds = new Set(playlist.items.map((item) => item.beatId));
-        setMyBeats(beats.filter((b) => !existingIds.has(b._id)));
+        setSearchResults(results.filter((b) => !existingIds.has(b._id)));
       } catch (err) {
-        console.error(err);
+        console.error("Error searching beats:", err);
+        setSearchResults([]);
       } finally {
         setLoadingBeats(false);
       }
-    };
+    }, 300);
 
-    fetchMyBeats();
-  }, [addBeatModal, playlist]);
+    return () => clearTimeout(delaySearch);
+  }, [searchQuery, playlist]);
 
   const handleAddBeat = async (beatId) => {
     try {
@@ -469,21 +482,36 @@ const PlaylistDetails = () => {
         onClose={() => setAddBeatModal(false)}
         title="Añadir beat a la playlist"
       >
-        {loadingBeats ? (
-          <p>Cargando beats...</p>
-        ) : myBeats.length === 0 ? (
-          <p>No tienes beats disponibles</p>
-        ) : (
-          myBeats.map((beat) => (
-            <div key={beat._id} className="add-beat-row">
-              <div>
-                <strong>{beat.title}</strong>
-                <div className="text-muted">{beat.artist}</div>
-              </div>
-              <Button onClick={() => handleAddBeat(beat._id)}>Añadir</Button>
+        <div className="search-beats-modal">
+          <input
+            type="text"
+            placeholder="Buscar beats por título, artista o género..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            autoFocus
+          />
+
+          {loadingBeats ? (
+            <p>Buscando beats...</p>
+          ) : searchQuery.length < 2 ? (
+            <p className="text-muted">Escribe al menos 2 caracteres para buscar</p>
+          ) : searchResults.length === 0 ? (
+            <p>No se encontraron beats</p>
+          ) : (
+            <div className="search-results">
+              {searchResults.map((beat) => (
+                <div key={beat._id} className="add-beat-row">
+                  <div>
+                    <strong>{beat.title}</strong>
+                    <div className="text-muted">{beat.artist}</div>
+                  </div>
+                  <Button onClick={() => handleAddBeat(beat._id)}>Añadir</Button>
+                </div>
+              ))}
             </div>
-          ))
-        )}
+          )}
+        </div>
       </Modal>
     </div>
   );
