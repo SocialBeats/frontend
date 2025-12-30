@@ -12,6 +12,7 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
 import ProfileStudiesSection from '@/components/profile/ProfileStudiesSection';
 import ProfileCompletionWidget from '@/components/profile/ProfileCompletionWidget';
+import DangerZone from '@/components/profile/DangerZone';
 import './Profile.css';
 
 export const MAX_TAGS = 20;
@@ -257,6 +258,13 @@ export default function ProfileView() {
           onCancel={handleCancelTags}
         />
       </div>
+
+      {/* Danger Zone - only for own profile */}
+      {isOwnProfile && (
+        <div id="profile-danger-zone">
+          <DangerZone username={profile.username} />
+        </div>
+      )}
 
       <SuccessModal
         isOpen={showSuccessModal}
