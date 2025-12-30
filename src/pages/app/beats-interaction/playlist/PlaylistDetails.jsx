@@ -68,11 +68,11 @@ const PlaylistDetails = () => {
 
     const loadBeats = async () => {
       try {
-        if (playlist.beatsData?.length > 0) {
+        if (Array.isArray(playlist.beatsData) && playlist.beatsData.length > 0) {
           const beatsWithAddedAt = playlist.items
             .map((item) => {
-              const beat = playlist.beatsData.find((b) => b._id === item.beatId);
-              return beat ? { ...beat, addedAt: item.addedAt } : null;
+              const beat = playlist.beatsData.find((b) => b._id === item.beatId || b.beatId === item.beatId);
+              return beat ? { ...beat, addedAt: item.addedAt, itemId: item.beatId } : null;
             })
             .filter(Boolean);
 
@@ -80,18 +80,23 @@ const PlaylistDetails = () => {
           return;
         }
 
-        const fetchedBeats = await Promise.all(
-          playlist.items.map(async (item) => {
-            try {
-              const beat = await getBeatById(item.beatId);
-              return { ...beat, addedAt: item.addedAt };
-            } catch {
-              return null;
-            }
-          })
-        );
+        // Si beatsData está vacío o no existe, fetch individual de cada beat
+        if (Array.isArray(playlist.items) && playlist.items.length > 0) {
+          const fetchedBeats = await Promise.all(
+            playlist.items.map(async (item) => {
+              try {
+                const beat = await getBeatById(item.beatId);
+                return { ...beat, addedAt: item.addedAt, itemId: item.beatId };
+              } catch {
+                return null;
+              }
+            })
+          );
 
-        setBeats(fetchedBeats.filter(Boolean));
+          setBeats(fetchedBeats.filter(Boolean));
+        } else {
+          setBeats([]);
+        }
       } catch (err) {
         console.error("Error loading beats:", err);
         setBeats([]);
@@ -225,9 +230,9 @@ const PlaylistDetails = () => {
     }
   };
 
-  const handleRemoveBeat = async (beatId) => {
+  const handleRemoveBeat = async (itemId, beatId) => {
     try {
-      const { data } = await removeBeatFromPlaylist(playlist._id, beatId);
+      const { data } = await removeBeatFromPlaylist(playlist._id, itemId);
       setPlaylist(data);
 
       if (currentPlayingId === beatId) {
@@ -367,6 +372,7 @@ const PlaylistDetails = () => {
         ) : (
           beats.map((beat, index) => {
             const beatId = beat._id || beat.beatId;
+            const itemId = beat.itemId;
             const isCurrentlyPlaying = currentPlayingId === beatId && isPlaying;
             const hasAudio = getAudioUrl(beat) !== null;
 
@@ -402,7 +408,7 @@ const PlaylistDetails = () => {
                 {canEditPlaylist && (
                   <IconButton
                     variant="danger"
-                    onClick={() => handleRemoveBeat(beatId)}
+                    onClick={() => handleRemoveBeat(itemId, beatId)}
                   >
                     ❌
                   </IconButton>
