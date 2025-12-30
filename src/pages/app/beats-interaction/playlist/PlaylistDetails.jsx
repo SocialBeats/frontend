@@ -339,7 +339,7 @@ const PlaylistDetails = () => {
 
         {playlist && (
           <div className="playlist-actions">
-            {canEditPlaylist ? (
+            { playlist && playlist.ownerId === myUserId  ? (
               <>
                 <IconButton
                   variant="ghost"
