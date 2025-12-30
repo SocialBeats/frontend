@@ -422,10 +422,16 @@ const PlaylistDetails = () => {
         onClose={() => setDeleteModal(false)}
         title="Eliminar playlist"
       >
-        <p>¿Seguro que quieres eliminar esta playlist?</p>
-        <div className="modal-buttons">
-          <button onClick={() => setDeleteModal(false)}>Cancelar</button>
-          <button onClick={handleDeletePlaylist}>Borrar</button>
+        <div className="comment-delete-modal">
+          <p>¿Seguro que quieres eliminar esta playlist?</p>
+          <div className="modal-buttons">
+            <Button variant="primary" onClick={() => setDeleteModal(false)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleDeletePlaylist}>
+              Borrar
+            </Button>
+          </div>
         </div>
       </Modal>
 
