@@ -17,6 +17,8 @@ import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboards from './pages/app/dashboards/CreateDashboards';
 import EditDashboard from './pages/app/dashboards/EditDashboard';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
+import ConversationsPage from './pages/app/messages/ConversationsPage';
+import ConversationThreadPage from './pages/app/messages/ConversationThreadPage';
 
 function App() {
   return (
@@ -54,9 +56,11 @@ function App() {
           <Route path="explore" element={<Feed />} />
           <Route path="upload" element={<Feed />} />
           <Route path="library" element={<Feed />} />
-          <Route path="messages" element={<Feed />} />
           <Route path="profile" element={<ProfileView />} />
           <Route path="profile/:username" element={<ProfileView />} />
+
+          <Route path="messages" element={<ConversationsPage />} />
+          <Route path="messages/:id" element={<ConversationThreadPage />} />
 
           {/* Rutas del microservicio Dashboards */}
           <Route path="/app/dashboards" element={<DashboardsPage />} />
