@@ -4,6 +4,7 @@ import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import IconButton from "../../../../components/ui/IconButton";
+import Modal from "../../../../components/ui/Modal";
 import {
   getBeatRatings,
   getPlaylistRatings,
@@ -12,6 +13,7 @@ import {
   patchRating,
   deleteRating,
 } from "../../../../services/beats-interaction/ratingService";
+// import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateRating from "./CreateRating";
 import "./ListRatings.css";
@@ -76,6 +78,9 @@ const ListRatings = ({ isBeat, resourceId }) => {
   const [editingComment, setEditingComment] = useState("");
   const [editingScore, setEditingScore] = useState(0);
   const [editingHoverScore, setEditingHoverScore] = useState(null);
+
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [ratingToReport, setRatingToReport] = useState(null);
 
   const safeLimit = useMemo(() => (limit <= 0 ? 1 : limit), [limit]);
 
@@ -272,6 +277,43 @@ const ListRatings = ({ isBeat, resourceId }) => {
       await fetchMyRating();
     } catch (error) {
       showApiError(error, "Error eliminando valoración");
+    }
+  };
+
+  // ✅ REPORT (igual que comments): open/close + confirm
+  const openReportModal = (rating) => {
+    if (!rating?._id) return;
+
+    const isMyRating = !!currentUserId && rating.userId === currentUserId;
+    if (isMyRating) return;
+
+    setRatingToReport(rating);
+    setReportModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpen(false);
+    setRatingToReport(null);
+  };
+
+  const handleConfirmReport = async () => {
+    if (!ratingToReport?._id) return;
+
+    try {
+      // BACKEND (cuando esté listo) — descomenta:
+      // await createRatingModerationReport(ratingToReport._id);
+
+      // SIMULACIÓN mientras tanto:
+      console.log("🚩 [SIMULATION] Report rating:", {
+        ratingId: ratingToReport._id,
+        reporterUserId: currentUserId,
+      });
+      alert("Denuncia enviada (simulado).");
+
+      closeReportModal();
+    } catch (error) {
+      showApiError(error, "Error reportando valoración");
+      closeReportModal();
     }
   };
 
@@ -525,23 +567,36 @@ const ListRatings = ({ isBeat, resourceId }) => {
                     </div>
 
                     <div className="rating-right">
-                      {isMyRating && !isEditing && (
-                        <div className="rating-actions">
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => startEditing(rating)}
-                            title="Editar puntuación y comentario"
-                          >
-                            ✏️
-                          </IconButton>
+                      {isMyRating ? (
+                        !isEditing && (
+                          <div className="rating-actions">
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => startEditing(rating)}
+                              title="Editar puntuación y comentario"
+                            >
+                              ✏️
+                            </IconButton>
 
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => handleDeleteRating(rating._id)}
-                            title="Eliminar valoración"
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => handleDeleteRating(rating._id)}
+                              title="Eliminar valoración"
+                            >
+                              🗑️
+                            </IconButton>
+                          </div>
+                        )
+                      ) : (
+                        <div className="rating-actions">
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => openReportModal(rating)}
+                            title="Denunciar valoración"
                           >
-                            🗑️
-                          </IconButton>
+                            Denunciar
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -618,6 +673,27 @@ const ListRatings = ({ isBeat, resourceId }) => {
             </div>
           </div>
         )}
+
+        <Modal
+          isOpen={reportModalOpen}
+          onClose={closeReportModal}
+          title="Denunciar valoración"
+        >
+          <div className="comment-delete-modal">
+            <p>
+              ¿Estás seguro que quieres denunciar esta valoración por contenido
+              inapropiado?
+            </p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={closeReportModal}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={handleConfirmReport}>
+                Denunciar
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </Card>
     </div>
   );
