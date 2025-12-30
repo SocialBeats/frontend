@@ -206,3 +206,16 @@ export function resetPassword(token, password) {
   return client.post('/auth/reset-password', { token, password })
     .then(response => response.data);
 }
+
+/**
+ * Elimina permanentemente la cuenta del usuario
+ * @returns {Promise<Object>} - Resultado de la eliminación
+ */
+export async function deleteAccount() {
+  const response = await client.delete('/profile/me');
+
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+
+  return response.data;
+}
