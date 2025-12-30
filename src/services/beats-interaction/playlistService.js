@@ -18,7 +18,6 @@ export function getPublicPlaylists(params = {}) {
   });
 }
 
-
 export function getPlaylistById(id) {
   return client.get(`/beats-interactions/playlists/${id}`)
 }
