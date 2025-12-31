@@ -12,6 +12,7 @@ const STEP_REQUIREMENTS = {
   skills: 'Mínimo 3 aptitudes',
   education: 'Al menos 1 estudio',
   certifications: 'Al menos 1 certificación',
+  two_factor: 'Activar autenticación de dos factores',
   identity: 'Verificación de identidad',
 };
 
@@ -51,7 +52,7 @@ export default function ProfileCompletionWidget({
   }
 
   // Si ya está verificado (identityVerified = true), mostrar badge permanente
-  
+
   if (verificationLevel === 'verified') {
     return (
       <div className="profile-completion-widget verified">
@@ -111,6 +112,9 @@ export default function ProfileCompletionWidget({
       case 'certifications':
         scrollToSection('profile-hero');
         break;
+      case 'two_factor':
+        scrollToSection('security-settings-section');
+        break;
       case 'identity':
         setShowIdentityInfo(true);
         break;
@@ -166,9 +170,8 @@ export default function ProfileCompletionWidget({
               {steps.map((step) => (
                 <div
                   key={step.id}
-                  className={`step-dot ${step.completed ? 'completed' : ''} ${
-                    step.id === currentStep.id ? 'current' : ''
-                  }`}
+                  className={`step-dot ${step.completed ? 'completed' : ''} ${step.id === currentStep.id ? 'current' : ''
+                    }`}
                   title={step.label}
                 />
               ))}

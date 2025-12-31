@@ -1,8 +1,12 @@
+/* Card.css */
 .card {
   background-color: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;  
+  overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 /* Variants */
@@ -43,6 +47,7 @@
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(79, 172, 254, 0.15);
   border-color: rgba(79, 172, 254, 0.3);
+  z-index: 2; 
 }
 
 .card-clickable {

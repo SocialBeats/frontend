@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Plus, Play } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
 import logo from "../../../assets/logo-dark-no-fondo.png";
@@ -62,8 +63,8 @@ const MyBeatsListPage = () => {
             <p className="text-muted">Browse and manage your beat collection</p>
           </div>
           <Link to="/app/beats/new" className="create-beat-link">
-            <Button variant="primary" size="large" className="create-beat-btn">
-              + Create Beat
+            <Button variant="primary" size="large" className="create-beat-btn gap-2">
+              <Plus size={20} /> Create Beat
             </Button>
           </Link>
         </div>
@@ -79,13 +80,24 @@ const MyBeatsListPage = () => {
             <Card className="beat-card" hover={true}>
               <div className="beat-cover-container">
                 <img
-                  src={logo}
+                  src={(() => {
+                    if (beat.audio?.coverUrl) return beat.audio.coverUrl;
+                    if (beat.audio?.s3CoverKey) {
+                      const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN || '';
+                      const key = beat.audio.s3CoverKey.startsWith('/')
+                        ? beat.audio.s3CoverKey.slice(1)
+                        : beat.audio.s3CoverKey;
+                      return `${domain}/${key}`;
+                    }
+                    return logo;
+                  })()}
                   alt={beat.title}
                   className="beat-cover"
+                  onError={(e) => { e.target.src = logo; }}
                 />
                 <div className="beat-overlay">
                   <div className="play-button">
-                    <span className="play-icon">▶</span>
+                    <span className="play-icon"><Play size={24} fill="currentColor" className="ml-1" /></span>
                   </div>
                 </div>
               </div>
@@ -93,7 +105,6 @@ const MyBeatsListPage = () => {
                 <h3 className="beat-card-title">{beat.title}</h3>
                 <div className="beat-card-metadata">
                   <span className="beat-card-genre">{beat.genre}</span>
-                  <span className="beat-card-separator">•</span>
                 </div>
               </div>
             </Card>

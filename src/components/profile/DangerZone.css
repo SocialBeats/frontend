@@ -1,0 +1,95 @@
+.danger-zone {
+    background: #1e293b;
+    border: 2px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    margin: 1rem;
+    overflow: hidden;
+}
+
+.danger-zone__header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.danger-zone__header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ef4444;
+    margin: 0 0 0.5rem;
+}
+
+.danger-zone__header p {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+.danger-zone__content {
+    padding: 1.25rem 1.5rem;
+}
+
+.danger-zone__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.danger-zone__item-info {
+    flex: 1;
+}
+
+.danger-zone__item-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 0.25rem;
+}
+
+.danger-zone__item-info p {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Button danger variant */
+.danger-zone .button--danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.danger-zone .button--danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.danger-zone .button--danger:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .danger-zone {
+        margin: 0.5rem;
+    }
+
+    .danger-zone__item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .danger-zone .button--danger {
+        width: 100%;
+    }
+}

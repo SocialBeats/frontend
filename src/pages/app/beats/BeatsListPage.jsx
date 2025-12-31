@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Settings, Play } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import IconButton from "../../../components/ui/IconButton";
 import Card from "../../../components/ui/Card";
@@ -14,7 +15,6 @@ const allColumns = [
   { key: "bpm", label: "BPM" },
   { key: "key", label: "Key" },
   { key: "duration", label: "Duration" },
-  { key: "price", label: "Price" },
   { key: "plays", label: "Plays" },
   { key: "downloads", label: "Downloads" },
   { key: "likes", label: "Likes" },
@@ -35,7 +35,6 @@ const BeatsListPage = () => {
     bpm: false,
     key: false,
     duration: true,
-    price: false,
     plays: false,
     downloads: false,
     likes: false,
@@ -82,11 +81,13 @@ const BeatsListPage = () => {
         const formattedBeats = data.map((beat) => ({
           ...beat,
           formattedDuration: formatDuration(beat.duration || 0),
-          formattedPrice: beat.pricing?.isFree
-            ? "Free"
-            : `$${beat.pricing?.price || 0}`,
-          formattedPlays: (beat.stats?.plays || 0).toLocaleString(),
-          formattedDownloads: (beat.stats?.downloads || 0).toLocaleString(),
+          // Format data for display with Privacy Rules
+          formattedPlays: beat.isPublic
+            ? (beat.stats?.plays || 0).toLocaleString()
+            : "-",
+          formattedDownloads: (beat.isPublic && beat.isDownloadable)
+            ? (beat.stats?.downloads || 0).toLocaleString()
+            : "-",
           formattedLikes: (beat.stats?.likes || 0).toLocaleString(),
           formattedComments: (beat.stats?.comments || 0).toLocaleString(),
           formattedDate: beat.createdAt ? new Intl.DateTimeFormat("en-US", {
@@ -132,7 +133,7 @@ const BeatsListPage = () => {
   // Dynamic grid template with fixed widths for proper scroll behavior
   const getGridTemplate = () => {
     const activeCols = allColumns.filter((col) => visibleColumns[col.key]);
-    
+
     // Define fixed widths for each column type
     const colWidths = activeCols
       .map((col) => {
@@ -173,8 +174,8 @@ const BeatsListPage = () => {
   const gridStyle = { gridTemplateColumns: getGridTemplate() };
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="beats-page-container"
       style={fixedWidth ? { width: `${fixedWidth}px`, maxWidth: `${fixedWidth}px` } : {}}
     >
@@ -223,7 +224,7 @@ const BeatsListPage = () => {
                     onClick={() => setShowColumnSelector(!showColumnSelector)}
                     className="settings-icon-btn"
                   >
-                    ⚙️
+                    <Settings size={16} />
                   </IconButton>
                 </div>
               </div>
@@ -245,24 +246,21 @@ const BeatsListPage = () => {
                   >
                     <div className="col-index">
                       <span className="beat-index">{index + 1}</span>
-                      <span className="beat-play-icon">▶</span>
+                      <span className="beat-play-icon"><Play size={12} fill="currentColor" /></span>
                     </div>
                     <div className="col-title">
                       <div className="beat-info">
                         <span className="beat-title-text">{beat.title}</span>
                         <span className="beat-artist-mobile">
-                          {beat.artist}
+                          {beat.createdBy?.username || "Unknown"}
                         </span>
                       </div>
                     </div>
                     {visibleColumns.artist && (
-                      <div className="col-artist">{beat.artist}</div>
+                      <div className="col-artist">{beat.createdBy?.username || "Unknown"}</div>
                     )}
                     {visibleColumns.genre && (
                       <div className="col-genre">{beat.genre}</div>
-                    )}
-                    {visibleColumns.bpm && (
-                      <div className="col-bpm">{beat.bpm}</div>
                     )}
                     {visibleColumns.key && (
                       <div className="col-key">{beat.key}</div>
@@ -270,13 +268,6 @@ const BeatsListPage = () => {
                     {visibleColumns.duration && (
                       <div className="col-duration">
                         {beat.formattedDuration}
-                      </div>
-                    )}
-                    {visibleColumns.price && (
-                      <div className="col-price">
-                        <span className="beat-price-tag">
-                          {beat.formattedPrice}
-                        </span>
                       </div>
                     )}
                     {visibleColumns.plays && (
@@ -296,19 +287,30 @@ const BeatsListPage = () => {
                       </div>
                     )}
                     {visibleColumns.mood && (
-                      <div className="col-mood">{beat.mood}</div>
+                      <div className="col-mood">{beat.mood || "N/A"}</div>
                     )}
                     {visibleColumns.license && (
-                      <div className="col-license">{beat.license}</div>
+                      <div className="col-license">{beat.license || "N/A"}</div>
                     )}
                     {visibleColumns.createdAt && (
                       <div className="col-created">{beat.formattedDate}</div>
                     )}
                     <div className="col-cover">
                       <img
-                        src={logo}
+                        src={(() => {
+                          if (beat.audio?.coverUrl) return beat.audio.coverUrl;
+                          if (beat.audio?.s3CoverKey) {
+                            const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN || '';
+                            const key = beat.audio.s3CoverKey.startsWith('/')
+                              ? beat.audio.s3CoverKey.slice(1)
+                              : beat.audio.s3CoverKey;
+                            return `${domain}/${key}`;
+                          }
+                          return logo;
+                        })()}
                         alt="Cover"
                         className="beat-cover-small"
+                        onError={(e) => { e.target.src = logo; }}
                       />
                     </div>
                   </Card>

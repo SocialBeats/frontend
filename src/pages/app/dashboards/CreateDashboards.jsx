@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 import SuccessModal from '../../../components/ui/SuccessModal';
 import ErrorModal from '../../../components/ui/ErrorModal';
 import './CreateDashboards.css';
+//import { createDashboard } from '../../../services/analytics/dashboards';
+
 import { createDashboard } from '../../../services/analytics/dashboards';
 import { getMyBeats } from '../../../services/beatsService';
 
@@ -51,6 +53,14 @@ const CreateDashboards = () => {
   useEffect(() => {
     loadUserBeats();
   }, []);
+
+  // Si venimos con query param ?beatId=..., preseleccionar ese beat
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const pre = params.get('beatId');
+    if (pre) setSelectedBeatId(pre);
+  }, [location.search]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,6 +128,9 @@ const CreateDashboards = () => {
     setSelectedBeatId(selectedBeatId === beatId ? '' : beatId);
   };
 
+  const selectedBeat = beats.find((b) => b._id === selectedBeatId);
+  const selectedBeatMetricsReady = selectedBeat?.metrics?.status === 'done';
+
   return (
     <div className="create-dashboard">
       <div className="create-dashboard__container">
@@ -183,8 +196,13 @@ const CreateDashboards = () => {
                 {beats.map((beat) => (
                   <div
                     key={beat._id}
-                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''}`}
-                    onClick={() => handleBeatSelect(beat._id)}
+                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''} ${beat.metrics && beat.metrics.status !== 'done' ? 'beat-card--disabled' : ''}`}
+                    onClick={() => {
+                      if (beat.metrics && beat.metrics.status !== 'done') return; // prevent selecting while metrics pending
+                      handleBeatSelect(beat._id);
+                    }}
+                    role={beat.metrics && beat.metrics.status !== 'done' ? 'button' : 'button'}
+                    aria-disabled={beat.metrics && beat.metrics.status !== 'done'}
                   >
                     {selectedBeatId === beat._id && (
                       <div className="beat-card__check">
@@ -206,6 +224,12 @@ const CreateDashboards = () => {
                           {Math.floor(beat.duration / 60)}:{(beat.duration % 60).toString().padStart(2, '0')}
                         </span>
                       </div>
+
+                      {beat.metrics && beat.metrics.status !== 'done' && (
+                        <div className="beat-card__metrics">
+                          <span className="beat-card__metrics-badge">Calculando métricas…</span>
+                        </div>
+                      )}
 
                       {beat.tags && beat.tags.length > 0 && (
                         <div className="beat-card__tags">
@@ -246,12 +270,29 @@ const CreateDashboards = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isCreating || !dashboardName.trim() || !selectedBeatId}
+              disabled={
+                isCreating ||
+                !dashboardName.trim() ||
+                !selectedBeatId ||
+                !selectedBeatMetricsReady
+              }
             >
               {isCreating ? 'Creando...' : 'Crear Dashboard'}
             </Button>
           </div>
         </form>
+
+        {selectedBeatId && !selectedBeatMetricsReady && (
+          <div className="create-dashboard__warning">
+            <p>
+              Las métricas del beat seleccionado aún se están calculando. No puedes
+              crear el dashboard hasta que finalice el cálculo.
+            </p>
+            <Button type="button" variant="secondary" onClick={loadUserBeats}>
+              Actualizar estados
+            </Button>
+          </div>
+        )}
       </div>
 
       <SuccessModal

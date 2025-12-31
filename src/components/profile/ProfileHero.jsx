@@ -4,6 +4,7 @@ import Avatar from '@/components/ui/Avatar';
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
+import SocialLinkEditor from './SocialLinkEditor';
 import { MAX_ABOUT_ME_LENGTH } from '@/pages/app/profile/ProfileView';
 
 /**
@@ -25,6 +26,7 @@ export default function ProfileHero({
   onAddCertification,
   onRemoveCertification,
   onCertificationError,
+  onSocialLinkUpdate,
 }) {
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -42,7 +44,7 @@ export default function ProfileHero({
     try {
       setUploadingAvatar(true);
       const avatarUrl = await uploadAvatarToS3(file);
-      
+
       // Notificar al padre para que actualice el perfil
       if (onAvatarUpdate) {
         await onAvatarUpdate(avatarUrl);
@@ -64,8 +66,8 @@ export default function ProfileHero({
       {/* Columna izquierda - Avatar y contacto */}
       <div className="profile-hero-left">
         <div className={`avatar-wrapper ${isOwnProfile ? 'editable' : ''}`} onClick={handleAvatarClick}>
-          <Avatar 
-            src={profile.avatar || ''} 
+          <Avatar
+            src={profile.avatar || ''}
             alt={profile.username}
             size="xlarge"
           />
@@ -105,8 +107,18 @@ export default function ProfileHero({
 
         {/* Redes sociales */}
         <div className="profile-social-icons">
-          <span className="social-icon spotify" title="Spotify">🎵</span>
-          <span className="social-icon soundcloud" title="SoundCloud">☁️</span>
+          <SocialLinkEditor
+            network="spotify"
+            value={formData.contact?.social_media?.spotify || ''}
+            isOwnProfile={isOwnProfile}
+            onUpdate={onSocialLinkUpdate}
+          />
+          <SocialLinkEditor
+            network="soundcloud"
+            value={formData.contact?.social_media?.soundcloud || ''}
+            isOwnProfile={isOwnProfile}
+            onUpdate={onSocialLinkUpdate}
+          />
         </div>
       </div>
 

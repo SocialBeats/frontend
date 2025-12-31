@@ -1,0 +1,315 @@
+.social-link-editor {
+    position: relative;
+    display: inline-block;
+}
+
+.social-icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: visible;
+}
+
+.social-icon-svg {
+    width: 22px;
+    height: 22px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon-svg svg {
+    width: 100%;
+    height: 100%;
+}
+
+.social-icon-btn.unlinked {
+    color: #4a5568;
+    border-color: #2d3748;
+    background: #1a202c;
+}
+
+.social-icon-btn.unlinked:hover {
+    border-color: #4a5568;
+    background: #2d3748;
+}
+
+.social-icon-btn.unlinked.editable {
+    cursor: pointer;
+}
+
+.social-icon-btn.unlinked.editable:hover {
+    color: var(--social-color);
+    border-color: var(--social-color);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-btn.unlinked.editable:hover::after {
+    content: '+';
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: var(--social-color);
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-btn.linked {
+    color: var(--social-color);
+    border-color: var(--social-color);
+    background: color-mix(in srgb, var(--social-color) 15%, #1a202c);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--social-color) 30%, transparent);
+}
+
+.social-icon-btn.linked:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--social-color) 50%, transparent);
+    background: color-mix(in srgb, var(--social-color) 25%, #1a202c);
+}
+
+.social-icon-btn.linked.editable:hover::after {
+    content: '✎';
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: #667eea;
+    border-radius: 50%;
+    font-size: 11px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.social-popover-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: overlayFadeIn 0.15s ease;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.social-popover {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+    margin: 1rem;
+    animation: popoverSlideIn 0.2s ease;
+}
+
+@keyframes popoverSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.social-popover-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #334155;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 16px 16px 0 0;
+}
+
+.social-popover-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-popover-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.social-popover-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.social-popover-body {
+    padding: 1.25rem;
+}
+
+.social-popover-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+
+.social-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.social-input {
+    width: 100%;
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.social-input::placeholder {
+    color: #64748b;
+}
+
+.social-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.social-input.has-error {
+    border-color: #ef4444;
+}
+
+.social-input.has-error:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+.social-input-clear {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1rem;
+    line-height: 1;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.social-input-clear:hover {
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.social-input-clear:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.social-error {
+    margin: 0.75rem 0 0;
+    padding: 0.625rem 0.875rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #f87171;
+    font-size: 0.85rem;
+}
+
+.social-popover-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #334155;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 16px 16px;
+}
+
+.social-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+}
+
+.social-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.social-btn-cancel {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #475569;
+}
+
+.social-btn-cancel:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #64748b;
+    color: #e2e8f0;
+}
+
+.social-btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    min-width: 100px;
+}
+
+.social-btn-save:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.social-btn-save:active:not(:disabled) {
+    transform: translateY(0);
+}

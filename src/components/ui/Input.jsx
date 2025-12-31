@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, forwardRef, useId } from 'react';
 import './Input.css';
 
-export default function Input({
+const Input = forwardRef(({
   label,
   error,
   helperText,
@@ -9,9 +9,13 @@ export default function Input({
   className = '',
   icon,
   type = 'text',
+  id,
   ...props
-}) {
+}, ref) => {
   const [showPassword, setShowPassword] = useState(false);
+  const internalId = useId();
+  const inputId = id || internalId;
+
   const isPassword = type === 'password';
   const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
@@ -26,10 +30,12 @@ export default function Input({
 
   return (
     <div className={`input-wrapper ${fullWidth ? 'input-wrapper-full-width' : ''}`}>
-      {label && <label className="input-label">{label}</label>}
+      {label && <label htmlFor={inputId} className="input-label">{label}</label>}
       <div className="input-container">
         {icon && <span className="input-icon">{icon}</span>}
         <input
+          id={inputId}
+          ref={ref}
           type={inputType}
           className={inputClasses}
           {...props}
@@ -40,6 +46,7 @@ export default function Input({
             className="input-password-toggle"
             onClick={() => setShowPassword(!showPassword)}
             tabIndex="-1"
+            aria-label="Toggle password visibility"
           >
             {showPassword ? (
               // Eye Off Icon
@@ -61,4 +68,8 @@ export default function Input({
       {helperText && !error && <span className="input-helper-text">{helperText}</span>}
     </div>
   );
-}
+});
+
+Input.displayName = 'Input';
+
+export default Input;

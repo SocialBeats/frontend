@@ -1,0 +1,176 @@
+/* ExplorePage.css - Estilos para la página de exploración */
+
+.explore-page {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.explore-header {
+  margin-bottom: 2.5rem;
+}
+
+.explore-header-content {
+  margin-bottom: 1.5rem;
+}
+
+.explore-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.explore-subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Global Search Bar */
+.explore-search-container {
+  margin-top: 1.5rem;
+}
+
+.explore-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+}
+
+.explore-search-icon {
+  position: absolute;
+  left: 1.25rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.explore-search-input {
+  width: 100%;
+  padding: 1rem 1.25rem 1rem 3.5rem;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-family: var(--font-main);
+  transition: all 0.2s ease;
+}
+
+.explore-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.explore-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow), var(--shadow-glow);
+}
+
+.explore-search-clear {
+  position: absolute;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explore-search-clear:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+}
+
+/* Navigation Tabs */
+.explore-nav {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  width: fit-content;
+}
+
+.explore-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explore-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+}
+
+.explore-nav-btn.active {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+
+.explore-nav-icon {
+  font-size: 1.1rem;
+}
+
+.explore-nav-label {
+  font-weight: 500;
+}
+
+/* Main Content */
+.explore-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .explore-page {
+    padding: 1rem;
+  }
+
+  .explore-title {
+    font-size: 2rem;
+  }
+
+  .explore-nav {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .explore-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .explore-nav-btn {
+    padding: 0.6rem 1rem;
+    white-space: nowrap;
+  }
+}

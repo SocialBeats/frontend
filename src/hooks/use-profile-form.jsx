@@ -200,6 +200,24 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
     setTagInput('');
   };
 
+  /**
+   * Updates a specific social media link in the local form state
+   * @param {string} network - The social network key (e.g., 'spotify', 'soundcloud')
+   * @param {string} value - The new URL value
+   */
+  const handleSocialLinkUpdate = (network, value) => {
+    setFormData(prev => ({
+      ...prev,
+      contact: {
+        ...prev.contact,
+        social_media: {
+          ...(prev.contact?.social_media || {}),
+          [network]: value,
+        },
+      },
+    }));
+  };
+
   return {
     formData,
     isEditingBasic,
@@ -222,5 +240,6 @@ export const useProfileForm = (profile, isOwnProfile = true, onSuccess = null) =
     handleCancelBasic,
     handleCancelAbout,
     handleCancelTags,
+    handleSocialLinkUpdate,
   };
 };
