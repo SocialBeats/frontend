@@ -7,11 +7,12 @@ import Footer from '../ui/Footer';
 import './PrivateLayout.css';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import GlobalPlayerDock from '../features/player/GlobalPlayerDock';
+import MetricsNotifier from '../MetricsNotifier';
 
 export default function PrivateLayout() {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  const [emailVerified, setEmailVerified] = useState(null);
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
 
   // Proteger rutas privadas - redirigir a login si no está autenticado
   if (!isAuthenticated()) {
@@ -25,10 +26,15 @@ export default function PrivateLayout() {
       try {
         const profile = await getMyProfile();
         setEmailVerified(profile.emailVerified);
-      } catch (error) {
-        console.error('Error checking email verification:', error);
-        // En caso de error, asumimos que no está verificado por seguridad
-        setEmailVerified(false);
+      } catch (err: unknown) {
+        console.error('Error checking email verification:', err);
+        const error = err as { response?: { status?: number } };
+        if (error.response?.status === 401) {
+          setEmailVerified(null);
+        } else {
+          console.warn('Assuming email verified due to network error');
+          setEmailVerified(true);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -77,6 +83,8 @@ export default function PrivateLayout() {
     <div className="private-layout">
       {/* Sidebar Navigation - Fixed on the left */}
       <NavBar />
+
+      <MetricsNotifier />;
 
       {/* Main Content Area */}
       <div className="private-content-wrapper">

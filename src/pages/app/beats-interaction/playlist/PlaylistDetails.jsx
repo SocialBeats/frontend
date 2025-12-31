@@ -1,30 +1,23 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import Modal from "../../../../components/ui/Modal";
 import Card from "../../../../components/ui/Card";
 import IconButton from "../../../../components/ui/IconButton";
 import Button from "../../../../components/ui/Button";
-
 import logo from "../../../../assets/logo-dark-no-fondo.png";
 import ListComments from "../comment/ListComments";
 import ListRatings from "../rating/ListRatings";
-
 import {
   getPlaylistById,
   deletePlaylist,
   addBeatToPlaylist,
   removeBeatFromPlaylist,
 } from "../../../../services/beats-interaction/playlistService";
-
-import {
-  getMyBeats,
-  getBeatById,
-} from "../../../../services/beatsService";
-
+// import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { searchBeats, getBeatById } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
-
 import "./PlaylistDetails.css";
+
 
 const PlaylistDetails = () => {
   const { id } = useParams();
@@ -41,13 +34,16 @@ const PlaylistDetails = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [addBeatModal, setAddBeatModal] = useState(false);
 
-  const [myBeats, setMyBeats] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
   const [loadingBeats, setLoadingBeats] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [fixedWidth, setFixedWidth] = useState(null);
 
   const [currentPlayingId, setCurrentPlayingId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   /* ================= FETCH PLAYLIST ================= */
 
@@ -73,15 +69,11 @@ const PlaylistDetails = () => {
 
     const loadBeats = async () => {
       try {
-        if (playlist.beatsData?.length > 0) {
+        if (Array.isArray(playlist.beatsData) && playlist.beatsData.length > 0) {
           const beatsWithAddedAt = playlist.items
-            .map(item => {
-              const beat = playlist.beatsData.find(
-                b => b._id === item.beatId
-              );
-              return beat
-                ? { ...beat, addedAt: item.addedAt }
-                : null;
+            .map((item) => {
+              const beat = playlist.beatsData.find((b) => b._id === item.beatId || b.beatId === item.beatId);
+              return beat ? { ...beat, addedAt: item.addedAt, itemId: item.beatId } : null;
             })
             .filter(Boolean);
 
@@ -89,18 +81,23 @@ const PlaylistDetails = () => {
           return;
         }
 
-        const fetchedBeats = await Promise.all(
-          playlist.items.map(async item => {
-            try {
-              const beat = await getBeatById(item.beatId);
-              return { ...beat, addedAt: item.addedAt };
-            } catch {
-              return null;
-            }
-          })
-        );
+        // Si beatsData está vacío o no existe, fetch individual de cada beat
+        if (Array.isArray(playlist.items) && playlist.items.length > 0) {
+          const fetchedBeats = await Promise.all(
+            playlist.items.map(async (item) => {
+              try {
+                const beat = await getBeatById(item.beatId);
+                return { ...beat, addedAt: item.addedAt, itemId: item.beatId };
+              } catch {
+                return null;
+              }
+            })
+          );
 
-        setBeats(fetchedBeats.filter(Boolean));
+          setBeats(fetchedBeats.filter(Boolean));
+        } else {
+          setBeats([]);
+        }
       } catch (err) {
         console.error("Error loading beats:", err);
         setBeats([]);
@@ -130,31 +127,28 @@ const PlaylistDetails = () => {
 
   const getAudioUrl = (beat) => {
     if (beat.audio?.s3Key) {
-      const cdnDomain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || 
-                        import.meta.env.VITE_CDN_DOMAIN || 
-                        '';
+      const cdnDomain =
+        window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN ||
+        import.meta.env.VITE_CDN_DOMAIN ||
+        "";
       return `${cdnDomain}/${beat.audio.s3Key}`;
     }
-    if (beat.audio?.url) {
-      return beat.audio.url;
-    }
-    if (beat.audioUrl) {
-      return beat.audioUrl;
-    }
+    if (beat.audio?.url) return beat.audio.url;
+    if (beat.audioUrl) return beat.audioUrl;
     return null;
   };
 
   const togglePlay = (beatId, beat) => {
     if (!audioRef.current) {
-      console.error('Audio ref not available');
+      console.error("Audio ref not available");
       return;
     }
 
     const audioUrl = getAudioUrl(beat);
-    
+
     if (!audioUrl) {
-      console.error('No audio URL found for beat:', beat);
-      alert('Audio no disponible para este beat');
+      console.error("No audio URL found for beat:", beat);
+      alert("Audio no disponible para este beat");
       return;
     }
 
@@ -163,32 +157,32 @@ const PlaylistDetails = () => {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current.play().catch(err => {
-          console.error('Error playing audio:', err);
-          alert('Error al reproducir el audio');
+        audioRef.current.play().catch((err) => {
+          console.error("Error playing audio:", err);
+          alert("Error al reproducir el audio");
         });
         setIsPlaying(true);
       }
     } else {
-      // Cambiar a un nuevo beat
-      console.log('Loading audio from:', audioUrl);
+      console.log("Loading audio from:", audioUrl);
       audioRef.current.src = audioUrl;
-      audioRef.current.play()
+      audioRef.current
+        .play()
         .then(() => {
           setCurrentPlayingId(beatId);
           setIsPlaying(true);
         })
-        .catch(err => {
-          console.error('Error playing audio:', err);
-          alert('Error al reproducir el audio');
+        .catch((err) => {
+          console.error("Error playing audio:", err);
+          alert("Error al reproducir el audio");
         });
     }
   };
 
   const handleAudioEnded = () => {
     setIsPlaying(false);
-    
-    const currentIndex = beats.findIndex(b => b._id === currentPlayingId);
+
+    const currentIndex = beats.findIndex((b) => b._id === currentPlayingId);
     if (currentIndex !== -1 && currentIndex < beats.length - 1) {
       const nextBeat = beats[currentIndex + 1];
       togglePlay(nextBeat._id, nextBeat);
@@ -209,26 +203,35 @@ const PlaylistDetails = () => {
   };
 
   useEffect(() => {
-    if (!addBeatModal || !playlist) return;
+    if (!addBeatModal) {
+      setSearchQuery("");
+      setSearchResults([]);
+      return;
+    }
+  }, [addBeatModal]);
 
-    const fetchMyBeats = async () => {
+  useEffect(() => {
+    if (!searchQuery || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const delaySearch = setTimeout(async () => {
       setLoadingBeats(true);
       try {
-        const beats = await getMyBeats();
-        const existingIds = new Set(
-          playlist.items.map(item => item.beatId)
-        );
-
-        setMyBeats(beats.filter(b => !existingIds.has(b._id)));
+        const results = await searchBeats(searchQuery);
+        const existingIds = new Set(playlist.items.map((item) => item.beatId));
+        setSearchResults(results.filter((b) => !existingIds.has(b._id)));
       } catch (err) {
-        console.error(err);
+        console.error("Error searching beats:", err);
+        setSearchResults([]);
       } finally {
         setLoadingBeats(false);
       }
-    };
+    }, 300);
 
-    fetchMyBeats();
-  }, [addBeatModal, playlist]);
+    return () => clearTimeout(delaySearch);
+  }, [searchQuery, playlist]);
 
   const handleAddBeat = async (beatId) => {
     try {
@@ -240,14 +243,11 @@ const PlaylistDetails = () => {
     }
   };
 
-  const handleRemoveBeat = async (beatId) => {
+  const handleRemoveBeat = async (itemId, beatId) => {
     try {
-      const { data } = await removeBeatFromPlaylist(
-        playlist._id,
-        beatId
-      );
+      const { data } = await removeBeatFromPlaylist(playlist._id, itemId);
       setPlaylist(data);
-      
+
       if (currentPlayingId === beatId) {
         audioRef.current?.pause();
         setIsPlaying(false);
@@ -255,6 +255,43 @@ const PlaylistDetails = () => {
       }
     } catch {
       alert("Error al quitar el beat");
+    }
+  };
+
+  /* ================= REPORT PLAYLIST ================= */
+
+  const openReportModal = () => {
+    if (!playlist?._id) return;
+    if (canEditPlaylist) return; // owner o colaborador => NO puede denunciar
+    setReportModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpen(false);
+  };
+
+  const handleConfirmReport = async () => {
+    if (!playlist?._id) return;
+    if (canEditPlaylist) return;
+
+    try {
+      // BACKEND (cuando esté listo) — descomenta:
+      // await createPlaylistModerationReport(playlist._id);
+
+      // SIMULACIÓN mientras tanto:
+      console.log("🚩 [SIMULATION] Report playlist:", {
+        playlistId: playlist._id,
+        reporterUserId: myUserId,
+        ownerId: playlist.ownerId,
+        collaborators: playlist.collaborators ?? [],
+      });
+      alert("Denuncia enviada (simulado).");
+
+      closeReportModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error denunciando playlist");
+      closeReportModal();
     }
   };
 
@@ -270,11 +307,7 @@ const PlaylistDetails = () => {
     <div
       ref={containerRef}
       className="playlist-details-page"
-      style={
-        fixedWidth
-          ? { width: fixedWidth, maxWidth: fixedWidth }
-          : {}
-      }
+      style={fixedWidth ? { width: fixedWidth, maxWidth: fixedWidth } : {}}
     >
       {/* Audio Element */}
       <audio
@@ -292,40 +325,47 @@ const PlaylistDetails = () => {
           <h1 className="playlist-title">{playlist.name}</h1>
 
           {playlist.description && (
-            <p className="playlist-description">
-              {playlist.description}
-            </p>
+            <p className="playlist-description">{playlist.description}</p>
           )}
 
           <div className="playlist-meta">
-            <span>
-              {playlist.isPublic ? "🌍 Pública" : "🔒 Privada"}
-            </span>
+            <span>{playlist.isPublic ? "🌍 Pública" : "🔒 Privada"}</span>
 
             {playlist.collaboratorsData?.length > 0 && (
-              <span>
-                👥 {playlist.collaboratorsData.length} colaboradores
-              </span>
+              <span>👥 {playlist.collaboratorsData.length} colaboradores</span>
             )}
           </div>
         </div>
 
-        {canEditPlaylist && (
+        {playlist && (
           <div className="playlist-actions">
-            <Button
-              onClick={() =>
-                navigate(`/app/playlists/${playlist._id}/edit`)
-              }
-            >
-              Editar playlist
-            </Button>
+            { playlist && playlist.ownerId === myUserId  ? (
+              <>
+                <IconButton
+                  variant="ghost"
+                  onClick={() =>
+                    navigate(`/app/playlists/${playlist._id}/edit`)
+                  }
+                >
+                  ✏️
+                </IconButton>
 
-            <IconButton
-              variant="danger"
-              onClick={() => setDeleteModal(true)}
-            >
-              🗑️
-            </IconButton>
+                <IconButton
+                  variant="ghost"
+                  onClick={() => setDeleteModal(true)}
+                >
+                  🗑️
+                </IconButton>
+              </>
+            ) : (
+              <Button
+                variant="danger"
+                onClick={openReportModal}
+                title="Denunciar playlist"
+              >
+                Denunciar
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -336,26 +376,25 @@ const PlaylistDetails = () => {
           <h2>Beats ({beats.length})</h2>
 
           {canEditPlaylist && (
-            <Button onClick={() => setAddBeatModal(true)}>
-              + Añadir beat
-            </Button>
+            <Button onClick={() => setAddBeatModal(true)}>+ Añadir beat</Button>
           )}
         </div>
 
         {beats.length === 0 ? (
-          <div className="empty-state">
-            Esta playlist aún no tiene beats
-          </div>
+          <div className="empty-state">Esta playlist aún no tiene beats</div>
         ) : (
           beats.map((beat, index) => {
             const beatId = beat._id || beat.beatId;
+            const itemId = beat.itemId;
             const isCurrentlyPlaying = currentPlayingId === beatId && isPlaying;
             const hasAudio = getAudioUrl(beat) !== null;
-            
+
             return (
               <Card
                 key={beatId}
-                className={`playlist-beat-row ${isCurrentlyPlaying ? 'playing' : ''}`}
+                className={`playlist-beat-row ${
+                  isCurrentlyPlaying ? "playing" : ""
+                }`}
                 padding="none"
               >
                 {/* Play Button */}
@@ -365,30 +404,24 @@ const PlaylistDetails = () => {
                   disabled={!hasAudio}
                   title={hasAudio ? "Reproducir" : "Audio no disponible"}
                 >
-                  {isCurrentlyPlaying ? '⏸' : '▶'}
+                  {isCurrentlyPlaying ? "⏸" : "▶"}
                 </IconButton>
 
                 <div>{index + 1}</div>
-                
+
                 <div>
                   <strong>{beat.title}</strong>
                   <div className="text-muted">{beat.artist}</div>
                 </div>
-                
-                <div>
-                  {new Date(beat.addedAt).toLocaleDateString()}
-                </div>
-                
-                <img
-                  src={logo}
-                  alt="cover"
-                  className="beat-cover-small"
-                />
+
+                <div>{new Date(beat.addedAt).toLocaleDateString()}</div>
+
+                <img src={logo} alt="cover" className="beat-cover-small" />
 
                 {canEditPlaylist && (
                   <IconButton
                     variant="danger"
-                    onClick={() => handleRemoveBeat(beatId)}
+                    onClick={() => handleRemoveBeat(itemId, beatId)}
                   >
                     ❌
                   </IconButton>
@@ -408,14 +441,38 @@ const PlaylistDetails = () => {
         onClose={() => setDeleteModal(false)}
         title="Eliminar playlist"
       >
-        <p>¿Seguro que quieres eliminar esta playlist?</p>
-        <div className="modal-buttons">
-          <button onClick={() => setDeleteModal(false)}>
-            Cancelar
-          </button>
-          <button onClick={handleDeletePlaylist}>
-            Borrar
-          </button>
+        <div className="comment-delete-modal">
+          <p>¿Seguro que quieres eliminar esta playlist?</p>
+          <div className="modal-buttons">
+            <Button variant="primary" onClick={() => setDeleteModal(false)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleDeletePlaylist}>
+              Borrar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* REPORT MODAL */}
+      <Modal
+        isOpen={reportModalOpen}
+        onClose={closeReportModal}
+        title="Denunciar playlist"
+      >
+        <div className="comment-delete-modal">
+          <p>
+            ¿Estás seguro que quieres denunciar esta playlist por contenido
+            inapropiado?
+          </p>
+          <div className="modal-buttons">
+            <Button variant="primary" onClick={closeReportModal}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleConfirmReport}>
+              Denunciar
+            </Button>
+          </div>
         </div>
       </Modal>
 
@@ -425,23 +482,36 @@ const PlaylistDetails = () => {
         onClose={() => setAddBeatModal(false)}
         title="Añadir beat a la playlist"
       >
-        {loadingBeats ? (
-          <p>Cargando beats...</p>
-        ) : myBeats.length === 0 ? (
-          <p>No tienes beats disponibles</p>
-        ) : (
-          myBeats.map(beat => (
-            <div key={beat._id} className="add-beat-row">
-              <div>
-                <strong>{beat.title}</strong>
-                <div className="text-muted">{beat.artist}</div>
-              </div>
-              <Button onClick={() => handleAddBeat(beat._id)}>
-                Añadir
-              </Button>
+        <div className="search-beats-modal">
+          <input
+            type="text"
+            placeholder="Buscar beats por título, artista o género..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            autoFocus
+          />
+
+          {loadingBeats ? (
+            <p>Buscando beats...</p>
+          ) : searchQuery.length < 2 ? (
+            <p className="text-muted">Escribe al menos 2 caracteres para buscar</p>
+          ) : searchResults.length === 0 ? (
+            <p>No se encontraron beats</p>
+          ) : (
+            <div className="search-results">
+              {searchResults.map((beat) => (
+                <div key={beat._id} className="add-beat-row">
+                  <div>
+                    <strong>{beat.title}</strong>
+                    <div className="text-muted">{beat.artist}</div>
+                  </div>
+                  <Button onClick={() => handleAddBeat(beat._id)}>Añadir</Button>
+                </div>
+              ))}
             </div>
-          ))
-        )}
+          )}
+        </div>
       </Modal>
     </div>
   );

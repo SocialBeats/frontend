@@ -6,7 +6,6 @@
   color: #f3f4f6;
 }
 
-/* --- Header --- */
 .playlist-details-header {
   display: flex;
   justify-content: space-between;
@@ -37,11 +36,16 @@
 
 .playlist-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* --- Section title --- */
 .playlist-section-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -49,7 +53,6 @@
   color: #f9fafb;
 }
 
-/* --- Beats table --- */
 .playlist-beats-wrapper {
   border-top: 1px solid #374151;
   padding-top: 1rem;
@@ -117,7 +120,6 @@
   object-fit: cover;
 }
 
-/* --- Modal buttons --- */
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
@@ -466,4 +468,33 @@
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-top: 0.25rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 2.75rem;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  background-color: #1f2933;
+  color: #f3f4f6;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+  background-color: #1f2937;
 }

@@ -1,10 +1,19 @@
 import { useState } from "react";
 import Button from "../../../../components/ui/Button";
 import Input from "../../../../components/ui/Input";
-// import { createBeatRating, createPlaylistRating } from "@/services/beats-interaction/ratingService";
+import {
+  createBeatRating,
+  createPlaylistRating,
+} from "../../../../services/beats-interaction/ratingService";
 import "./CreateRating.css";
 
+
 const MAX_SCORE = 5;
+
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
 
 const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
   const [score, setScore] = useState(0);
@@ -15,7 +24,7 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!resourceId || score <= 0) return;
+    if (!resourceId || score <= 0 || submitting) return;
 
     const trimmed = comment.trim();
     const payload = {
@@ -23,27 +32,6 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
       comment: trimmed ? trimmed : null,
     };
 
-    // MOCK
-    console.log("Crear valoración:", {
-      resourceId,
-      isBeat,
-      payload,
-    });
-
-    // Simulamos creación correcta
-    if (onRatingCreated) {
-      onRatingCreated({
-        _id: "mock-my-rating",
-        score: payload.score,
-        comment: payload.comment,
-      });
-    }
-
-    setScore(0);
-    setComment("");
-
-    /*
-    // Versión real con backend
     try {
       setSubmitting(true);
 
@@ -51,17 +39,19 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
         ? await createBeatRating(resourceId, payload)
         : await createPlaylistRating(resourceId, payload);
 
-      const createdRating = response.data?.data;
+      const createdRating = response?.data?.data ?? response?.data ?? null;
 
-      if (onRatingCreated && createdRating) {
+      setScore(0);
+      setComment("");
+
+      if (onRatingCreated) {
         onRatingCreated(createdRating);
       }
     } catch (error) {
-      console.error("Error creando valoración", error);
+      showApiError(error, "Error creando valoración");
     } finally {
       setSubmitting(false);
     }
-    */
   };
 
   return (
@@ -107,7 +97,7 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
         size="small"
         disabled={score === 0 || submitting || !resourceId}
       >
-        Enviar valoración
+        {submitting ? "Enviando..." : "Enviar valoración"}
       </Button>
     </form>
   );

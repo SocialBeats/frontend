@@ -1,183 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import IconButton from "../../../../components/ui/IconButton";
-// import { getBeatRatings, getPlaylistRatings, getMyBeatRating, getMyPlaylistRating, patchRating, deleteRating } from "@/services/beats-interaction/ratingService";
+import Modal from "../../../../components/ui/Modal";
+import {
+  getBeatRatings,
+  getPlaylistRatings,
+  getMyBeatRating,
+  getMyPlaylistRating,
+  patchRating,
+  deleteRating,
+} from "../../../../services/beats-interaction/ratingService";
+// import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { getCurrentUserId } from "../../../../services/authService";
 import CreateRating from "./CreateRating";
 import "./ListRatings.css";
 
-// --- Datos mock (playlist) --------------------------------------------------------
-const MOCK_RATINGS = [
-  {
-    _id: "r1",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u1",
-    user: {
-      _id: "u1",
-      username: "BeatMaster",
-      email: "beatmaster@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 5,
-    comment: "Esta playlist está increíble, la tengo en loop 🔥",
-    createdAt: "2025-11-23T10:00:00.000Z",
-    updatedAt: "2025-11-23T11:00:00.000Z",
-  },
-  {
-    _id: "r2",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u2",
-    user: {
-      _id: "u2",
-      username: "LofiKid",
-      email: "lofikid@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 4,
-    comment: "Muy buen rollo, perfecta para estudiar 👌",
-    createdAt: "2025-11-23T12:15:00.000Z",
-    updatedAt: "2025-11-23T12:45:00.000Z",
-  },
-  {
-    _id: "r3",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u3",
-    user: {
-      _id: "u3",
-      username: "808Destroyer",
-      email: "808destroyer@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 3,
-    comment: null,
-    createdAt: "2025-11-23T13:30:00.000Z",
-    updatedAt: "2025-11-23T13:30:00.000Z",
-  },
-  {
-    _id: "r4",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u4",
-    user: {
-      _id: "u4",
-      username: "NeoSoul",
-      email: "neosoul@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 5,
-    comment: "Selección muy fina, armonías increíbles ✨",
-    createdAt: "2025-11-23T14:05:00.000Z",
-    updatedAt: "2025-11-23T14:05:00.000Z",
-  },
-  {
-    _id: "r5",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u5",
-    user: {
-      _id: "u5",
-      username: "StudyBeats",
-      email: "studybeats@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 4,
-    comment: null,
-    createdAt: "2025-11-23T15:20:00.000Z",
-    updatedAt: "2025-11-23T15:20:00.000Z",
-  },
-  {
-    _id: "r6",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u6",
-    user: {
-      _id: "u6",
-      username: "SilentProducer",
-      email: "silent@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 5,
-    comment: "No suelo valorar, pero esta playlist lo merece 🔥",
-    createdAt: "2025-11-23T16:40:00.000Z",
-    updatedAt: "2025-11-23T16:40:00.000Z",
-  },
-  {
-    _id: "r7",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u7",
-    user: {
-      _id: "u7",
-      username: "DreamFlow",
-      email: "dreamflow@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 4,
-    comment: "Fluye súper bien de principio a fin.",
-    createdAt: "2025-11-23T18:03:00.000Z",
-    updatedAt: "2025-11-23T18:03:00.000Z",
-  },
-  {
-    _id: "r8",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u8",
-    user: {
-      _id: "u8",
-      username: "RoadVibes",
-      email: "roadvibes@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 5,
-    comment: "Perfecta para viajes largos 🚗💨",
-    createdAt: "2025-11-23T19:10:00.000Z",
-    updatedAt: "2025-11-23T19:10:00.000Z",
-  },
-  {
-    _id: "r9",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u9",
-    user: {
-      _id: "u9",
-      username: "ChillWave",
-      email: "chillwave@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 4,
-    comment: "Muy chill, la pongo de fondo todo el día.",
-    createdAt: "2025-11-23T20:05:00.000Z",
-    updatedAt: "2025-11-23T20:05:00.000Z",
-  },
-  {
-    _id: "r10",
-    beatId: null,
-    playlistId: "playlistId1",
-    userId: "u10",
-    user: {
-      _id: "u10",
-      username: "NightOwl",
-      email: "nightowl@example.com",
-      roles: ["beatmaker"],
-    },
-    score: 5,
-    comment: "De mis playlists favoritas para producir de noche 🌙",
-    createdAt: "2025-11-23T21:15:00.000Z",
-    updatedAt: "2025-11-23T21:15:00.000Z",
-  },
-];
-
-const MOCK_CURRENT_USER_ID = "u5";
-const MOCK_MY_RATING =
-  MOCK_RATINGS.find((rating) => rating.userId === MOCK_CURRENT_USER_ID) || null;
 
 const MAX_SCORE = 5;
 
-// --- Helpers ----------------------------------------------------------------------
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
+
 function renderStars(score) {
   const rounded = Math.round(score ?? 0);
   const stars = [];
@@ -206,18 +54,15 @@ function formatDate(dateStr) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   });
 }
 
-function computeAverage(ratingsArr) {
-  if (!ratingsArr || ratingsArr.length === 0) return null;
-  const sum = ratingsArr.reduce((acc, r) => acc + (Number(r.score) || 0), 0);
-  return sum / ratingsArr.length;
-}
 
-// --- Componente -------------------------------------------------------------------
-const ListRatings = ({ isBeat = false, resourceId }) => {
-  const [allRatings, setAllRatings] = useState(MOCK_RATINGS);
+const ListRatings = ({ isBeat, resourceId }) => {
+  const navigate = useNavigate();
+
+  const currentUserId = getCurrentUserId();
 
   const [ratings, setRatings] = useState([]);
   const [average, setAverage] = useState(null);
@@ -225,7 +70,7 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalRatings, setTotalRatings] = useState(MOCK_RATINGS.length);
+  const [totalRatings, setTotalRatings] = useState(0);
 
   const [myRating, setMyRating] = useState(null);
 
@@ -234,83 +79,91 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
   const [editingScore, setEditingScore] = useState(0);
   const [editingHoverScore, setEditingHoverScore] = useState(null);
 
-  const safeLimit = limit <= 0 ? 1 : limit;
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [ratingToReport, setRatingToReport] = useState(null);
+
+  const safeLimit = useMemo(() => (limit <= 0 ? 1 : limit), [limit]);
 
   const totalPages = useMemo(() => {
     return totalRatings > 0 ? Math.ceil(totalRatings / safeLimit) : 1;
   }, [totalRatings, safeLimit]);
 
+  const fetchRatings = useCallback(async () => {
+    if (!resourceId) return;
+
+    try {
+      const response = isBeat
+        ? await getBeatRatings(resourceId, { page, limit: safeLimit })
+        : await getPlaylistRatings(resourceId, { page, limit: safeLimit });
+
+      const payload = response?.data ?? {};
+      const items = payload.data ?? payload?.data?.data ?? [];
+
+      const rawTotal =
+        payload.total ??
+        payload.count ??
+        payload?.data?.total ??
+        payload?.data?.count;
+
+      const totalNumber = Number(rawTotal);
+      const safeTotal = Number.isFinite(totalNumber)
+        ? totalNumber
+        : items.length;
+
+      setRatings(items);
+
+      setAverage(
+        typeof payload.average === "number"
+          ? payload.average
+          : payload?.data?.average ?? null
+      );
+
+      setCount(
+        typeof payload.count === "number"
+          ? payload.count
+          : typeof payload?.data?.count === "number"
+          ? payload.data.count
+          : safeTotal
+      );
+
+      setTotalRatings(safeTotal);
+
+      const newTotalPages =
+        safeTotal > 0 ? Math.ceil(safeTotal / safeLimit) : 1;
+
+      if (page > newTotalPages) setPage(newTotalPages);
+    } catch (error) {
+      showApiError(error, "Error cargando valoraciones");
+      setRatings([]);
+      setAverage(null);
+      setCount(0);
+      setTotalRatings(0);
+    }
+  }, [isBeat, resourceId, page, safeLimit]);
+
+  const fetchMyRating = useCallback(async () => {
+    if (!resourceId) return;
+
+    try {
+      const response = isBeat
+        ? await getMyBeatRating(resourceId)
+        : await getMyPlaylistRating(resourceId);
+
+      const rating = response?.data?.data ?? response?.data ?? null;
+      setMyRating(rating?._id ? rating : null);
+    } catch {
+      setMyRating(null);
+    }
+  }, [isBeat, resourceId]);
+
   useEffect(() => {
-    // MOCK: paginación igual que comentarios (pero sobre allRatings)
-    const startIndex = (page - 1) * safeLimit;
-    const endIndex = startIndex + safeLimit;
-    const pageItems = allRatings.slice(startIndex, endIndex);
-
-    setRatings(pageItems);
-
-    const newCount = allRatings.length;
-    setTotalRatings(newCount);
-    setCount(newCount);
-    setAverage(computeAverage(allRatings));
-
-    // MOCK: simulamos que ya tenemos la valoración del usuario actual
-    // (la recalculamos a partir de allRatings para que al editar/borrar se vea)
-    const mine =
-      allRatings.find((r) => r.userId === MOCK_CURRENT_USER_ID) || null;
-    setMyRating(mine);
-
-    // si nos quedamos en una página inválida tras borrar
-    const newTotalPages = newCount > 0 ? Math.ceil(newCount / safeLimit) : 1;
-    if (page > newTotalPages) setPage(newTotalPages);
-
-    /*
-    // Versión real con backend
-    async function fetchRatings() {
-      if (!resourceId) return;
-
-      try {
-        const response = isBeat
-          ? await getBeatRatings(resourceId, { page, limit: safeLimit })
-          : await getPlaylistRatings(resourceId, { page, limit: safeLimit });
-
-        const payload = response.data || {};
-        const items = payload.data || [];
-
-        setRatings(items);
-        setAverage(typeof payload.average === "number" ? payload.average : null);
-        setCount(typeof payload.count === "number" ? payload.count : items.length);
-
-        setTotalRatings(
-          typeof payload.total === "number"
-            ? payload.total
-            : (payload.count ?? items.length)
-        );
-      } catch (error) {
-        console.error("Error cargando valoraciones", error);
-      }
-    }
-
-    async function fetchMyRating() {
-      if (!resourceId) return;
-
-      try {
-        const response = isBeat
-          ? await getMyBeatRating(resourceId)
-          : await getMyPlaylistRating(resourceId);
-
-        const rating = response.data?.data ?? null;
-        setMyRating(rating);
-      } catch (error) {
-        console.error("Error cargando mi valoración", error);
-      }
-    }
-
     fetchRatings();
-    fetchMyRating();
-    */
-  }, [isBeat, resourceId, page, safeLimit, allRatings]);
+  }, [fetchRatings]);
 
-  // --- pagination handlers --------------------------------------------------------
+  useEffect(() => {
+    fetchMyRating();
+  }, [fetchMyRating]);
+
   const handleLimitChange = (e) => {
     const value = parseInt(e.target.value, 10);
 
@@ -342,7 +195,6 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
     setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
   const goLastPage = () => setPage(totalPages);
 
-  // --- edition handlers -----------------------------------------------------------
   const startEditing = (rating) => {
     setEditingRatingId(rating._id);
     setEditingComment(rating.comment ?? "");
@@ -364,60 +216,105 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
     const newScore = Number(editingScore);
     if (!newScore || newScore < 1 || newScore > 5) return;
 
-    // MOCK
-    console.log(`Editar rating "${ratingId}" =>`, {
-      score: newScore,
-      comment: newComment,
-    });
-
-    setAllRatings((prev) =>
-      prev.map((r) =>
-        r._id === ratingId
-          ? {
-              ...r,
-              score: newScore,
-              comment: newComment,
-              updatedAt: new Date().toISOString(),
-            }
-          : r
-      )
-    );
-
-    cancelEditing();
-
-    /*
-    // Versión real con backend (PATCH recomendado)
     try {
-      await patchRating(ratingId, { score: newScore, comment: newComment });
-      // Opción A: volver a pedir myRating y ratings
-      // await fetchMyRating(); await fetchRatings();
-      // Opción B: actualizar estado local como arriba
+      const response = await patchRating(ratingId, {
+        score: newScore,
+        comment: newComment,
+      });
+      const updated = response?.data?.data ?? response?.data ?? null;
+
+      if (updated?._id) {
+        if (myRating?._id === updated._id) setMyRating(updated);
+
+        setRatings((prev) =>
+          prev.map((r) => (r._id === updated._id ? { ...r, ...updated } : r))
+        );
+      } else {
+        setRatings((prev) =>
+          prev.map((r) =>
+            r._id === ratingId
+              ? {
+                  ...r,
+                  score: newScore,
+                  comment: newComment,
+                  updatedAt: new Date().toISOString(),
+                }
+              : r
+          )
+        );
+        if (myRating?._id === ratingId) {
+          setMyRating((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  score: newScore,
+                  comment: newComment,
+                  updatedAt: new Date().toISOString(),
+                }
+              : prev
+          );
+        }
+      }
+
+      cancelEditing();
+      await fetchRatings();
+      await fetchMyRating();
     } catch (error) {
-      console.error("Error editando rating", error);
+      showApiError(error, "Error editando valoración");
     }
-    */
   };
 
-  // --- delete handlers ------------------------------------------------------------
   const handleDeleteRating = async (ratingId) => {
+    if (!ratingId) return;
     if (editingRatingId === ratingId) cancelEditing();
 
-    // MOCK
-    console.log(`Eliminar rating "${ratingId}"`);
-
-    setAllRatings((prev) => prev.filter((r) => r._id !== ratingId));
-
-    /*
-    // Versión real con backend (DELETE)
     try {
       await deleteRating(ratingId);
-      // Opción A: volver a pedir myRating y ratings
-      // await fetchMyRating(); await fetchRatings();
-      // Opción B: actualizar estado local como arriba
+
+      if (myRating?._id === ratingId) setMyRating(null);
+
+      await fetchRatings();
+      await fetchMyRating();
     } catch (error) {
-      console.error("Error eliminando rating", error);
+      showApiError(error, "Error eliminando valoración");
     }
-    */
+  };
+
+  // ✅ REPORT (igual que comments): open/close + confirm
+  const openReportModal = (rating) => {
+    if (!rating?._id) return;
+
+    const isMyRating = !!currentUserId && rating.userId === currentUserId;
+    if (isMyRating) return;
+
+    setRatingToReport(rating);
+    setReportModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpen(false);
+    setRatingToReport(null);
+  };
+
+  const handleConfirmReport = async () => {
+    if (!ratingToReport?._id) return;
+
+    try {
+      // BACKEND (cuando esté listo) — descomenta:
+      // await createRatingModerationReport(ratingToReport._id);
+
+      // SIMULACIÓN mientras tanto:
+      console.log("🚩 [SIMULATION] Report rating:", {
+        ratingId: ratingToReport._id,
+        reporterUserId: currentUserId,
+      });
+      alert("Denuncia enviada (simulado).");
+
+      closeReportModal();
+    } catch (error) {
+      showApiError(error, "Error reportando valoración");
+      closeReportModal();
+    }
   };
 
   const renderEditableStars = () => {
@@ -462,10 +359,18 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
           <h2 className="ratings-section-title">Valoraciones</h2>
 
           {count > 0 ? (
-            <span className="ratings-summary">
-              Media <strong>{average?.toFixed(1) ?? "-"} / 5</strong> · {count}{" "}
-              valoración{count !== 1 && "es"}
-            </span>
+            <>
+              <span className="ratings-summary">
+                Media{" "}
+                <strong>
+                  {typeof average === "number" ? average.toFixed(1) : "-"} / 5
+                </strong>
+              </span>
+              <span className="ratings-summary">
+                <strong>{count}</strong>{" "}
+                {count === 1 ? "valoración" : "valoraciones"}
+              </span>
+            </>
           ) : (
             <span className="ratings-summary ratings-summary--empty">
               Todavía no hay valoraciones.
@@ -556,15 +461,16 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
           ) : (
             <>
               <div className="my-rating-card my-rating-card--empty">
-                Todavía no has puntuado esta {isBeat ? "beat" : "playlist"}
+                Todavía no has puntuado {isBeat ? "este beat" : "esta playlist"}
               </div>
 
               <CreateRating
                 isBeat={isBeat}
                 resourceId={resourceId}
-                onRatingCreated={(newRating) => {
-                  console.log("Rating creada correctamente", newRating);
-                  setMyRating(newRating);
+                onRatingCreated={async () => {
+                  setPage(1);
+                  await fetchMyRating();
+                  await fetchRatings();
                 }}
               />
             </>
@@ -579,7 +485,9 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
               const username = rating.user?.username || "Usuario";
               const score = rating.score ?? 0;
               const comment = rating.comment;
-              const isMyRating = rating.userId === MOCK_CURRENT_USER_ID;
+
+              const isMyRating =
+                !!currentUserId && rating.userId === currentUserId;
               const isEditing = editingRatingId === rating._id;
 
               return (
@@ -587,7 +495,19 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                   <div className="rating-row">
                     <div className="rating-left">
                       <div className="rating-main-line">
-                        <span className="rating-username">{username}</span>
+                        <span
+                          className="rating-username rating-username--link"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/app/profile/${username}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ")
+                              navigate(`/app/profile/${username}`);
+                          }}
+                          title={`Ver perfil de ${username}`}
+                        >
+                          {username}:
+                        </span>
 
                         {!isEditing ? (
                           <span className="rating-stars-wrapper">
@@ -639,31 +559,44 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
                         </>
                       )}
 
-                      {rating.createdAt && (
+                      {(rating.updatedAt || rating.createdAt) && (
                         <div className="rating-meta">
-                          {formatDate(rating.createdAt)}
+                          {formatDate(rating.updatedAt || rating.createdAt)}
                         </div>
                       )}
                     </div>
 
                     <div className="rating-right">
-                      {isMyRating && !isEditing && (
-                        <div className="rating-actions">
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => startEditing(rating)}
-                            title="Editar puntuación y comentario"
-                          >
-                            ✏️
-                          </IconButton>
+                      {isMyRating ? (
+                        !isEditing && (
+                          <div className="rating-actions">
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => startEditing(rating)}
+                              title="Editar puntuación y comentario"
+                            >
+                              ✏️
+                            </IconButton>
 
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => handleDeleteRating(rating._id)}
-                            title="Eliminar valoración"
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => handleDeleteRating(rating._id)}
+                              title="Eliminar valoración"
+                            >
+                              🗑️
+                            </IconButton>
+                          </div>
+                        )
+                      ) : (
+                        <div className="rating-actions">
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => openReportModal(rating)}
+                            title="Denunciar valoración"
                           >
-                            🗑️
-                          </IconButton>
+                            Denunciar
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -740,6 +673,27 @@ const ListRatings = ({ isBeat = false, resourceId }) => {
             </div>
           </div>
         )}
+
+        <Modal
+          isOpen={reportModalOpen}
+          onClose={closeReportModal}
+          title="Denunciar valoración"
+        >
+          <div className="comment-delete-modal">
+            <p>
+              ¿Estás seguro que quieres denunciar esta valoración por contenido
+              inapropiado?
+            </p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={closeReportModal}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={handleConfirmReport}>
+                Denunciar
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </Card>
     </div>
   );

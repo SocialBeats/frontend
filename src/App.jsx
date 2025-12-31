@@ -1,8 +1,12 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useSpaceClient } from 'space-react-client';
+import { registerSpaceTokenUpdater } from '@/api/createAxiosClient';
 import PublicLayout from './components/layouts/PublicLayout';
 import PrivateLayout from './components/layouts/PrivateLayout.tsx';
 import { ProfileProvider } from './contexts/ProfileContext';
 import Landing from './pages/Landing';
+import Pricing from './pages/Pricing';
 // import Dashboard from './pages/app/Dashboard';
 import BeatsListPage from './pages/app/beats/BeatsListPage';
 import MyBeatsListPage from './pages/app/beats/MyBeatsListPage';
@@ -12,9 +16,6 @@ import ExplorePage from './pages/app/explore/ExplorePage';
 import Feed from './pages/app/Feed';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import VerifyEmail from './pages/auth/VerifyEmail';
 import ProfileView from './pages/app/profile/ProfileView';
 import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
@@ -27,41 +28,52 @@ import UserPlaylists from './pages/app/beats-interaction/playlist/UserPlaylists'
 import MyPlaylists from './pages/app/beats-interaction/playlist/MyPlaylists';
 import PublicPlaylists from './pages/app/beats-interaction/playlist/PublicPlaylists';
 import PlaylistDetails from './pages/app/beats-interaction/playlist/PlaylistDetails';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import VerifyEmail from './pages/auth/VerifyEmail';
 
 function App() {
+  const spaceClient = useSpaceClient();
+  
+  useEffect(() => {
+    // Conectar Axios con Space para actualizar tokens automáticamente
+    registerSpaceTokenUpdater((token) => {
+      spaceClient.token.update(token);
+    });
+
+    return () => registerSpaceTokenUpdater(null);
+  }, [spaceClient]);
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/socialbeats">
       <ProfileProvider>
         <Routes>
-          {/* Public Routes - Accessible to everyone */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Landing />} />
-            <Route path="/pricing" element={<Landing />} />
-            <Route path="/about" element={<Landing />} />
-            <Route path="/contact" element={<Landing />} />
-          </Route>
+        {/* Public Routes - Accessible to everyone */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Landing />} />
+          <Route path="/about" element={<Landing />} />
+          <Route path="/contact" element={<Landing />} />
+        </Route>
 
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Private Routes - Only for authenticated users */}
           <Route path="/app" element={<PrivateLayout />}>
+            <Route path="pricing" element={<Pricing />} />
             {/* <Route path="beats" element={<BeatsListPage />} /> */}
             <Route path="my-beats" element={<MyBeatsListPage />} />
             <Route path="beats/new" element={<BeatFormPage />} />
             <Route path="beats/:id" element={<BeatDetailPage />} />
             <Route path="beats/:id/edit" element={<BeatFormPage />} />
             {/* <Route path="explore" element={<BeatsListPage />} /> TODO: Create Explore page */}
-
-            {/* Redirección inicial al Feed */}
-            <Route index element={<Navigate to="/app/feed" replace />} />
-
-            {/* Ruta principal: Feed */}
-            <Route path="feed" element={<Feed />} />
+          {/* Ruta principal: Feed */}
+          <Route path="feed" element={<Feed />} />
 
           {/* Rutas placeholder apuntando a Feed por ahora */}
           <Route path="explore" element={<ExplorePage />} />
@@ -71,16 +83,25 @@ function App() {
           <Route path="profile" element={<ProfileView />} />
           <Route path="profile/:username" element={<ProfileView />} />
 
-            {/* Rutas del microservicio Dashboards */}
-            <Route path="/app/dashboards" element={<DashboardsPage />} />
-            <Route path="/app/dashboards/create" element={<CreateDashboards />} />
-            <Route path="/app/dashboards/view/:id" element={<ViewDashboard />} />
-          </Route>
+          {/* Rutas del microservicio Dashboards */}
+          <Route path="/app/dashboards" element={<DashboardsPage />} />
+          <Route path="/app/dashboards/create" element={<CreateDashboards />} />
+          <Route path="/app/dashboards/view/:id" element={<ViewDashboard />} />
 
-          {/* Catch all - redirect to landing */}
-          {/* TODO: Implementar un panic route o página 404 */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          {/* Rutas del microservicio Beats interaction */}
+          <Route path="/app/users/:id/playlists" element={<UserPlaylists />} />
+          <Route path="/app/playlists/me" element={<MyPlaylists />} />
+          <Route path="/app/playlists" element={<PublicPlaylists />} />
+          <Route path="/app/playlists/:id" element={<PlaylistDetails />} />
+          <Route path="/app/playlists/create" element={<CreatePlaylist />} />
+          <Route path="/app/playlists/:id/edit" element={<EditPlaylist />} />
+
+        </Route>
+
+        {/* Catch all - redirect to landing */}
+        {/* TODO: Implementar un panic route o página 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
       </ProfileProvider>
     </BrowserRouter>
   );

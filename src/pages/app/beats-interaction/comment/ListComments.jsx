@@ -1,220 +1,97 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import IconButton from "../../../../components/ui/IconButton";
 import Modal from "../../../../components/ui/Modal";
-// import { getBeatComments, getPlaylistComments } from "@/services/beats-interaction/commentService.js";
-// import { deleteComment, updateComment } from "@/services/beats-interaction/commentService.js";
+import {
+  getBeatComments,
+  getPlaylistComments,
+  deleteComment,
+  updateComment,
+} from "../../../../services/beats-interaction/commentService.js";
+// import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { getCurrentUserId } from "../../../../services/authService";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
 
-// --- Datos mock ----------------------------------------------------------
-const MOCK_CURRENT_USER_ID = "u1";
 
-const MOCK_COMMENTS = [
-  {
-    _id: "c1",
-    text: "Esta playlist está brutal para concentrarse 👌. Esta durísima me gusta mucho, alargo el texto para ver como se comporta pasados ciertos caracteressss.",
-    authorId: "u1",
-    author: {
-      _id: "u1",
-      username: "BeatMaster",
-      email: "beatmaster@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T10:00:00.000Z",
-  },
-  {
-    _id: "c2",
-    text: "El tercer beat es literalmente mi favorito 🔥🔥",
-    authorId: "u1",
-    author: {
-      _id: "u1",
-      username: "BeatMaster",
-      email: "beatmaster@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T11:10:00.000Z",
-  },
-  {
-    _id: "c3",
-    text: "Buenísima selección, me la guardo para producir luego 🙌",
-    authorId: "u2",
-    author: {
-      _id: "u2",
-      username: "LofiKid",
-      email: "lofikid@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T12:45:00.000Z",
-  },
-  {
-    _id: "c4",
-    text: "Bro pero el beat 5 suena INSANO 😳",
-    authorId: "u3",
-    author: {
-      _id: "u3",
-      username: "808Destroyer",
-      email: "808destroyer@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T13:22:00.000Z",
-  },
-  {
-    _id: "c5",
-    text: "Me encanta cómo fluye toda la playlist, muy buen gusto 👏",
-    authorId: "u4",
-    author: {
-      _id: "u4",
-      username: "NeoSoul",
-      email: "neosoul@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T14:01:00.000Z",
-  },
-  {
-    _id: "c6",
-    text: "Perfecta para estudiar, gracias por compartirla 🙏",
-    authorId: "u5",
-    author: {
-      _id: "u5",
-      username: "StudyBeats",
-      email: "studybeats@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T15:10:00.000Z",
-  },
-  {
-    _id: "c7",
-    text: "No suelo comentar, pero esta lista está increíble 🔥",
-    authorId: "u6",
-    author: {
-      _id: "u6",
-      username: "SilentProducer",
-      email: "silent@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T16:40:00.000Z",
-  },
-  {
-    _id: "c8",
-    text: "El beat 2 me recordó a J Dilla, qué locura 😮‍💨",
-    authorId: "u2",
-    author: {
-      _id: "u2",
-      username: "LofiKid",
-      email: "lofikid@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T18:03:00.000Z",
-  },
-  {
-    _id: "c9",
-    text: "Me inspira muchísimo esta playlist, gracias!",
-    authorId: "u7",
-    author: {
-      _id: "u7",
-      username: "DreamFlow",
-      email: "dreamflow@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T18:47:00.000Z",
-  },
-  {
-    _id: "c10",
-    text: "La tengo en loop desde hace dos horas 😂",
-    authorId: "u1",
-    author: {
-      _id: "u1",
-      username: "BeatMaster",
-      email: "beatmaster@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T19:15:00.000Z",
-  },
-  {
-    _id: "c11",
-    text: "Muy chill, perfecta para viajes largos 🚗💨",
-    authorId: "u8",
-    author: {
-      _id: "u8",
-      username: "RoadVibes",
-      email: "roadvibes@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T20:22:00.000Z",
-  },
-  {
-    _id: "c12",
-    text: "El beat final me ha volado la cabeza 🔥🤯",
-    authorId: "u3",
-    author: {
-      _id: "u3",
-      username: "808Destroyer",
-      email: "808destroyer@example.com",
-      roles: ["beatmaker"],
-    },
-    createdAt: "2025-11-23T21:10:00.000Z",
-  },
-];
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
 
-// --- Componente ----------------------------------------------------------
-const ListComments = ({ isBeat = false, resourceId }) => {
+
+const ListComments = ({ isBeat, resourceId }) => {
+  const navigate = useNavigate();
+
+  const currentUserId = getCurrentUserId();
+
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [totalComments, setTotalComments] = useState(MOCK_COMMENTS.length);
+  const [totalComments, setTotalComments] = useState(0);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
 
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [commentToReport, setCommentToReport] = useState(null);
+
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState("");
 
-  const safeLimit = limit <= 0 ? 1 : limit;
-  const totalPages = totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
+  const safeLimit = useMemo(() => (limit <= 0 ? 1 : limit), [limit]);
+  const totalPages = useMemo(() => {
+    return totalComments > 0 ? Math.ceil(totalComments / safeLimit) : 1;
+  }, [totalComments, safeLimit]);
 
-  useEffect(() => {
-    const startIndex = (page - 1) * safeLimit;
-    const endIndex = startIndex + safeLimit;
-    const pageItems = MOCK_COMMENTS.slice(startIndex, endIndex);
+  const fetchComments = useCallback(async () => {
+    if (!resourceId) return;
 
-    setComments(pageItems);
-    setTotalComments(MOCK_COMMENTS.length);
+    try {
+      const response = isBeat
+        ? await getBeatComments(resourceId, { page, limit: safeLimit })
+        : await getPlaylistComments(resourceId, { page, limit: safeLimit });
 
-    /*
-    // Versión real con backend:
-    async function fetchComments() {
-      try {
-        const response = isBeat
-          ? await getBeatComments(resourceId, { page, limit: safeLimit })
-          : await getPlaylistComments(resourceId, { page, limit: safeLimit });
+      const payload = response?.data ?? {};
+      const items = payload.data ?? payload?.data?.data ?? [];
+      const total =
+        payload.total ??
+        payload.count ??
+        payload?.data?.total ??
+        payload?.data?.count ??
+        items.length;
 
-        const items = response.data.data || [];
+      setComments(
+        (items || []).map((item) => ({
+          _id: item._id,
+          text: item.text,
+          authorId: item.authorId,
+          author: item.author,
+          updatedAt: item.updatedAt,
+        }))
+      );
 
-        setComments(
-          items.map((item) => ({
-            _id: item._id,
-            text: item.text,
-            authorId: item.authorId,
-            author: item.author,
-            createdAt: item.createdAt,
-          }))
-        );
-        setTotalComments(response.data.total ?? items.length);
-      } catch (error) {
-        console.error("Error cargando comentarios", error);
-      }
+      setTotalComments(Number(total) || 0);
+
+      const newTotalPages =
+        (Number(total) || 0) > 0
+          ? Math.ceil((Number(total) || 0) / safeLimit)
+          : 1;
+      if (page > newTotalPages) setPage(newTotalPages);
+    } catch (error) {
+      showApiError(error, "Error cargando comentarios");
+      setComments([]);
+      setTotalComments(0);
     }
-
-    if (resourceId) {
-      fetchComments();
-    }
-    */
   }, [isBeat, resourceId, page, safeLimit]);
 
-  // --- pagination handlers ---------------------------------------------------------------------
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
   const handleLimitChange = (e) => {
     const value = parseInt(e.target.value, 10);
 
@@ -230,7 +107,6 @@ const ListComments = ({ isBeat = false, resourceId }) => {
 
   const handlePageInputChange = (e) => {
     const value = parseInt(e.target.value, 10);
-
     if (Number.isNaN(value)) return;
 
     if (value < 1 || value > totalPages) {
@@ -243,10 +119,10 @@ const ListComments = ({ isBeat = false, resourceId }) => {
 
   const goFirstPage = () => setPage(1);
   const goPrevPage = () => setPage((prev) => (prev <= 1 ? 1 : prev - 1));
-  const goNextPage = () => setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
+  const goNextPage = () =>
+    setPage((prev) => (prev >= totalPages ? totalPages : prev + 1));
   const goLastPage = () => setPage(totalPages);
 
-  // --- delete handlers -------------------------------------------------------------------------
   const openDeleteModal = (comment) => {
     setCommentToDelete(comment);
     setDeleteModalOpen(true);
@@ -258,31 +134,21 @@ const ListComments = ({ isBeat = false, resourceId }) => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!commentToDelete) return;
-    // MOCK: por ahora solo log
-    console.log(`Eliminar comentario con id "${commentToDelete._id}"`);
-    /*
-    // Versión real con backend:
+    if (!commentToDelete?._id) return;
+
     try {
       await deleteComment(commentToDelete._id);
-
-      // Opción 1 (recomendado): volver a pedir la página actual al backend
-      // await fetchComments();
-
-      // Opción 2: actualizar solo el estado local
-      // setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
-      // setTotalComments((prev) => Math.max(0, prev - 1));
+      closeDeleteModal();
+      await fetchComments();
     } catch (error) {
-      console.error("Error eliminando comentario", error);
+      showApiError(error, "Error eliminando comentario");
+      closeDeleteModal();
     }
-    */
-    closeDeleteModal();
   };
 
-  // --- edit handlers ---------------------------------------------------------------------------
   const startEditing = (comment) => {
     setEditingCommentId(comment._id);
-    setEditingText(comment.text);
+    setEditingText(comment.text || "");
   };
 
   const cancelEditing = () => {
@@ -294,45 +160,72 @@ const ListComments = ({ isBeat = false, resourceId }) => {
     const textTrimmed = editingText.trim();
     if (!textTrimmed) return;
 
-    // MOCK: de momento solo log
-    console.log(
-      `Editar comentario con id "${commentId}" y nuevo texto "${textTrimmed}"`
-    );
-    setComments((prev) =>
-      prev.map((c) =>
-        c._id === commentId
-          ? {
-              ...c,
-              text: textTrimmed,
-            }
-          : c
-      )
-    );
-    cancelEditing();
-    //
-
-    /*
-    // Versión real con backend (PUT o PATCH):
     try {
-      // Reemplazo completo del texto
-      // const response = await updateComment(commentId, { text: textTrimmed });
+      const response = await updateComment(commentId, { text: textTrimmed });
+      const updated = response?.data?.data ?? response?.data ?? null;
 
-      // const updatedComment = response.data.data;
+      if (updated?._id) {
+        setComments((prev) =>
+          prev.map((c) =>
+            c._id === updated._id
+              ? {
+                  ...c,
+                  text: updated.text ?? textTrimmed,
+                  authorId: updated.authorId ?? c.authorId,
+                  author: updated.author ?? c.author,
+                  updatedAt: updated.updatedAt ?? c.updatedAt,
+                }
+              : c
+          )
+        );
+      } else {
+        setComments((prev) =>
+          prev.map((c) =>
+            c._id === commentId ? { ...c, text: textTrimmed } : c
+          )
+        );
+      }
 
-      // Opción 1: recargar página de comentarios
-      // await fetchComments();
-
-      // Opción 2: actualizar solo en memoria
-      // setComments((prev) =>
-      //   prev.map((c) => (c._id === updatedComment._id ? updatedComment : c))
-      // );
-
-      // cancelEditing();
+      cancelEditing();
     } catch (error) {
-      console.error("Error editando comentario", error);
-      // Podrías mostrar un toast de error
+      showApiError(error, "Error editando comentario");
     }
-    */
+  };
+
+  const openReportModal = (comment) => {
+    if (!comment?._id) return;
+
+    const isMyComment = !!currentUserId && comment.authorId === currentUserId;
+    if (isMyComment) return;
+
+    setCommentToReport(comment);
+    setReportModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalOpen(false);
+    setCommentToReport(null);
+  };
+
+  const handleConfirmReport = async () => {
+    if (!commentToReport?._id) return;
+
+    try {
+      // BACKEND (cuando esté listo) — descomenta:
+      // await createCommentModerationReport(commentToReport._id);
+
+      // SIMULACIÓN mientras tanto:
+      console.log("🚩 [SIMULATION] Report comment:", {
+        commentId: commentToReport._id,
+        reporterUserId: currentUserId,
+      });
+      alert("Denuncia enviada (simulado).");
+
+      closeReportModal();
+    } catch (error) {
+      showApiError(error, "Error reportando comentario");
+      closeReportModal();
+    }
   };
 
   return (
@@ -342,7 +235,8 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <h2 className="comments-section-title">Comentarios</h2>
           {totalComments > 0 && (
             <span className="comments-count">
-              {totalComments} comentario{totalComments !== 1 && "s"}
+              <strong>{totalComments}</strong> comentario
+              {totalComments !== 1 && "s"}
             </span>
           )}
         </div>
@@ -353,7 +247,8 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <div className="comments-list comments-list--scroll">
             {comments.map((comment) => {
               const username = comment.author?.username || "Usuario anónimo";
-              const isMyComment = comment.authorId === MOCK_CURRENT_USER_ID;
+              const isMyComment =
+                !!currentUserId && comment.authorId === currentUserId;
               const isEditing = editingCommentId === comment._id;
 
               return (
@@ -361,7 +256,20 @@ const ListComments = ({ isBeat = false, resourceId }) => {
                   <div className="comment-row">
                     <div className="comment-left">
                       <div className="comment-main-line">
-                        <span className="comment-author">{username}:</span>
+                        <span
+                          className="comment-author comment-author--link"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/app/profile/${username}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ")
+                              navigate(`/app/profile/${username}`);
+                          }}
+                          title={`Ver perfil de ${username}`}
+                        >
+                          {username}:
+                        </span>
+
                         {isEditing ? (
                           <Input
                             fullWidth
@@ -375,9 +283,9 @@ const ListComments = ({ isBeat = false, resourceId }) => {
                         )}
                       </div>
 
-                      {comment.createdAt && (
+                      {comment.updatedAt && (
                         <div className="comment-meta">
-                          {new Date(comment.createdAt).toLocaleString()}
+                          {new Date(comment.updatedAt).toLocaleString()}
                         </div>
                       )}
 
@@ -403,24 +311,35 @@ const ListComments = ({ isBeat = false, resourceId }) => {
                     </div>
 
                     <div className="comment-right">
-                      {isMyComment && (
-                        <div className="comment-actions">
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => startEditing(comment)}
-                            title="Editar comentario"
+                      <div className="comment-actions">
+                        {isMyComment ? (
+                          <>
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => startEditing(comment)}
+                              title="Editar comentario"
+                            >
+                              ✏️
+                            </IconButton>
+                            <IconButton
+                              variant="ghost"
+                              onClick={() => openDeleteModal(comment)}
+                              title="Eliminar comentario"
+                            >
+                              🗑️
+                            </IconButton>
+                          </>
+                        ) : (
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => openReportModal(comment)}
+                            title="Denunciar comentario"
                           >
-                            ✏️
-                          </IconButton>
-                          <IconButton
-                            variant="ghost"
-                            onClick={() => openDeleteModal(comment)}
-                            title="Eliminar comentario"
-                          >
-                            🗑️
-                          </IconButton>
-                        </div>
-                      )}
+                            Denunciar
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -432,10 +351,10 @@ const ListComments = ({ isBeat = false, resourceId }) => {
         <CreateComment
           isBeat={isBeat}
           resourceId={resourceId}
-          // onCommentCreated={(newComment) => {
-          //   setComments((prev) => [newComment, ...prev]);
-          //   setTotalComments((prev) => prev + 1);
-          // }}
+          onCommentCreated={() => {
+            setPage(1);
+            fetchComments();
+          }}
         />
 
         {totalComments > 0 && (
@@ -517,17 +436,32 @@ const ListComments = ({ isBeat = false, resourceId }) => {
           <div className="comment-delete-modal">
             <p>¿Seguro que quieres eliminar este comentario?</p>
             <div className="modal-buttons">
-              <Button
-                variant="primary"
-                onClick={closeDeleteModal}
-              >
+              <Button variant="primary" onClick={closeDeleteModal}>
                 Cancelar
               </Button>
-              <Button
-                variant="danger"
-                onClick={handleConfirmDelete}
-              >
+              <Button variant="danger" onClick={handleConfirmDelete}>
                 Borrar
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          isOpen={reportModalOpen}
+          onClose={closeReportModal}
+          title="Denunciar comentario"
+        >
+          <div className="comment-delete-modal">
+            <p>
+              ¿Estás seguro que quieres denunciar este comentario por contenido
+              inapropiado?
+            </p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={closeReportModal}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={handleConfirmReport}>
+                Denunciar
               </Button>
             </div>
           </div>

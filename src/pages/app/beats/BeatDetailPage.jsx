@@ -1,16 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, ShoppingCart, Eye, EyeOff, Tag, Download, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  ShoppingCart,
+  Eye,
+  EyeOff,
+  Tag,
+  Download,
+  CheckCircle2,
+} from "lucide-react";
 
-import Card from '../../../components/ui/Card';
-import Button from '../../../components/ui/Button';
-import IconButton from '../../../components/ui/IconButton';
-import ConfirmModal from '../../../components/ui/ConfirmModal';
-import BeatDetailPlayer from '../../../components/features/player/BeatDetailPlayer';
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import IconButton from "../../../components/ui/IconButton";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
+import BeatDetailPlayer from "../../../components/features/player/BeatDetailPlayer";
+import ListComments from "../beats-interaction/comment/ListComments";
+import ListRatings from "../beats-interaction/rating/ListRatings";
 
-import { getBeatById, deleteBeat, downloadBeat } from '../../../services/beatsService';
-import { getCurrentUserId } from '../../../services/authService';
-import './BeatDetailPage.css';
+import {
+  getBeatById,
+  deleteBeat,
+  downloadBeat,
+} from "../../../services/beatsService";
+import { getCurrentUserId } from "../../../services/authService";
+import "./BeatDetailPage.css";
 
 const BeatDetailPage = () => {
   const { id } = useParams();
@@ -33,13 +49,12 @@ const BeatDetailPage = () => {
           setBeat(beatData);
           setStats({
             plays: beatData.stats?.plays || 0,
-            downloads: beatData.stats?.downloads || 0
+            downloads: beatData.stats?.downloads || 0,
           });
-        }
-        else setError('Beat not found.');
+        } else setError("Beat not found.");
         if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
       } catch (err) {
-        setError('Error fetching beat.');
+        setError("Error fetching beat.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -55,7 +70,7 @@ const BeatDetailPage = () => {
       navigate(-1);
     } catch (err) {
       console.error(err);
-      setError('Error deleting beat.');
+      setError("Error deleting beat.");
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
@@ -69,26 +84,26 @@ const BeatDetailPage = () => {
       if (data && data.downloadUrl) {
         // Updated stats if returned
         if (data.stats) {
-          setStats(prev => ({
+          setStats((prev) => ({
             ...prev,
             downloads: data.stats.downloads,
-            plays: data.stats.plays || prev.plays
+            plays: data.stats.plays || prev.plays,
           }));
           // Also update the main beat object to keep consistency if passed down
-          setBeat(prev => ({
+          setBeat((prev) => ({
             ...prev,
             stats: {
               ...prev.stats,
               downloads: data.stats.downloads,
-              plays: data.stats.plays || prev.stats.plays
-            }
+              plays: data.stats.plays || prev.stats.plays,
+            },
           }));
         }
 
         // Trigger download
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = data.downloadUrl;
-        link.setAttribute('download', '');
+        link.setAttribute("download", "");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -105,20 +120,22 @@ const BeatDetailPage = () => {
 
   return (
     <div className="beat-detail-page">
-
       <div className="beat-detail-header">
-        <IconButton variant="ghost" size="medium" onClick={() => navigate(-1)} className="back-btn">
+        <IconButton
+          variant="ghost"
+          size="medium"
+          onClick={() => navigate(-1)}
+          className="back-btn"
+        >
           <ArrowLeft size={20} className="mr-2" /> Back
         </IconButton>
       </div>
 
       <div className="beat-detail-container">
-
         {/* PLAYER HERO */}
         <BeatDetailPlayer beat={beat} isOwner={isOwner} />
 
         <div className="detail-grid">
-
           {/* COLUMNA IZQUIERDA: Info */}
           <div className="detail-column-content">
             <Card className="detail-card info-card">
@@ -145,12 +162,18 @@ const BeatDetailPage = () => {
                   <div className="tags-list">
                     {beat.tags && beat.tags.length > 0 ? (
                       beat.tags.map((tag, index) => (
-                        <span key={tag} className="tag-chip" style={{ '--tag-index': index }}>
+                        <span
+                          key={tag}
+                          className="tag-chip"
+                          style={{ "--tag-index": index }}
+                        >
                           #{tag}
                         </span>
                       ))
                     ) : (
-                      <span className="text-muted text-sm italic">No tags added.</span>
+                      <span className="text-muted text-sm italic">
+                        No tags added.
+                      </span>
                     )}
                   </div>
                 </div>
@@ -166,17 +189,26 @@ const BeatDetailPage = () => {
               </div>
 
               <div className="detail-card__content actions-layout">
-
                 {/* 1. SECCIÓN PÚBLICA / LICENCIA */}
                 <div className="license-section">
-
                   {isOwner && (
                     <div className="status-container">
-                      <div className={`status-badge ${beat.isPublic ? 'status-public' : 'status-private'}`}>
-                        {beat.isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
-                        <span>{beat.isPublic ? 'Public Beat' : 'Private Beat'}</span>
+                      <div
+                        className={`status-badge ${
+                          beat.isPublic ? "status-public" : "status-private"
+                        }`}
+                      >
+                        {beat.isPublic ? (
+                          <Eye size={14} />
+                        ) : (
+                          <EyeOff size={14} />
+                        )}
+                        <span>
+                          {beat.isPublic ? "Public Beat" : "Private Beat"}
+                        </span>
                       </div>
-                    </div>)}
+                    </div>
+                  )}
 
                   {/* Botón Principal */}
                   {beat.isDownloadable && !isOwner && (
@@ -191,8 +223,12 @@ const BeatDetailPage = () => {
                   )}
 
                   <div className="license-features">
-                    <span className="feature-item"><CheckCircle2 size={12} /> MP3 + WAV</span>
-                    <span className="feature-item"><CheckCircle2 size={12} /> Unlimited</span>
+                    <span className="feature-item">
+                      <CheckCircle2 size={12} /> MP3 + WAV
+                    </span>
+                    <span className="feature-item">
+                      <CheckCircle2 size={12} /> Unlimited
+                    </span>
                   </div>
                 </div>
 
@@ -224,12 +260,15 @@ const BeatDetailPage = () => {
                     </div>
                   </div>
                 )}
-
               </div>
             </Card>
           </div>
-
         </div>
+      </div>
+
+      <div>
+        <ListComments isBeat={true} resourceId={beat._id} />
+        <ListRatings isBeat={true} resourceId={beat._id} />
       </div>
 
       <ConfirmModal

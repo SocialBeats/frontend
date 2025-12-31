@@ -170,11 +170,12 @@
 }
 
 .button--danger {
-  background: linear-gradient(135deg, #ff6b9d 0%, #c471ed 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   color: white;
 }
 
 .button--danger:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3);
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }

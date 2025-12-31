@@ -1,8 +1,16 @@
 import { useState } from "react";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
-// import { createBeatComment, createPlaylistComment } from "@/services/beats-interaction/commentService";
+import {
+  createBeatComment,
+  createPlaylistComment,
+} from "../../../../services/beats-interaction/commentService";
 import "./CreateComment.css";
+
+const showApiError = (error, fallbackMessage) => {
+  console.error(fallbackMessage, error);
+  alert(error?.response?.data?.message || fallbackMessage);
+};
 
 const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
   const [text, setText] = useState("");
@@ -12,15 +20,8 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
     event.preventDefault();
 
     const textTrimmed = text.trim();
-    if (!textTrimmed || !resourceId) return;
+    if (!textTrimmed || !resourceId || submitting) return;
 
-    // 🔹 MOCK: de momento solo logeamos
-    console.log(`Mensaje con texto "${textTrimmed}" creado`);
-    // Como es mock, simplemente limpiamos el input
-    setText("");
-
-    /*
-    // Versión real con backend:
     try {
       setSubmitting(true);
 
@@ -28,22 +29,18 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
         ? await createBeatComment(resourceId, { text: textTrimmed })
         : await createPlaylistComment(resourceId, { text: textTrimmed });
 
-      // Suponiendo que el backend devuelve el comentario creado en response.data.data
-      const createdComment = response.data.data;
-
-      // Notificamos al padre para que lo añada al listado, si nos pasan el callback
-      if (onCommentCreated && createdComment) {
-        onCommentCreated(createdComment);
-      }
+      const createdComment = response?.data?.data ?? response?.data ?? null;
 
       setText("");
+
+      if (onCommentCreated) {
+        onCommentCreated(createdComment);
+      }
     } catch (error) {
-      console.error("Error creando comentario", error);
-      // Aquí podrías mostrar un toast o mensaje de error al usuario
+      showApiError(error, "Error creando comentario");
     } finally {
       setSubmitting(false);
     }
-    */
   };
 
   return (
@@ -57,6 +54,7 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
           className="create-comment-input"
         />
       </div>
+
       <Button
         type="submit"
         variant="primary"
@@ -64,7 +62,7 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
         disabled={!text.trim() || submitting || !resourceId}
         className="create-comment-button"
       >
-        Enviar
+        {submitting ? "Enviando..." : "Enviar"}
       </Button>
     </form>
   );

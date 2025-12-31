@@ -1,0 +1,135 @@
+/* OTP Input Styles for 2FA */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+
+.otp-input {
+    width: 3rem;
+    height: 3.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+    color: var(--text-primary, #fff);
+    transition: all 0.2s ease;
+    caret-color: var(--primary, #6366f1);
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: var(--primary, #6366f1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.08));
+}
+
+.otp-input:hover:not(:focus) {
+    border-color: var(--border-hover, rgba(255, 255, 255, 0.2));
+}
+
+/* 2FA Icon */
+.two-factor-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary, #6366f1), var(--primary-light, #818cf8));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 8px 48px rgba(99, 102, 241, 0.5);
+    }
+}
+
+.backup-code-hint {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted, rgba(255, 255, 255, 0.5));
+    margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .otp-container {
+        gap: 0.5rem;
+    }
+
+    .otp-input {
+        width: 2.5rem;
+        height: 3rem;
+        font-size: 1.25rem;
+    }
+}
+
+/* Backup Code Input */
+.backup-code-input-container {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.backup-code-input {
+    width: 100%;
+    max-width: 220px;
+    padding: 1rem 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border: 2px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.05));
+    color: var(--text-primary, #fff);
+    transition: all 0.2s ease;
+}
+
+.backup-code-input:focus {
+    outline: none;
+    border-color: var(--primary, #6366f1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.08));
+}
+
+.backup-code-input::placeholder {
+    color: var(--text-muted, rgba(255, 255, 255, 0.3));
+    opacity: 0.6;
+    letter-spacing: 6px;
+}
+
+/* Toggle between OTP and Backup Code */
+.backup-code-toggle {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--primary-light, #818cf8);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.backup-code-toggle:hover {
+    color: var(--primary, #6366f1);
+    text-decoration: underline;
+}

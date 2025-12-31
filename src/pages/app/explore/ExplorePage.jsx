@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import BeatsExploreSection from './components/BeatsExploreSection';
+import Button from '@/components/ui/Button';
 import './ExplorePage.css';
+
 
 /**
  * ExplorePage - Vista general de exploración
@@ -19,9 +22,13 @@ import './ExplorePage.css';
  * - [Futuro] StatsExploreSection: Estadísticas generales
  */
 export default function ExplorePage() {
+    const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    const goToPublicPlaylists = () => navigate(`/app/playlists`);
+
 
     // Debounce de la búsqueda global
     useEffect(() => {
@@ -73,7 +80,11 @@ export default function ExplorePage() {
                     </p>
                 </div>
 
-
+                <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                <Button onClick={goToPublicPlaylists}>
+                    Explorar playlists públicas
+                </Button>
+                </div>
 
                 <nav className="explore-nav">
                     {sections.map((section) => (

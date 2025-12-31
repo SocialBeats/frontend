@@ -3,7 +3,6 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { verifyEmail, resendVerificationEmail, isAuthenticated } from '../../services/authService';
 import { getMyProfile } from '../../services/profileService';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import TopNavBar from '../../components/ui/TopNavBar';
 import ErrorModal from '../../components/ui/ErrorModal';
@@ -18,10 +17,8 @@ export default function VerifyEmail() {
     const [username, setUsername] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [resendEmail, setResendEmail] = useState('');
     const [resendStatus, setResendStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
     const [errorModal, setErrorModal] = useState({ show: false, message: '' });
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
         const initialize = async () => {
@@ -33,22 +30,22 @@ export default function VerifyEmail() {
 
             // Si el usuario está logueado, obtener su email
             if (isAuthenticated()) {
-                setIsLoggedIn(true);
                 try {
                     const profile = await getMyProfile();
                     setUserEmail(profile.email || '');
                     setUsername(profile.username || '');
                     setStatus('pending');
-                } catch (error) {
+                } catch {
                     setStatus('pending');
                 }
             } else {
-                setStatus('pending');
+                // Si no está logueado y no hay token, redirigir al login
+                navigate('/login', { replace: true });
             }
         };
 
         initialize();
-    }, [token]);
+    }, [token, navigate]);
 
     const verifyEmailWithToken = async () => {
         try {
@@ -65,26 +62,22 @@ export default function VerifyEmail() {
     const handleResendEmail = async (e) => {
         e.preventDefault();
 
-        const emailToUse = isLoggedIn ? userEmail : resendEmail;
-
-        if (!emailToUse) {
-            setErrorModal({ show: true, message: 'Por favor, ingresa tu email' });
+        if (!userEmail) {
+            setErrorModal({ show: true, message: 'No se pudo obtener tu email. Intenta recargar la página.' });
             return;
         }
 
         setResendStatus('loading');
 
         try {
-            await resendVerificationEmail(emailToUse);
+            await resendVerificationEmail(userEmail);
             setResendStatus('success');
         } catch (error) {
             const errorData = error.response?.data;
 
             if (errorData?.error === 'ALREADY_VERIFIED') {
-                setErrorModal({ show: true, message: 'Este email ya está verificado. Puedes acceder a la app.' });
+                setErrorModal({ show: true, message: 'Tu email ya está verificado. Redirigiendo...' });
                 setTimeout(() => navigate('/app/profile'), 2000);
-            } else if (errorData?.error === 'USER_NOT_FOUND') {
-                setErrorModal({ show: true, message: 'No encontramos una cuenta con este email.' });
             } else {
                 setErrorModal({ show: true, message: errorData?.message || 'Error al enviar el correo de verificación' });
             }
@@ -210,18 +203,21 @@ export default function VerifyEmail() {
                                     ? 'El enlace de verificación ha expirado o no es válido.'
                                     : errorMessage}
                             </p>
-                            <Button
-                                variant="primary"
-                                size="large"
-                                onClick={() => setStatus('pending')}
-                            >
-                                Solicitar nuevo enlace
-                            </Button>
-                            <div style={{ marginTop: '1rem' }}>
-                                <Link to="/login" style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                                    Volver al inicio de sesión
+                            {isAuthenticated() ? (
+                                <Button
+                                    variant="primary"
+                                    size="large"
+                                    onClick={() => setStatus('pending')}
+                                >
+                                    Solicitar nuevo enlace
+                                </Button>
+                            ) : (
+                                <Link to="/login">
+                                    <Button variant="primary" size="large">
+                                        Iniciar sesión
+                                    </Button>
                                 </Link>
-                            </div>
+                            )}
                         </div>
                     </Card>
                 </div>
@@ -252,7 +248,7 @@ export default function VerifyEmail() {
                             </div>
                             <h2 style={{ marginBottom: '1rem' }}>¡Correo enviado!</h2>
                             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                                Hemos enviado un enlace de verificación a <strong>{isLoggedIn ? userEmail : resendEmail}</strong>.
+                                Hemos enviado un enlace de verificación a <strong>{userEmail}</strong>.
                             </p>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '2rem' }}>
                                 El enlace expirará en 24 horas. Si no recibes el correo, revisa tu carpeta de spam.
@@ -271,7 +267,7 @@ export default function VerifyEmail() {
         );
     }
 
-    // Pantalla de pendiente de verificación (después del registro o para reenviar)
+    // Pantalla de pendiente de verificación (solo para usuarios logueados)
     return (
         <>
             <TopNavBar />
@@ -281,56 +277,33 @@ export default function VerifyEmail() {
                         <img src={logo} alt="SocialBeats" style={{ height: '60px', marginBottom: '1rem' }} />
                         <h2>Verifica tu correo</h2>
                         <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                            {isLoggedIn
-                                ? 'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada.'
-                                : 'Ingresa tu email para recibir un nuevo enlace de verificación'
-                            }
+                            Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada.
                         </p>
                     </div>
 
                     <form onSubmit={handleResendEmail}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {isLoggedIn ? (
-                                // Usuario logueado: mostrar email sin poder editarlo
-                                <div>
-                                    <label style={{
-                                        display: 'block',
-                                        marginBottom: '0.5rem',
-                                        color: 'var(--text-muted)',
-                                        fontSize: '0.875rem'
-                                    }}>
-                                        Email
-                                    </label>
-                                    <div style={{
-                                        padding: '0.75rem 1rem',
-                                        background: 'rgba(139, 92, 246, 0.1)',
-                                        borderRadius: 'var(--radius-sm)',
-                                        border: '1px solid rgba(139, 92, 246, 0.3)',
-                                        color: 'var(--text-main)',
-                                        fontSize: '1rem'
-                                    }}>
-                                        {userEmail}
-                                    </div>
-                                    <p style={{
-                                        fontSize: '0.75rem',
-                                        color: 'var(--text-muted)',
-                                        marginTop: '0.5rem'
-                                    }}>
-                                        El correo de verificación se enviará a esta dirección
-                                    </p>
+                            {/* Mostrar email del usuario sin poder editarlo */}
+                            <div>
+                                <label style={{
+                                    display: 'block',
+                                    marginBottom: '0.5rem',
+                                    color: 'var(--text-muted)',
+                                    fontSize: '0.875rem'
+                                }}>
+                                    Email
+                                </label>
+                                <div style={{
+                                    padding: '0.75rem 1rem',
+                                    background: 'rgba(139, 92, 246, 0.1)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                                    color: 'var(--text-main)',
+                                    fontSize: '1rem'
+                                }}>
+                                    {userEmail || 'Cargando...'}
                                 </div>
-                            ) : (
-                                // Usuario no logueado: permitir ingresar email
-                                <Input
-                                    label="Email"
-                                    name="email"
-                                    type="email"
-                                    value={resendEmail}
-                                    onChange={(e) => setResendEmail(e.target.value)}
-                                    fullWidth
-                                    placeholder="tu@email.com"
-                                />
-                            )}
+                            </div>
 
                             <div style={{
                                 padding: '1rem',
@@ -349,31 +322,12 @@ export default function VerifyEmail() {
                                 fullWidth
                                 size="large"
                                 style={{ marginTop: '0.5rem' }}
-                                disabled={resendStatus === 'loading' || (!isLoggedIn && !resendEmail)}
+                                disabled={resendStatus === 'loading' || !userEmail}
                             >
                                 {resendStatus === 'loading' ? 'Enviando...' : 'Reenviar correo de verificación'}
                             </Button>
                         </div>
                     </form>
-
-                    {isLoggedIn && (
-                        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                            <Link to="/app/feed" style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                                Continuar sin verificar (acceso limitado)
-                            </Link>
-                        </div>
-                    )}
-
-                    {!isLoggedIn && (
-                        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                            <p style={{ color: 'var(--text-muted)' }}>
-                                ¿Ya verificaste tu cuenta?{' '}
-                                <Link to="/login" style={{ fontWeight: '600' }}>
-                                    Inicia sesión
-                                </Link>
-                            </p>
-                        </div>
-                    )}
                 </Card>
 
                 <ErrorModal

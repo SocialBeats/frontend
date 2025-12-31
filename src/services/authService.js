@@ -13,20 +13,49 @@ export function register(userData) {
 
 /**
  * Inicia sesión y guarda los tokens
+ * Si el usuario tiene 2FA activo, devuelve { require2FA: true, tempToken: "..." }
  */
-export function login(identifier, password) {
-  return client.post('/auth/login', {
+export async function login(identifier, password) {
+  const response = await client.post('/auth/login', {
     identifier,
     password,
-  }).then(response => {
-    const { accessToken, refreshToken } = response.data;
-
-    // Guardar tokens en localStorage
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-
-    return response.data;
   });
+
+  // Si requiere 2FA, devolver el tempToken sin guardar nada
+  if (response.status === 202 && response.data.require2FA) {
+    return {
+      require2FA: true,
+      tempToken: response.data.tempToken,
+    };
+  }
+
+  // Login normal sin 2FA
+  const { accessToken, refreshToken } = response.data;
+
+  // Guardar tokens en localStorage
+  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+
+  return response.data;
+}
+
+/**
+ * Verifica el código 2FA y completa el login
+ * @param {string} tempToken - Token temporal del login
+ * @param {string} code - Código OTP de 6 dígitos o código de backup
+ */
+export async function verify2FA(tempToken, code) {
+  const response = await client.post('/auth/2fa/verify', {
+    tempToken,
+    code,
+  });
+
+  const { accessToken, refreshToken } = response.data;
+
+  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+
+  return response.data;
 }
 
 /**
@@ -161,17 +190,14 @@ export function getCurrentUsername() {
   return payload?.username || null;
 }
 
-/**
- * Obtiene el id del usuario autenticado desde el token
- * @returns {string|null} - id del usuario o null si no está autenticado
- */
 export function getCurrentUserId() {
   const accessToken = getAccessToken();
   if (!accessToken) return null;
-  
+
   const payload = decodeJWT(accessToken);
   return payload?.id || null;
 }
+
 
 /**
  * Verifica el email del usuario usando el token de verificación
@@ -207,5 +233,86 @@ export function forgotPassword(email) {
  */
 export function resetPassword(token, password) {
   return client.post('/auth/reset-password', { token, password })
+    .then(response => response.data);
+}
+
+/**
+ * Elimina permanentemente la cuenta del usuario
+ * @returns {Promise<Object>} - Resultado de la eliminación
+ */
+export async function deleteAccount() {
+  const response = await client.delete('/profile/me');
+
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+
+  return response.data;
+}
+
+/**
+ * Obtiene el estado de 2FA del usuario
+ * @returns {Promise<{enabled: boolean}>}
+ */
+export function get2FAStatus() {
+  return client.get('/auth/2fa/status')
+    .then(response => response.data);
+}
+
+/**
+ * Inicia la configuración de 2FA
+ * @returns {Promise<{secret: string, qrCode: string, otpauthUrl: string}>}
+ */
+export function setup2FA() {
+  return client.post('/auth/2fa/setup')
+    .then(response => response.data);
+}
+
+/**
+ * Activa 2FA después de verificar un código
+ * @param {string} code - Código OTP de 6 dígitos
+ * @returns {Promise<{enabled: boolean, backupCodes: string[]}>}
+ */
+export function enable2FA(code) {
+  return client.post('/auth/2fa/enable', { code })
+    .then(response => response.data);
+}
+
+/**
+ * Desactiva 2FA
+ * @param {string} code - Código OTP o código de backup
+ * @returns {Promise<{enabled: boolean}>}
+ */
+export function disable2FA(code) {
+  return client.post('/auth/2fa/disable', { code })
+    .then(response => response.data);
+}
+
+/**
+ * Obtiene los códigos de backup restantes
+ * @returns {Promise<{backupCodes: string[], remaining: number}>}
+ */
+export function getBackupCodes() {
+  return client.get('/auth/2fa/backup-codes')
+    .then(response => response.data);
+}
+
+/**
+ * Regenera los códigos de backup
+ * @param {string} code - Código OTP para verificar
+ * @returns {Promise<{backupCodes: string[]}>}
+ */
+export function regenerateBackupCodes(code) {
+  return client.post('/auth/2fa/regenerate-backup', { code })
+    .then(response => response.data);
+}
+
+/**
+ * Cambia la contraseña del usuario autenticado
+ * @param {string} currentPassword - Contraseña actual
+ * @param {string} newPassword - Nueva contraseña
+ * @returns {Promise<{message: string}>}
+ */
+export function changePassword(currentPassword, newPassword) {
+  return client.put('/auth/change-password', { currentPassword, newPassword })
     .then(response => response.data);
 }

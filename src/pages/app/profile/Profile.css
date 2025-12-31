@@ -82,8 +82,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .profile-username {
@@ -106,24 +111,16 @@
 
 .profile-contact-list .contact-item {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 
 .profile-social-icons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-top: 0.75rem;
-}
-
-.social-icon {
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.social-icon:hover {
-  transform: scale(1.1);
+  position: relative;
+  z-index: 10;
 }
 
 /* Columna central - Nombre + About + Beats */
@@ -357,7 +354,7 @@
   margin-bottom: 0.75rem;
 }
 
-.tag-input-row > div {
+.tag-input-row>div {
   flex: 1;
 }
 
@@ -448,7 +445,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =============================================
@@ -460,7 +459,7 @@
     grid-template-columns: 180px 1fr;
     grid-template-rows: auto auto;
   }
-  
+
   .profile-hero-right {
     grid-column: 1 / -1;
     border-left: none;
@@ -469,11 +468,11 @@
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .certs-title {
     width: 100%;
   }
-  
+
   .certs-list {
     flex-direction: row;
     flex-wrap: wrap;
@@ -485,46 +484,46 @@
     margin: -1rem;
     min-height: calc(100vh + 2rem);
   }
-  
+
   .profile-hero {
     grid-template-columns: 1fr;
     margin: 0.5rem;
   }
-  
+
   .profile-hero-left {
     padding: 1.25rem;
   }
-  
+
   .profile-hero-center {
     padding: 1rem;
   }
-  
+
   .profile-fullname {
     font-size: 1.5rem;
   }
-  
+
   .profile-beats-preview {
     justify-content: center;
   }
-  
+
   .beat-preview-card {
     width: 60px;
     height: 60px;
   }
-  
+
   .profile-section-block {
     margin: 0.5rem;
     padding: 1rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
   }
-  
+
   .form-actions button {
     width: 100%;
   }

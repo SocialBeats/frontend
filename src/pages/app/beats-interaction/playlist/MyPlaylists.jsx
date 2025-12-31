@@ -7,6 +7,8 @@ import {
   deletePlaylist as deletePlaylistApi,
 } from "../../../../services/beats-interaction/playlistService";
 import { getCurrentUserId } from "../../../../services/authService";
+import Button from '@/components/ui/Button';
+
 
 const MyPlaylists = () => {
   const navigate = useNavigate();
@@ -46,6 +48,7 @@ const MyPlaylists = () => {
   }, []);
 
   const handleOpenPlaylist = (id) => navigate(`/app/playlists/${id}`);
+  const goToPublicPlaylists = () => navigate(`/app/playlists`);
 
   const toggleMenu = (id, e) => {
     e.stopPropagation();
@@ -102,7 +105,14 @@ const MyPlaylists = () => {
         </div>
 
         {playlists.length === 0 ? (
-          <p className="playlist-list__empty">Aún no tienes playlists</p>
+          <div>
+              <p className="playlist-list__empty">Aún no tienes playlists</p>
+            <div style={{ marginTop: '1rem' }}>
+              <Button onClick={goToPublicPlaylists}>
+                Explorar playlists públicas
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="playlist-grid">
             {playlists.map((pl) => (
@@ -172,6 +182,11 @@ const MyPlaylists = () => {
                 </div>
               </div>
             ))}
+            <div style={{ marginTop: '1rem' }}>
+              <Button onClick={goToPublicPlaylists}>
+                Explorar playlists públicas
+              </Button>
+            </div>
           </div>
         )}
 

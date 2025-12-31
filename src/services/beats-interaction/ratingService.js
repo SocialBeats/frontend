@@ -46,8 +46,10 @@ export function getMyPlaylistRating(playlistId) {
  *   count: number
  * }
  */
-export function getBeatRatings(beatId) {
-  return client.get(`/beats-interactions/beats/${beatId}/ratings`);
+export function getBeatRatings(beatId, { page = 1, limit = 5 } = {}) {
+  return client.get(`/beats-interactions/beats/${beatId}/ratings`, {
+    params: { page, limit },
+  });
 }
 
 /**
@@ -59,8 +61,10 @@ export function getBeatRatings(beatId) {
  *   count: number
  * }
  */
-export function getPlaylistRatings(playlistId) {
-  return client.get(`/beats-interactions/playlists/${playlistId}/ratings`);
+export function getPlaylistRatings(playlistId, { page = 1, limit = 5 } = {}) {
+  return client.get(`/beats-interactions/playlists/${playlistId}/ratings`, {
+    params: { page, limit },
+  });
 }
 
 /**
