@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { BadgeCheck } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
 
 import Button from '@/components/ui/Button';
@@ -126,8 +127,18 @@ export default function ProfileHero({
       <div className="profile-hero-center">
         {/* Header con nombre */}
         <div className="profile-name-header">
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
+            {profile.identityVerified && (
+              <BadgeCheck
+                size={28}
+                className="verified-badge"
+                fill="#3b82f6"
+                color="white"
+                aria-label="Perfil verificado"
+                title="Perfil verificado"
+              />
+            )}
           </div>
           {isOwnProfile && !isEditingBasic && (
             <Button variant="secondary" onClick={onEditClick}>
