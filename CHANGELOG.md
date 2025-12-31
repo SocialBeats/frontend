@@ -1,3 +1,94 @@
+# Release v1.0.0
+
+## Features
+- feat: added 2FA
+- feat: make playlistsDetailsView search beats by name instead of user beats
+- feat: add report functionality to playlist detail view
+- feat: add report functionality to list ratings view
+- feat: add report functionality to list comments view
+- feat: add moderation reports service endpoints
+- feat: added delete account feature
+- feat: added socialmedia functional links
+- feat: handler pricing token header and adapt to /socialbeats
+- feat: add user profile navigation to list ratings view
+- feat: add ratings view using endpoint, delete mock data and improve errors shown
+- feat: preliminary token handler in frontend
+- feat: add playlist views links to app.jsc
+- feat: first version of suscribing a pricing plan with stripe and space integration
+- feat: add user profile navigation to list comments view
+- feat: improve show error in comments views
+- feat: add comments view using endpoint and delete mock data
+- feat: add publicplaylits redirection with buttons in explore page and myPlaylists page
+- feat: add view user playlists button
+- feat: add comments and ratings views to beat detail view
+- feat: add MetricsNotifier component for real-time metric notifications and integrate it into PrivateLayout;
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: fix problem with collaborator accessing to edit playlist view
+- fix: fix problem adding and removing items to playlist
+- fix: fix problem with env variables importations
+- fix: add other .env variables to RUNTIME_CONFIG
+- fix: changed method to update subscription plan
+- fix: add comments and ratings components imports to beat detail view
+- fix: verify error on reload
+- fix: changes on verify email page
+- fix: duplicate method
+- fix: fix warning in list rating pagination
+- fix: add pagination to the endpoint of list ratings of a playlist or beat
+- fix: fix profile routes being in the proper provider
+- fix: readd user auth routes to app.jsx
+- fix: change jsx to tsx
+- fix: fix problem with _id instead of userId
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #41 from SocialBeats/develop
+- Merge pull request #50 from SocialBeats/feat/2FA
+- Merge pull request #49 from SocialBeats/feat/moderation-views
+- Merge branch 'develop' into feat/moderation-views
+- style: improve styles of playlist details view (modals, edit and delete buttons)
+- style: improve buttons distribution in list ratings and comments views
+- Merge pull request #48 from SocialBeats/feat/delete-account
+- Merge pull request #47 from SocialBeats/feat/update-plan
+- Merge pull request #46 from SocialBeats/feat/socialmedia-links
+- Merge pull request #45 from SocialBeats/feat/ratings-views
+- style: adjust rating styles to comment styles
+- Merge branch 'develop' into feat/ratings-views
+- Merge branch 'develop' into feat/ratings-views
+- Merge pull request #44 from SocialBeats/feat/comments-views
+- Merge branch 'develop' into feat/comments-views
+- chore: delete some dummy.txt
+- chore: format package.json and update pnpm lock file.
+- Merge pull request #43 from SocialBeats/feat/space-integration
+- Merge branch 'develop' into feat/space-integration
+- Merge pull request #42 from SocialBeats/feat/suscription
+- Merge branch 'feat/space-integration' into feat/suscription
+- Merge branch 'main' into develop
+- Merge pull request #40 from SocialBeats/feat/metrics-status
+- Merge branch 'develop' into feat/metrics-status
+- Merge pull request #39 from SocialBeats/feat-playlists-views
+- Merge remote-tracking branch 'origin/develop' into feat-playlists-views
+- Merge branch 'develop' into feat-playlists-views
+- Merge branch 'feat-playlists-views' into feat/comments-views
+- Merge remote-tracking branch 'origin/develop' into feat-playlists-views
+- style: add the standarization of the styles of the comment and ratings views
+- style: adapt list ratings view to app styles
+- style: adapt create ratings view to app styles
+- refactor: small changes in comments css
+- style: adapt create comments view to app styles
+- style: adapt list comments view to app styles
+- Merge branch 'feat-playlists-views' into feat/comments-views
+- Merge branch 'develop' into feat/comments-views
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v0.0.5...v1.0.0).
+
 # Release v0.0.5
 
 ## Features
