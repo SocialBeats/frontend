@@ -13,7 +13,7 @@ import {
   addBeatToPlaylist,
   removeBeatFromPlaylist,
 } from "../../../../services/beats-interaction/playlistService";
-// import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { searchBeats, getBeatById } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
 import "./PlaylistDetails.css";
@@ -275,17 +275,8 @@ const PlaylistDetails = () => {
     if (canEditPlaylist) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createPlaylistModerationReport(playlist._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report playlist:", {
-        playlistId: playlist._id,
-        reporterUserId: myUserId,
-        ownerId: playlist.ownerId,
-        collaborators: playlist.collaborators ?? [],
-      });
-      alert("Denuncia enviada (simulado).");
+      await createPlaylistModerationReport(playlist._id);
+      alert("Denuncia enviada con éxito");
 
       closeReportModal();
     } catch (err) {

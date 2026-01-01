@@ -13,7 +13,7 @@ import {
   patchRating,
   deleteRating,
 } from "../../../../services/beats-interaction/ratingService";
-// import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateRating from "./CreateRating";
 import "./ListRatings.css";
@@ -280,7 +280,6 @@ const ListRatings = ({ isBeat, resourceId }) => {
     }
   };
 
-  // ✅ REPORT (igual que comments): open/close + confirm
   const openReportModal = (rating) => {
     if (!rating?._id) return;
 
@@ -300,15 +299,8 @@ const ListRatings = ({ isBeat, resourceId }) => {
     if (!ratingToReport?._id) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createRatingModerationReport(ratingToReport._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report rating:", {
-        ratingId: ratingToReport._id,
-        reporterUserId: currentUserId,
-      });
-      alert("Denuncia enviada (simulado).");
+      await createRatingModerationReport(ratingToReport._id);
+      alert("Denuncia enviada con éxito");
 
       closeReportModal();
     } catch (error) {

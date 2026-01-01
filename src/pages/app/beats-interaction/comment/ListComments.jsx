@@ -11,7 +11,7 @@ import {
   deleteComment,
   updateComment,
 } from "../../../../services/beats-interaction/commentService.js";
-// import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateComment from "./CreateComment";
 import "./ListComments.css";
@@ -211,15 +211,8 @@ const ListComments = ({ isBeat, resourceId }) => {
     if (!commentToReport?._id) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createCommentModerationReport(commentToReport._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report comment:", {
-        commentId: commentToReport._id,
-        reporterUserId: currentUserId,
-      });
-      alert("Denuncia enviada (simulado).");
+      await createCommentModerationReport(commentToReport._id);
+      alert("Denuncia enviada con éxito");
 
       closeReportModal();
     } catch (error) {
