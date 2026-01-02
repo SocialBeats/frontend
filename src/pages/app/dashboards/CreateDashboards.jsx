@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 import SuccessModal from '../../../components/ui/SuccessModal';
-import ErrorModal from '../../../components/ui/ErrorModal';
 import './CreateDashboards.css';
 
-import { createDashboard } from '../../../services/analytics/dashboards';
+import { createDashboard, getAllDashboards } from '../../../services/analytics/dashboards';
 import { getMyBeats } from '../../../services/beatsService';
 import { useMetricsStatusContext } from '../../../contexts/MetricsStatusContext';
 import { logger } from '../../../logger';
@@ -19,13 +18,50 @@ const CreateDashboards = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [createdDashboardId, setCreatedDashboardId] = useState(null);
   const [initialMetricsCheck, setInitialMetricsCheck] = useState(new Map());
+  const [existingDashboards, setExistingDashboards] = useState([]);
+  const [beatsWithDashboard, setBeatsWithDashboard] = useState(new Set());
+  const [beatToDashboardName, setBeatToDashboardName] = useState(new Map());
   
   // Get metrics status from global context (SSE in PrivateLayout)
   const { metricsStatus } = useMetricsStatusContext();
+
+  // Función para cargar dashboards existentes
+  const loadExistingDashboards = async () => {
+    try {
+      const response = await getAllDashboards();
+      const dashboardsData = response.data || response;
+      console.log('📊 Dashboards existentes (raw):', response);
+      console.log('📊 Dashboards existentes (data):', dashboardsData);
+      
+      if (dashboardsData && Array.isArray(dashboardsData)) {
+        setExistingDashboards(dashboardsData);
+        
+        // Crear un Set con los beatIds que ya tienen dashboard
+        const beatsWithDash = new Set(
+          dashboardsData
+            .map(d => d.beatId || d.beat_id)
+            .filter(Boolean)
+        );
+        setBeatsWithDashboard(beatsWithDash);
+        
+        // Crear un Map de beatId -> nombre del dashboard
+        const beatToDashMap = new Map(
+          dashboardsData
+            .filter(d => d.beatId || d.beat_id)
+            .map(d => [d.beatId || d.beat_id, d.name])
+        );
+        setBeatToDashboardName(beatToDashMap);
+        
+        console.log('🚫 Beats con dashboard:', Array.from(beatsWithDash));
+        console.log('📊 Mapa beat -> dashboard:', Object.fromEntries(beatToDashMap));
+      }
+    } catch (err) {
+      console.error('❌ Error cargando dashboards:', err);
+      // No bloquear si falla, solo loguear
+    }
+  };
 
   // Función para cargar beats (expuesta para poder reutilizarla)
   const loadUserBeats = async () => {
@@ -80,9 +116,13 @@ const CreateDashboards = () => {
     }
   };
 
-  // Cargar beats del usuario al montar el componente
+  // Cargar dashboards y beats del usuario al montar el componente
   useEffect(() => {
-    loadUserBeats();
+    const loadData = async () => {
+      await loadExistingDashboards();
+      await loadUserBeats();
+    };
+    loadData();
   }, []);
 
   // Si venimos con query param ?beatId=..., preseleccionar ese beat
@@ -96,15 +136,8 @@ const CreateDashboards = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!dashboardName.trim()) {
-      setErrorMessage('Por favor ingresa un nombre para el dashboard');
-      setShowErrorModal(true);
-      return;
-    }
-
-    if (!selectedBeatId) {
-      setErrorMessage('Por favor selecciona un beat');
-      setShowErrorModal(true);
+    if (!dashboardName.trim() || !selectedBeatId) {
+      console.error('❌ Validación fallida: faltan datos');
       return;
     }
 
@@ -127,13 +160,9 @@ const CreateDashboards = () => {
       setCreatedDashboardId(dashboardId);
       setShowSuccessModal(true);
     } catch (err) {
-      console.error('Error al crear dashboard:', err);
-      setErrorMessage(
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Error al crear el dashboard. Por favor, intenta de nuevo.'
-      );
-      setShowErrorModal(true);
+      console.error('❌ Error al crear dashboard:', err);
+      // Si hay error, simplemente navegar de vuelta
+      navigate('/app/dashboards');
     } finally {
       setIsCreating(false);
     }
@@ -144,11 +173,6 @@ const CreateDashboards = () => {
     if (createdDashboardId) {
       navigate(`/app/dashboards/view/${createdDashboardId}`);
     }
-  };
-
-  const handleErrorModalClose = () => {
-    setShowErrorModal(false);
-    setErrorMessage('');
   };
 
   const handleCancel = () => {
@@ -237,17 +261,19 @@ const CreateDashboards = () => {
                 {beats.map((beat) => {
                   const metricsStatusValue = getMetricsStatusForBeat(beat._id);
                   const isCalculating = metricsStatusValue === 'calculating';
+                  const hasDashboard = beatsWithDashboard.has(beat._id);
+                  const isDisabled = isCalculating || hasDashboard;
                   
                   return (
                   <div
                     key={beat._id}
-                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''} ${isCalculating ? 'beat-card--disabled' : ''}`}
+                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''} ${isDisabled ? 'beat-card--disabled' : ''}`}
                     onClick={() => {
-                      if (isCalculating) return; // prevent selecting while metrics pending
+                      if (isDisabled) return; // prevent selecting if calculating or has dashboard
                       handleBeatSelect(beat._id);
                     }}
                     role="button"
-                    aria-disabled={isCalculating}
+                    aria-disabled={isDisabled}
                   >
                     {selectedBeatId === beat._id && (
                       <div className="beat-card__check">
@@ -270,7 +296,13 @@ const CreateDashboards = () => {
                         </span>
                       </div>
 
-                      {isCalculating ? (
+                      {hasDashboard ? (
+                        <div className="beat-card__metrics">
+                          <span className="beat-card__metrics-badge beat-card__metrics-badge--has-dashboard">
+                           Este beat se ha usado para crear el Dashboard: "{beatToDashboardName.get(beat._id)}"
+                          </span>
+                        </div>
+                      ) : isCalculating ? (
                         <div className="beat-card__metrics">
                           <span className="beat-card__metrics-badge beat-card__metrics-badge--calculating">
                            Calculando métricas…
@@ -355,14 +387,6 @@ const CreateDashboards = () => {
         title="Dashboard Creado"
         message="Tu dashboard se ha creado exitosamente y está listo para usar."
         buttonText="Ver Dashboard"
-      />
-
-      <ErrorModal
-        isOpen={showErrorModal}
-        onClose={handleErrorModalClose}
-        title="Error al Crear Dashboard"
-        message={errorMessage}
-        buttonText="Cerrar"
       />
     </div>
   );
