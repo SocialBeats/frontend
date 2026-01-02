@@ -1,18 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
-import ConfirmModal from '../ui/ConfirmModal';
-import { useModal } from '../../hooks/use-modal';
-import './DashboardCard.css';
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../ui/Button";
+import Card from "../ui/Card";
+import ConfirmModal from "../ui/ConfirmModal";
+import { useModal } from "../../hooks/use-modal";
+import "./DashboardCard.css";
 
-const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
+const DashboardCard = ({
+  dashboard,
+  onDelete,
+  onDeleteWithBeat,
+  onUpdateName,
+}) => {
   const navigate = useNavigate();
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(dashboard.name);
   const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef(null);
-  const { isOpen: isDeleteModalOpen, openModal: openDeleteModal, closeModal: closeDeleteModal } = useModal();
+  const {
+    isOpen: isDeleteModalOpen,
+    openModal: openDeleteModal,
+    closeModal: closeDeleteModal,
+  } = useModal();
 
   useEffect(() => {
     if (isEditingName && inputRef.current) {
@@ -33,6 +42,14 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
     await onDelete(dashboard.id);
   };
 
+  console.log(dashboard.beatId)
+
+  const handleConfirmDeleteWithBeat = async () => {
+    if (onDeleteWithBeat && dashboard.beatId) {
+      await onDeleteWithBeat(dashboard.id, dashboard.beatId);
+    }
+  };
+
   const handleStartEdit = (e) => {
     e.stopPropagation();
     setIsEditingName(true);
@@ -44,8 +61,8 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
   };
 
   const handleSaveName = async () => {
-    if (editedName.trim() === '') {
-      alert('El nombre no puede estar vacío');
+    if (editedName.trim() === "") {
+      alert("El nombre no puede estar vacío");
       return;
     }
 
@@ -59,8 +76,8 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
       await onUpdateName(dashboard.id, editedName);
       setIsEditingName(false);
     } catch (error) {
-      console.error('Error al actualizar nombre:', error);
-      alert('Error al actualizar el nombre');
+      console.error("Error al actualizar nombre:", error);
+      alert("Error al actualizar el nombre");
       setEditedName(dashboard.name);
     } finally {
       setIsSaving(false);
@@ -68,9 +85,9 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSaveName();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleCancelEdit();
     }
   };
@@ -137,7 +154,7 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
             {new Date(dashboard.createdAt).toLocaleDateString()}
           </span>
         </div>
-        
+
         <div className="dashboard-card__actions">
           <Button onClick={handleView} variant="primary">
             Visualizar
@@ -154,9 +171,13 @@ const DashboardCard = ({ dashboard, onDelete, onUpdateName }) => {
         onConfirm={handleConfirmDelete}
         title="¿Estás seguro?"
         message="¿Estás seguro de que quieres eliminar este dashboard? Esta acción no se puede deshacer."
-        confirmText="Eliminar"
+        confirmText="Solo eliminar dashboard"
         cancelText="Cancelar"
-        confirmVariant="danger"
+        confirmVariant="primary"
+        showThirdOption={!!dashboard.beatId && !!onDeleteWithBeat}
+        thirdOptionText="También eliminar beat"
+        thirdOptionVariant="danger"
+        onThirdOption={handleConfirmDeleteWithBeat}
       />
     </>
   );

@@ -1,7 +1,12 @@
-import DashboardCard from './DashboardCard';
-import './DashboardList.css';
+import DashboardCard from "./DashboardCard";
+import "./DashboardList.css";
 
-const DashboardList = ({ dashboards, onDelete, onUpdateName }) => {
+const DashboardList = ({
+  dashboards,
+  onDelete,
+  onDeleteWithBeat,
+  onUpdateName,
+}) => {
   if (dashboards.length === 0) {
     return (
       <div className="dashboard-list--empty">
@@ -17,6 +22,7 @@ const DashboardList = ({ dashboards, onDelete, onUpdateName }) => {
           key={dashboard.id}
           dashboard={dashboard}
           onDelete={onDelete}
+          onDeleteWithBeat={onDeleteWithBeat}
           onUpdateName={onUpdateName}
         />
       ))}
