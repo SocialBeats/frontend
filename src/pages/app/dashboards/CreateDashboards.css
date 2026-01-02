@@ -236,6 +236,12 @@
   border: 1px solid #10b981;
 }
 
+.beat-card__metrics-badge--has-dashboard {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #818cf8;
+}
+
 /* Loading */
 .create-dashboard__loading {
   display: flex;
