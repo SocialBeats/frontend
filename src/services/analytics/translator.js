@@ -78,7 +78,9 @@ export function getSupportedLanguages() {
  * }
  */
 export function translateQuote(text) {
-  return client.post('/analytics/translate/quote', null, {
-    params: { text }
+  return client.post('/analytics/translate', {
+    text,
+    target_language: 'es',
+    source_language: 'en'
   });
 }
