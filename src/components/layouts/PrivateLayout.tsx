@@ -1,19 +1,36 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { isAuthenticated } from '../../services/authService';
 import { getMyProfile } from '../../services/profileService';
 import NavBar from '../ui/NavBar';
 import Footer from '../ui/Footer';
+import Toast from '../ui/Toast';
 import './PrivateLayout.css';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import GlobalPlayerDock from '../features/player/GlobalPlayerDock';
-import MetricsNotifier from '../MetricsNotifier';
+import { useMetricsStatus } from '../../hooks/use-metrics-status';
+import { MetricsStatusProvider } from '../../contexts/MetricsStatusContext';
 
 export default function PrivateLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  
+  // Toast notification state
+  const [showToast, setShowToast] = useState(false);
+  const [toastData, setToastData] = useState({ beatName: '', beatId: '' });
 
+  // SSE for global metrics notifications
+  const { metricsStatus } = useMetricsStatus((data) => {
+    // Show toast notification when metrics are completed
+    setToastData({ 
+      beatName: data.beatId, // We'll try to get the beat name if available
+      beatId: data.beatId 
+    });
+    setShowToast(true);
+  });
+  
   // Proteger rutas privadas - redirigir a login si no está autenticado
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -80,21 +97,35 @@ export default function PrivateLayout() {
   }
 
   return (
-    <div className="private-layout">
-      {/* Sidebar Navigation - Fixed on the left */}
-      <NavBar />
+    <MetricsStatusProvider value={{ metricsStatus }}>
+      <div className="private-layout">
+        {/* Sidebar Navigation - Fixed on the left */}
+        <NavBar />
 
-      <MetricsNotifier />;
+        {/* Main Content Area */}
+        <div className="private-content-wrapper">
+          <main className={`private-main ${currentBeat ? 'pb-28' : ''}`}>
+            <Outlet />
+          </main>
 
-      {/* Main Content Area */}
-      <div className="private-content-wrapper">
-        <main className={`private-main ${currentBeat ? 'pb-28' : ''}`}>
-          <Outlet />
-        </main>
-
-        <Footer />
+          <Footer />
+        </div>
+        <GlobalPlayerDock />
+        
+        {/* Global metrics notification toast */}
+        <Toast
+          isOpen={showToast}
+          onClose={() => setShowToast(false)}
+          title="¡Métricas Calculadas!"
+          message={`Las métricas de tu beat ya están listas. Ahora puedes crear un dashboard.`}
+          actionLabel="Crear Dashboard"
+          onAction={() => {
+            setShowToast(false);
+            navigate('/app/dashboards/create');
+          }}
+          duration={8000}
+        />
       </div>
-      <GlobalPlayerDock />
-    </div>
+    </MetricsStatusProvider>
   );
 }

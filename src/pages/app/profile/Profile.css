@@ -41,7 +41,9 @@
 /* Avatar editable wrapper */
 .avatar-wrapper {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-wrapper.editable {
@@ -50,10 +52,11 @@
 
 .avatar-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 128px;
+  height: 128px;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -61,6 +64,7 @@
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.2s ease;
+  z-index: 10;
 }
 
 .avatar-wrapper.editable:hover .avatar-overlay {
@@ -229,33 +233,7 @@
   margin-top: 0.25rem;
 }
 
-/* Beats preview - 3 cuadrados */
-.profile-beats-preview {
-  display: flex;
-  gap: 0.75rem;
-}
 
-.beat-preview-card {
-  width: 80px;
-  height: 80px;
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.beat-preview-card:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
-}
-
-.beat-icon {
-  font-size: 2rem;
-}
 
 /* Columna derecha - Certificaciones */
 .profile-hero-right {
@@ -502,14 +480,7 @@
     font-size: 1.5rem;
   }
 
-  .profile-beats-preview {
-    justify-content: center;
-  }
 
-  .beat-preview-card {
-    width: 60px;
-    height: 60px;
-  }
 
   .profile-section-block {
     margin: 0.5rem;

@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
+import { DecoratedAvatar } from '../decorators';
 import Button from './Button';
 import ConfirmModal from './ConfirmModal';
 import { logout } from '../../services/authService';
@@ -27,7 +28,7 @@ export default function NavBar() {
         console.error('Error cargando perfil en NavBar:', error);
       }
     };
-    
+
     loadProfile();
   }, [profileVersion]);
 
@@ -77,15 +78,17 @@ export default function NavBar() {
           </div>
 
           {/* User Profile Snippet */}
-          <Link 
-            to="/app/profile" 
+          <Link
+            to="/app/profile"
             className={`sidebar-user sidebar-link ${isActive('/app/profile') ? 'sidebar-link-active' : ''}`}
           >
-            <Avatar 
-              size="medium" 
-              src={profile?.avatar || ''} 
-              alt={profile?.username || 'Usuario'}
-            />
+            <DecoratedAvatar decoratorId={profile?.avatarDecorator || 'none'} size="medium">
+              <Avatar
+                size="medium"
+                src={profile?.avatar || ''}
+                alt={profile?.username || 'Usuario'}
+              />
+            </DecoratedAvatar>
             <div className="sidebar-user-info">
               <span className="user-name">{profile?.full_name || profile?.username || 'Usuario'}</span>
               <span className="user-handle">@{profile?.username || 'usuario'}</span>
