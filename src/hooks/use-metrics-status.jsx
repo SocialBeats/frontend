@@ -31,7 +31,7 @@ export function useMetricsStatus(onMetricsCompleted) {
     const connectSSE = () => {
       try {
         // Connect directly to analytics service (SSE shouldn't go through API Gateway)
-        const analyticsUrl = window.APP_CONFIG?.ANALYTICS_SERVICE_URL || 
+        const analyticsUrl = window.RUNTIME_CONFIG?.VITE_ANALYTICS_SERVICE_URL || 
                            import.meta.env.VITE_ANALYTICS_SERVICE_URL || 
                            'http://localhost:3003';
         

@@ -569,96 +569,98 @@ const ViewDashboard = () => {
 
       {/* Quote Section */}
       {!quoteLoading && quote && (
-        <div className="mx-auto max-w-4xl mb-8">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 shadow-md border border-blue-100 dark:border-gray-700">
-            <div className="flex items-start gap-4">
+        <div className="view-dashboard__quote-wrapper">
+          <div className="view-dashboard__quote-card">
+            <div className="view-dashboard__quote-icon">
               <svg
-                className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1"
-                style={{ width: "128px", height: "128px" }}
                 fill="currentColor"
-                viewBox="0 0 24 48"
+                viewBox="0 0 24 24"
+                width="48"
+                height="48"
               >
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
-              <div className="flex-1">
-                <p className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-medium italic leading-relaxed mb-3">
-                  "
-                  {showTranslation && translatedQuote
-                    ? translatedQuote.translated_text
-                    : quote.content}
-                  "
-                </p>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 font-semibold">
-                    — {quote.author}
-                  </p>
-                  <button
-                    onClick={handleTranslateQuote}
-                    disabled={isTranslating}
-                    className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={
-                      showTranslation ? "Ver original" : "Traducir al español"
-                    }
-                  >
-                    {isTranslating ? (
-                      <>
-                        <svg
-                          className="animate-spin h-4 w-4"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <span>Traduciendo...</span>
-                      </>
-                    ) : showTranslation ? (
-                      <>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
+            </div>
+            <div className="view-dashboard__quote-content">
+              <p className="view-dashboard__quote-text">
+                "
+                {showTranslation && translatedQuote
+                  ? translatedQuote.translated_text
+                  : quote.content}
+                "
+              </p>
+              <div className="view-dashboard__quote-footer">
+                <p className="view-dashboard__quote-author">— {quote.author}</p>
+                <button
+                  onClick={handleTranslateQuote}
+                  disabled={isTranslating}
+                  className="view-dashboard__translate-btn"
+                  title={
+                    showTranslation ? "Ver original" : "Traducir al español"
+                  }
+                >
+                  {isTranslating ? (
+                    <>
+                      <svg
+                        className="view-dashboard__spinner"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
                           fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span>Ver original</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span>Traducir</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Traduciendo...</span>
+                    </>
+                  ) : showTranslation ? (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        width="16"
+                        height="16"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>Ver original</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        width="16"
+                        height="16"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>Traducir</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -679,14 +681,32 @@ const ViewDashboard = () => {
         </div>
 
         {widgets.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <div className="view-dashboard__empty-state">
+            <div className="view-dashboard__empty-icon">
+              <svg
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="9" y1="9" x2="15" y2="9" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+            </div>
+            <p className="view-dashboard__empty-text">
               No hay widgets añadidos
+            </p>
+            <p className="view-dashboard__empty-description">
+              Comienza agregando tu primer widget para visualizar las métricas de tu beat
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="view-dashboard__empty-button"
             >
+              <Plus size={20} />
               Añade tu primer widget
             </button>
           </div>
