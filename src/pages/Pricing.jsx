@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { updateSubscriptionPlan, completeUpgrade, getSubscriptionStatus } from '../services/paymentService';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  updateSubscriptionPlan, 
+  completeUpgrade, 
+  getSubscriptionStatus,
+  getMyAddOns,
+  purchaseAddOn,
+  cancelAddOn,
+  completeAddOnSetup 
+} from '../services/paymentService';
 import { getCurrentUserId, getCurrentUsername } from '../services/authService';
 import { logger } from '../logger';
+import PricingConfirmModal from './pricing/PricingConfirmModal';
 import './Pricing.css';
 
 // Plan configuration - matches backend plans.config.js
@@ -48,7 +57,7 @@ const plans = [
     name: 'STUDIO',
     displayName: 'Studio',
     description: 'Todo lo que necesitas para dominar',
-    price: 19.99,
+    price: 29.99,
     currency: '€',
     period: 'mes',
     icon: '👑',
@@ -65,24 +74,109 @@ const plans = [
   }
 ];
 
+// AddOns configuration - matches backend plans.config.js
+const addOns = [
+  {
+    name: 'decoratives',
+    displayName: 'Decorativos',
+    description: 'Personaliza tu perfil con badges, efectos y decoraciones exclusivas',
+    price: 0.99,
+    currency: '€',
+    period: 'mes',
+    icon: '✨',
+    availableFor: ['FREE', 'PRO'],
+    features: ['Badges exclusivos', 'Efectos de perfil', 'Decoraciones especiales'],
+  },
+  {
+    name: 'promotedBeat',
+    displayName: 'Beat Promocionado',
+    description: 'Destaca tu mejor beat en el feed principal',
+    price: 2.99,
+    currency: '€',
+    period: 'mes',
+    icon: '📣',
+    availableFor: ['PRO', 'STUDIO'],
+    features: ['Visibilidad premium', 'Posición destacada', 'Más reproducciones'],
+  },
+  {
+    name: 'unlockFullBeatFree',
+    displayName: 'Desbloquear Pro Metrics',
+    description: 'Accede a métricas PRO desde tu plan FREE',
+    price: 1.49,
+    currency: '€',
+    period: 'mes',
+    icon: '📊',
+    availableFor: ['FREE'],
+    features: ['+1 métrica PRO', '+1 métrica Studio', 'Análisis avanzado'],
+  },
+  {
+    name: 'unlockFullBeatPro',
+    displayName: 'Desbloquear Studio Metrics',
+    description: 'Accede a métricas STUDIO desde tu plan PRO',
+    price: 1.49,
+    currency: '€',
+    period: 'mes',
+    icon: '📈',
+    availableFor: ['PRO'],
+    features: ['+1 métrica Studio', 'Insights premium', 'Análisis completo'],
+  },
+  {
+    name: 'fullStudioMetrics',
+    displayName: 'Métricas Studio Completas',
+    description: 'Todas las métricas Studio sin límite',
+    price: 19.99,
+    currency: '€',
+    period: 'mes',
+    icon: '🎯',
+    availableFor: ['FREE', 'PRO'],
+    features: ['Métricas ilimitadas', 'Dashboard completo', 'Exportar datos'],
+  },
+];
+
 const Pricing = () => {
   const [loading, setLoading] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(null);
+  const [loadingAddOn, setLoadingAddOn] = useState(null);
   const [currentPlan, setCurrentPlan] = useState(null);
+  const [activeAddOns, setActiveAddOns] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Estados para el modal de confirmación
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalType, setConfirmModalType] = useState('plan'); // 'plan' | 'addon' | 'cancel-addon'
+  const [pendingAction, setPendingAction] = useState(null); // { type, data }
+  
+  // Ref para evitar doble ejecución del setup (React Strict Mode)
+  const setupProcessedRef = useRef(false);
 
   // Verificar parámetros de URL (success/cancel de Stripe y setup)
   useEffect(() => {
+    // Evitar doble ejecución en React Strict Mode
+    if (setupProcessedRef.current) return;
+    
     const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const canceled = urlParams.get('canceled');
     const setup = urlParams.get('setup');
     const sessionId = urlParams.get('session_id');
+    const addonSetup = urlParams.get('addon');
+
+    // Retorno de setup para AddOn
+    if (setup === 'success' && sessionId && addonSetup) {
+      setupProcessedRef.current = true;
+      // Limpiar URL inmediatamente para evitar reprocesar
+      window.history.replaceState({}, '', window.location.pathname);
+      logger.info('AddOn setup completed, completing purchase...');
+      handleCompleteAddOnSetup(addonSetup);
+      return;
+    }
+
     const upgradeTo = urlParams.get('upgrade_to');
 
-    // Retorno de setup (después de añadir método de pago)
+    // Retorno de setup (después de añadir método de pago para plan)
     if (setup === 'success' && sessionId) {
+      setupProcessedRef.current = true;
+      // Limpiar URL inmediatamente
+      window.history.replaceState({}, '', window.location.pathname);
       logger.info('Setup completed, completing upgrade...');
       handleCompleteUpgrade(sessionId, upgradeTo);
       return;
@@ -90,20 +184,23 @@ const Pricing = () => {
 
     if (setup === 'canceled') {
       setErrorMessage('Añadir método de pago cancelado. Puedes intentar de nuevo cuando quieras.');
-      window.history.replaceState({}, '', '/pricing');
+      window.history.replaceState({}, '', window.location.pathname);
       return;
     }
+
+    const success = urlParams.get('success');
+    const canceled = urlParams.get('canceled');
 
     // Retorno de checkout (flujo antiguo, por si acaso)
     if (success === 'true') {
       setSuccessMessage('¡Suscripción creada exitosamente! Tu plan se activará en breve.');
-      window.history.replaceState({}, '', '/pricing');
+      window.history.replaceState({}, '', window.location.pathname);
       loadSubscriptionStatus();
     }
 
     if (canceled === 'true') {
       setErrorMessage('Pago cancelado. Puedes intentar de nuevo cuando quieras.');
-      window.history.replaceState({}, '', '/pricing');
+      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
@@ -119,8 +216,20 @@ const Pricing = () => {
     }
   };
 
+  // Cargar AddOns del usuario
+  const loadUserAddOns = async () => {
+    try {
+      const { activeAddOns: userAddOns } = await getMyAddOns();
+      setActiveAddOns(userAddOns || []);
+    } catch (error) {
+      logger.error('Error loading user add-ons:', error);
+      setActiveAddOns([]);
+    }
+  };
+
   useEffect(() => {
     loadSubscriptionStatus();
+    loadUserAddOns();
   }, []);
 
   const handleCompleteUpgrade = async (setupSessionId, upgradeTo) => {
@@ -138,6 +247,7 @@ const Pricing = () => {
       
       // Recargar estado de suscripción
       await loadSubscriptionStatus();
+      await loadUserAddOns();
     } catch (error) {
       logger.error('Error completing upgrade:', error);
       setErrorMessage(error.message || 'Error al completar el upgrade. Intenta de nuevo.');
@@ -146,7 +256,41 @@ const Pricing = () => {
     }
   };
 
-  const handleSubscribe = async (planName) => {
+  const handleCompleteAddOnSetup = async (addonName) => {
+    try {
+      setLoading(true);
+      setLoadingAddOn(addonName);
+      setErrorMessage('');
+      setSuccessMessage('Completando compra del add-on...');
+
+      const result = await completeAddOnSetup(addonName);
+
+      setSuccessMessage(`¡Add-on "${result.addon.displayName}" activado exitosamente!`);
+      
+      // Recargar add-ons
+      await loadUserAddOns();
+    } catch (error) {
+      logger.error('Error completing add-on setup:', error);
+      setErrorMessage(error.message || 'Error al completar la compra del add-on.');
+    } finally {
+      setLoading(false);
+      setLoadingAddOn(null);
+    }
+  };
+
+  // Calcular add-ons incompatibles con un plan
+  const getIncompatibleAddOns = (targetPlanName) => {
+    return activeAddOns.filter(activeAddon => {
+      const addonConfig = addOns.find(a => a.name === activeAddon.name);
+      return addonConfig && !addonConfig.availableFor.includes(targetPlanName);
+    }).map(activeAddon => {
+      const config = addOns.find(a => a.name === activeAddon.name);
+      return config || activeAddon;
+    });
+  };
+
+  // Mostrar modal de confirmación para cambio de plan
+  const handleSubscribeClick = (planName) => {
     const userId = getCurrentUserId();
     const username = getCurrentUsername();
 
@@ -155,11 +299,29 @@ const Pricing = () => {
       return;
     }
 
-    // Verificar si ya tiene este plan
     if (currentPlan?.planType === planName) {
       setErrorMessage(`Ya tienes el plan ${planName} activo`);
       return;
     }
+
+    const targetPlan = plans.find(p => p.name === planName);
+    const incompatible = getIncompatibleAddOns(planName);
+
+    setPendingAction({
+      type: 'plan',
+      planName,
+      targetPlan,
+      incompatibleAddOns: incompatible,
+    });
+    setConfirmModalType('plan');
+    setShowConfirmModal(true);
+  };
+
+  // Ejecutar cambio de plan (después de confirmación)
+  const executeSubscribe = async () => {
+    if (!pendingAction || pendingAction.type !== 'plan') return;
+    
+    const planName = pendingAction.planName;
 
     try {
       setLoading(true);
@@ -169,8 +331,11 @@ const Pricing = () => {
 
       logger.info(`Updating plan to: ${planName}`);
 
-      // Intentar actualizar el plan
       const result = await updateSubscriptionPlan(planName);
+
+      // Cerrar modal
+      setShowConfirmModal(false);
+      setPendingAction(null);
 
       // Verificar si es un downgrade programado
       if (result.change?.effectiveDate) {
@@ -179,30 +344,32 @@ const Pricing = () => {
           `Cambio a ${result.change.to} programado. Mantendrás tu plan ${result.subscription.planType} hasta el ${effectiveDate}.`
         );
       } else {
-        // Upgrade inmediato
-        setSuccessMessage(
-          `¡Plan actualizado a ${result.subscription.planType} exitosamente! ${result.proration?.note || ''}`
-        );
+        let msg = `¡Plan actualizado a ${result.subscription.planType} exitosamente!`;
+        
+        if (result.removedAddOns?.count > 0) {
+          msg += ` Se cancelaron ${result.removedAddOns.count} add-on(s) incompatibles.`;
+        }
+        
+        setSuccessMessage(msg);
       }
       
-      // Recargar estado de suscripción
       await loadSubscriptionStatus();
+      await loadUserAddOns();
     } catch (error) {
       logger.error('Error updating plan:', error);
 
-      // Si requiere setup de método de pago
       if (error.requiresSetup) {
+        setShowConfirmModal(false);
+        setPendingAction(null);
         logger.info('Redirecting to payment method setup...');
         setSuccessMessage('Redirigiendo para añadir método de pago...');
         
-        // Redirigir a Stripe para añadir tarjeta
         setTimeout(() => {
           window.location.href = error.setupUrl;
         }, 1000);
         return;
       }
 
-      // Otros errores
       setErrorMessage(error.message || 'Error al actualizar el plan. Intenta de nuevo.');
     } finally {
       setLoading(false);
@@ -237,6 +404,186 @@ const Pricing = () => {
     return plan.popular ? 'plan-button primary' : 'plan-button secondary';
   };
 
+  // ====================================================================
+  // ADDON HANDLERS
+  // ====================================================================
+
+  const isAddOnActive = (addonName) => {
+    return activeAddOns.some(addon => addon.name === addonName && addon.status === 'active');
+  };
+
+  const isAddOnAvailable = (addon) => {
+    const userPlan = currentPlan?.planType || 'FREE';
+    return addon.availableFor.includes(userPlan);
+  };
+
+  // Mostrar modal de confirmación para comprar add-on
+  const handlePurchaseAddOnClick = (addonName) => {
+    const userId = getCurrentUserId();
+    const username = getCurrentUsername();
+
+    if (!userId || !username) {
+      setErrorMessage('Por favor inicia sesión para comprar add-ons');
+      return;
+    }
+
+    if (isAddOnActive(addonName)) {
+      setErrorMessage('Ya tienes este add-on activo');
+      return;
+    }
+
+    const addonConfig = addOns.find(a => a.name === addonName);
+    
+    setPendingAction({
+      type: 'addon',
+      addonName,
+      addon: addonConfig,
+    });
+    setConfirmModalType('addon');
+    setShowConfirmModal(true);
+  };
+
+  // Ejecutar compra de add-on (después de confirmación)
+  const executePurchaseAddOn = async () => {
+    if (!pendingAction || pendingAction.type !== 'addon') return;
+    
+    const addonName = pendingAction.addonName;
+
+    try {
+      setLoading(true);
+      setLoadingAddOn(addonName);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      logger.info(`Purchasing add-on: ${addonName}`);
+
+      const result = await purchaseAddOn(addonName);
+
+      setShowConfirmModal(false);
+      setPendingAction(null);
+      
+      setSuccessMessage(`¡Add-on "${result.addon.displayName}" activado exitosamente!`);
+      
+      await loadUserAddOns();
+    } catch (error) {
+      logger.error('Error purchasing add-on:', error);
+
+      if (error.requiresSetup) {
+        setShowConfirmModal(false);
+        setPendingAction(null);
+        logger.info('Redirecting to payment method setup for add-on...');
+        setSuccessMessage('Redirigiendo para añadir método de pago...');
+        
+        setTimeout(() => {
+          window.location.href = error.setupUrl;
+        }, 1000);
+        return;
+      }
+
+      setErrorMessage(error.message || 'Error al comprar el add-on. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+      setLoadingAddOn(null);
+    }
+  };
+
+  // Mostrar modal de confirmación para cancelar add-on
+  const handleCancelAddOnClick = (addonName) => {
+    const addonConfig = addOns.find(a => a.name === addonName);
+    const activeAddon = activeAddOns.find(a => a.name === addonName);
+    
+    setPendingAction({
+      type: 'cancel-addon',
+      addonName,
+      addon: { ...addonConfig, ...activeAddon },
+    });
+    setConfirmModalType('cancel-addon');
+    setShowConfirmModal(true);
+  };
+
+  // Ejecutar cancelación de add-on (después de confirmación)
+  const executeCancelAddOn = async () => {
+    if (!pendingAction || pendingAction.type !== 'cancel-addon') return;
+    
+    const addonName = pendingAction.addonName;
+
+    try {
+      setLoading(true);
+      setLoadingAddOn(addonName);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      logger.info(`Canceling add-on: ${addonName}`);
+
+      const result = await cancelAddOn(addonName);
+
+      setShowConfirmModal(false);
+      setPendingAction(null);
+      
+      setSuccessMessage(`Add-on "${result.addon.displayName}" cancelado. Seguirá activo hasta el final del período.`);
+      
+      await loadUserAddOns();
+    } catch (error) {
+      logger.error('Error canceling add-on:', error);
+      setErrorMessage(error.message || 'Error al cancelar el add-on. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+      setLoadingAddOn(null);
+    }
+  };
+
+  // Handler para confirmar acción del modal
+  const handleConfirmAction = async () => {
+    if (!pendingAction) return;
+
+    switch (pendingAction.type) {
+      case 'plan':
+        await executeSubscribe();
+        break;
+      case 'addon':
+        await executePurchaseAddOn();
+        break;
+      case 'cancel-addon':
+        await executeCancelAddOn();
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Cerrar modal y limpiar estado
+  const handleCloseModal = () => {
+    if (loading) return; // No cerrar mientras está cargando
+    setShowConfirmModal(false);
+    setPendingAction(null);
+  };
+
+  const getAddOnButtonText = (addon) => {
+    if (loading && loadingAddOn === addon.name) {
+      return null; // Will show spinner
+    }
+    
+    if (isAddOnActive(addon.name)) {
+      return 'Cancelar';
+    }
+    
+    if (!isAddOnAvailable(addon)) {
+      return 'No disponible';
+    }
+    
+    return 'Añadir';
+  };
+
+  const getAddOnButtonClass = (addon) => {
+    if (isAddOnActive(addon.name)) {
+      return 'addon-button cancel';
+    }
+    if (!isAddOnAvailable(addon)) {
+      return 'addon-button disabled';
+    }
+    return 'addon-button primary';
+  };
+
   return (
     <div className="pricing-page">
       {/* Glow effect */}
@@ -261,6 +608,18 @@ const Pricing = () => {
                 (se cancelará el {new Date(currentPlan.currentPeriodEnd).toLocaleDateString()})
               </span>
             )}
+          </div>
+        )}
+
+        {/* Pending Plan Change Notice */}
+        {currentPlan?.pendingPlanChange && (
+          <div className="pending-change-notice">
+            <span className="pending-change-icon">📅</span>
+            <span>
+              Cambio a <strong>{currentPlan.pendingPlanChange}</strong> programado. 
+              Mantendrás tu plan <strong>{currentPlan.planType}</strong> hasta el{' '}
+              <strong>{new Date(currentPlan.pendingChangeDate).toLocaleDateString()}</strong>.
+            </span>
           </div>
         )}
 
@@ -320,7 +679,7 @@ const Pricing = () => {
 
               {/* Button */}
               <button 
-                onClick={() => handleSubscribe(plan.name)}
+                onClick={() => handleSubscribeClick(plan.name)}
                 disabled={loading || (currentPlan?.planType === plan.name)}
                 className={getButtonClass(plan)}
               >
@@ -333,7 +692,91 @@ const Pricing = () => {
             </div>
           ))}
         </div>
+
+        {/* AddOns Section */}
+        <section className="addons-section">
+          <header className="addons-header">
+            <h2 className="addons-title">Potencia tu experiencia</h2>
+            <p className="addons-subtitle">
+              Personaliza tu plan con add-ons exclusivos. Activa o cancela cuando quieras.
+            </p>
+          </header>
+
+          <div className="addons-grid">
+            {addOns.map((addon) => {
+              const isActive = isAddOnActive(addon.name);
+              const isAvailable = isAddOnAvailable(addon);
+              
+              return (
+                <div 
+                  key={addon.name} 
+                  className={`addon-card ${isActive ? 'active' : ''} ${!isAvailable ? 'unavailable' : ''}`}
+                >
+                  {isActive && <span className="addon-active-badge">Activo</span>}
+                  
+                  <div className="addon-header">
+                    <div className="addon-icon">{addon.icon}</div>
+                    <div className="addon-info">
+                      <h3 className="addon-name">{addon.displayName}</h3>
+                      <p className="addon-description">{addon.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="addon-pricing">
+                    <span className="addon-price">
+                      {addon.currency}{addon.price}
+                    </span>
+                    <span className="addon-period">/{addon.period}</span>
+                  </div>
+
+                  <ul className="addon-features">
+                    {addon.features.map((feature, index) => (
+                      <li key={index}>
+                        <span className="feature-check">✓</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {!isAvailable && (
+                    <p className="addon-availability">
+                      Disponible para: {addon.availableFor.join(', ')}
+                    </p>
+                  )}
+
+                  <button
+                    onClick={() => isActive 
+                      ? handleCancelAddOnClick(addon.name) 
+                      : handlePurchaseAddOnClick(addon.name)
+                    }
+                    disabled={loading || (!isAvailable && !isActive)}
+                    className={getAddOnButtonClass(addon)}
+                  >
+                    {loading && loadingAddOn === addon.name ? (
+                      <span className="spinner"></span>
+                    ) : (
+                      getAddOnButtonText(addon)
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
+
+      {/* Modal de confirmación */}
+      <PricingConfirmModal
+        isOpen={showConfirmModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmAction}
+        type={confirmModalType}
+        loading={loading}
+        currentPlan={currentPlan}
+        targetPlan={pendingAction?.targetPlan}
+        addon={pendingAction?.addon}
+        incompatibleAddOns={pendingAction?.incompatibleAddOns || []}
+      />
     </div>
   );
 };

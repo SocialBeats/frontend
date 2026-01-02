@@ -204,6 +204,163 @@ export const redirectToCheckout = async (planType, email = null) => {
   }
 };
 
+// ====================================================================
+// ADDON MANAGEMENT
+// ====================================================================
+
+/**
+ * Obtener todos los AddOns disponibles
+ * 
+ * @returns {Promise<Object>} - Lista de AddOns disponibles
+ */
+export const getAvailableAddOns = async () => {
+  try {
+    logger.info('Fetching available add-ons');
+
+    const response = await client.get('/payments/addons');
+
+    logger.info('Add-ons retrieved successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to get add-ons', error);
+    throw new Error(
+      error.response?.data?.message || 'Error al obtener los add-ons'
+    );
+  }
+};
+
+/**
+ * Obtener los AddOns del usuario actual
+ * 
+ * @returns {Promise<Object>} - AddOns activos y disponibles del usuario
+ */
+export const getMyAddOns = async () => {
+  try {
+    logger.info('Fetching my add-ons');
+
+    const response = await client.get('/payments/addons/my');
+
+    logger.info('My add-ons retrieved successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to get my add-ons', error);
+
+    // Si no tiene suscripción, retornar vacío
+    if (error.response?.status === 404) {
+      return {
+        activeAddOns: [],
+        availableAddOns: [],
+      };
+    }
+
+    throw new Error(
+      error.response?.data?.message || 'Error al obtener tus add-ons'
+    );
+  }
+};
+
+/**
+ * Comprar un AddOn
+ * 
+ * @param {string} addonName - Nombre del AddOn a comprar
+ * @returns {Promise<Object>} - Información de la compra
+ */
+export const purchaseAddOn = async (addonName) => {
+  try {
+    logger.info(`Purchasing add-on: ${addonName}`);
+
+    const response = await client.post('/payments/addons/purchase', { addonName });
+
+    logger.info('Add-on purchased successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to purchase add-on', error);
+
+    // Error 402: Requiere método de pago
+    if (error.response?.status === 402) {
+      const data = error.response.data;
+      logger.info('Payment method required for add-on, returning setup info');
+      throw {
+        requiresSetup: true,
+        setupUrl: data.setupUrl,
+        setupSessionId: data.setupSessionId,
+        addonName: data.addonName,
+        message: data.message,
+      };
+    }
+
+    if (error.response?.status === 400) {
+      throw new Error(error.response.data?.message || 'No puedes comprar este add-on');
+    }
+
+    if (error.response?.status === 409) {
+      throw new Error('Ya tienes este add-on activo');
+    }
+
+    if (error.response?.status === 401) {
+      throw new Error('Debes iniciar sesión para comprar add-ons');
+    }
+
+    throw new Error(
+      error.response?.data?.message || 'Error al comprar el add-on'
+    );
+  }
+};
+
+/**
+ * Completar compra de AddOn después de añadir método de pago
+ * 
+ * @param {string} addonName - Nombre del AddOn
+ * @returns {Promise<Object>} - Información de la compra completada
+ */
+export const completeAddOnSetup = async (addonName) => {
+  try {
+    logger.info(`Completing add-on setup for: ${addonName}`);
+
+    const response = await client.post('/payments/addons/complete-setup', { addonName });
+
+    logger.info('Add-on setup completed successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to complete add-on setup', error);
+
+    throw new Error(
+      error.response?.data?.message || 'Error al completar la compra del add-on'
+    );
+  }
+};
+
+/**
+ * Cancelar un AddOn
+ * 
+ * @param {string} addonName - Nombre del AddOn a cancelar
+ * @returns {Promise<Object>} - Información de la cancelación
+ */
+export const cancelAddOn = async (addonName) => {
+  try {
+    logger.info(`Canceling add-on: ${addonName}`);
+
+    const response = await client.delete(`/payments/addons/${addonName}`);
+
+    logger.info('Add-on canceled successfully');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to cancel add-on', error);
+
+    if (error.response?.status === 404) {
+      throw new Error('No tienes este add-on activo');
+    }
+
+    if (error.response?.status === 401) {
+      throw new Error('Debes iniciar sesión para cancelar add-ons');
+    }
+
+    throw new Error(
+      error.response?.data?.message || 'Error al cancelar el add-on'
+    );
+  }
+};
+
 export default {
   createCheckoutSession,
   getSubscriptionStatus,
@@ -211,4 +368,10 @@ export default {
   completeUpgrade,
   cancelSubscription,
   redirectToCheckout,
+  // AddOns
+  getAvailableAddOns,
+  getMyAddOns,
+  purchaseAddOn,
+  completeAddOnSetup,
+  cancelAddOn,
 };
