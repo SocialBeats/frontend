@@ -12,6 +12,7 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileSkillsSection from '@/components/profile/ProfileSkillsSection';
 import ProfileStudiesSection from '@/components/profile/ProfileStudiesSection';
 import ProfileCompletionWidget from '@/components/profile/ProfileCompletionWidget';
+import SecuritySettings from '@/components/profile/SecuritySettings';
 import DangerZone from '@/components/profile/DangerZone';
 import './Profile.css';
 
@@ -271,6 +272,13 @@ export default function ProfileView() {
           onCancel={handleCancelTags}
         />
       </div>
+
+      {/* Security Settings - only for own profile */}
+      {isOwnProfile && (
+        <div id="profile-security-section" style={{ marginTop: '2rem' }}>
+          <SecuritySettings />
+        </div>
+      )}
 
       {/* Danger Zone - only for own profile */}
       {isOwnProfile && (

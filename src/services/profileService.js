@@ -45,3 +45,10 @@ export function searchProfiles(query) {
 export function getProfileCompletionStatus() {
   return client.get('/profile/me/completion-status').then(response => response.data);
 }
+
+/** Obtiene el perfil de un usuario por su ID
+ * @param {string} identifier - ID del usuario
+ */
+export function getProfileInfoByUserId(identifier) {
+  return client.get(`/profile/${identifier}`).then(response => response.data);
+}

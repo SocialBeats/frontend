@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
+import { BadgeCheck } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
-import Badge from '@/components/ui/Badge';
+
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
@@ -95,12 +96,7 @@ export default function ProfileHero({
         </div>
         <h2 className="profile-username">{profile.username}</h2>
 
-        {/* Badge de completitud - solo si es tu perfil */}
-        {isOwnProfile && (
-          <div className="profile-completion">
-            <Badge variant="warning">Completa tu perfil</Badge>
-          </div>
-        )}
+
 
         {/* Botón para cambiar decorador - solo si es tu perfil */}
         {isOwnProfile && (
@@ -163,8 +159,18 @@ export default function ProfileHero({
       <div className="profile-hero-center">
         {/* Header con nombre */}
         <div className="profile-name-header">
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
+            {profile.identityVerified && (
+              <BadgeCheck
+                size={28}
+                className="verified-badge"
+                fill="#3b82f6"
+                color="white"
+                aria-label="Perfil verificado"
+                title="Perfil verificado"
+              />
+            )}
           </div>
           {isOwnProfile && !isEditingBasic && (
             <Button variant="secondary" onClick={onEditClick}>

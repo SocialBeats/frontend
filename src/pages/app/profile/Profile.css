@@ -170,7 +170,7 @@
 }
 
 .profile-about-section.clickable::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -332,7 +332,7 @@
   margin-bottom: 0.75rem;
 }
 
-.tag-input-row>div {
+.tag-input-row > div {
   flex: 1;
 }
 
@@ -498,4 +498,15 @@
   .form-actions button {
     width: 100%;
   }
+}
+
+/* Verified Badge */
+.verified-badge {
+  cursor: help;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.verified-badge:hover {
+  transform: scale(1.1);
 }

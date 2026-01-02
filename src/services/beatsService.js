@@ -160,25 +160,44 @@ export const getPresignedUrl = async ({ extension, mimetype, size }) => {
   }
 };
 
-export const uploadFileToS3 = async (uploadUrl, file) => {
+/**
+ * Upload file to S3 using Presigned POST
+ * @param {Object} presignedData - Object containing {url, fields} from backend
+ * @param {File} file - File to upload
+ * @returns {Promise<boolean>} True if upload succeeded
+ */
+export const uploadFileToS3 = async (presignedData, file) => {
   try {
-    console.log('📤 Uploading file to S3...');
+    console.log('📤 Uploading file to S3 via Presigned POST...');
+    const { url, fields } = presignedData;
 
-    // Note: We use fetch here because axios might add headers that S3 doesn't like
-    // or we want to keep it simple without the interceptors
-    const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type
-      }
+    // Build FormData with all presigned policy fields
+    const formData = new FormData();
+
+    // Add all policy fields FIRST (order matters for S3)
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // ⚠️ CRITICAL: File MUST be appended LAST (AWS S3 requirement)
+    // If file is not the last field, S3 will reject the upload
+    formData.append('file', file);
+
+    // POST to S3 endpoint
+    // Note: Don't set Content-Type header - browser will set it with correct boundary
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
+      // No headers needed - signature is in the form fields
     });
 
     if (!response.ok) {
-      throw new Error(`S3 Upload failed: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('🚨 S3 Upload error response:', errorText);
+      throw new Error(`S3 Upload failed: ${response.status} - ${errorText}`);
     }
 
-    console.log('✅ File uploaded to S3 successfully');
+    console.log('✅ File uploaded to S3 successfully via POST');
     return true;
   } catch (error) {
     console.error('🚨 Error uploading to S3:', error);
@@ -281,6 +300,49 @@ export const downloadBeat = async (id) => {
     }
   } catch (error) {
     console.error('🚨 Error downloading beat:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get signed CloudFront URL for audio streaming (Just-in-Time)
+ * Call this before playing to get a fresh signed URL
+ * @param {string} id - Beat ID
+ * @returns {Promise<string>} Signed CloudFront URL for streaming
+ */
+export const getAudioStreamUrl = async (id) => {
+  try {
+    console.log('🎵 Fetching signed stream URL for beat:', id);
+    const { data } = await client.get(`/beats/${id}/audio`);
+
+    // Backend returns { streamUrl: "..." } or redirects
+    if (data.streamUrl) {
+      console.log('✅ Stream URL received');
+      return data.streamUrl;
+    }
+
+    // Fallback: direct URL in response
+    if (typeof data === 'string' && data.startsWith('http')) {
+      return data;
+    }
+
+    throw new Error('No stream URL in response');
+  } catch (error) {
+    // Handle specific HTTP error codes
+    if (error.response?.status === 403) {
+      console.error('🚫 Not authorized to stream this beat');
+      throw new Error('No autorizado para reproducir este beat');
+    }
+    if (error.response?.status === 429) {
+      console.error('⏳ Rate limit exceeded for streaming');
+      throw new Error('Límite de reproducciones excedido. Intenta más tarde.');
+    }
+    if (error.response?.status === 404) {
+      console.error('🔍 Beat audio not found');
+      throw new Error('Audio no encontrado');
+    }
+
+    console.error('🚨 Error fetching stream URL:', error);
     throw error;
   }
 };
