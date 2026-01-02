@@ -4,10 +4,11 @@ import Button from '../../../components/ui/Button';
 import SuccessModal from '../../../components/ui/SuccessModal';
 import ErrorModal from '../../../components/ui/ErrorModal';
 import './CreateDashboards.css';
-//import { createDashboard } from '../../../services/analytics/dashboards';
 
 import { createDashboard } from '../../../services/analytics/dashboards';
 import { getMyBeats } from '../../../services/beatsService';
+import { useMetricsStatusContext } from '../../../contexts/MetricsStatusContext';
+import { logger } from '../../../logger';
 
 const CreateDashboards = () => {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ const CreateDashboards = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [createdDashboardId, setCreatedDashboardId] = useState(null);
+  const [initialMetricsCheck, setInitialMetricsCheck] = useState(new Map());
+  
+  // Get metrics status from global context (SSE in PrivateLayout)
+  const { metricsStatus } = useMetricsStatusContext();
 
   // Función para cargar beats (expuesta para poder reutilizarla)
   const loadUserBeats = async () => {
@@ -34,6 +39,32 @@ const CreateDashboards = () => {
 
       if (beatsData && Array.isArray(beatsData)) {
         setBeats(beatsData);
+
+        // Check initial metrics status for each beat using new status endpoint
+        if (beatsData.length > 0) {
+          try {
+            const analyticsUrl = window.APP_CONFIG?.ANALYTICS_SERVICE_URL || 
+                               import.meta.env.VITE_ANALYTICS_SERVICE_URL || 
+                               'http://localhost:3003';
+            
+            const beatIds = beatsData.map(b => b._id).join(',');
+            const response = await fetch(`${analyticsUrl}/api/v1/analytics/beat-metrics-status?beatIds=${beatIds}`);
+            const { data } = await response.json();
+            
+            const statusMap = new Map();
+            for (const beat of beatsData) {
+              const status = data[beat._id];
+              statusMap.set(beat._id, status?.status || 'calculating');
+            }
+            setInitialMetricsCheck(statusMap);
+          } catch (err) {
+            logger.warn('Error fetching metrics status:', err);
+            // If status check fails, assume calculating for all
+            const statusMap = new Map();
+            beatsData.forEach(beat => statusMap.set(beat._id, 'calculating'));
+            setInitialMetricsCheck(statusMap);
+          }
+        }
 
         if (beatsData.length === 0) {
           setError('No tienes beats subidos. Sube un beat primero para crear un dashboard.');
@@ -128,8 +159,18 @@ const CreateDashboards = () => {
     setSelectedBeatId(selectedBeatId === beatId ? '' : beatId);
   };
 
+  // Get metrics status for selected beat (combine initial check + SSE updates)
+  const getMetricsStatusForBeat = (beatId) => {
+    // First check if we have a realtime update from SSE
+    if (metricsStatus.has(beatId)) {
+      return metricsStatus.get(beatId);
+    }
+    // Otherwise use initial check
+    return initialMetricsCheck.get(beatId) || 'calculating';
+  };
+
   const selectedBeat = beats.find((b) => b._id === selectedBeatId);
-  const selectedBeatMetricsReady = selectedBeat?.metrics?.status === 'done';
+  const selectedBeatMetricsReady = getMetricsStatusForBeat(selectedBeatId) === 'completed';
 
   return (
     <div className="create-dashboard">
@@ -193,16 +234,20 @@ const CreateDashboards = () => {
               </div>
             ) : beats.length > 0 ? (
               <div className="beats-grid">
-                {beats.map((beat) => (
+                {beats.map((beat) => {
+                  const metricsStatusValue = getMetricsStatusForBeat(beat._id);
+                  const isCalculating = metricsStatusValue === 'calculating';
+                  
+                  return (
                   <div
                     key={beat._id}
-                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''} ${beat.metrics && beat.metrics.status !== 'done' ? 'beat-card--disabled' : ''}`}
+                    className={`beat-card ${selectedBeatId === beat._id ? 'beat-card--selected' : ''} ${isCalculating ? 'beat-card--disabled' : ''}`}
                     onClick={() => {
-                      if (beat.metrics && beat.metrics.status !== 'done') return; // prevent selecting while metrics pending
+                      if (isCalculating) return; // prevent selecting while metrics pending
                       handleBeatSelect(beat._id);
                     }}
-                    role={beat.metrics && beat.metrics.status !== 'done' ? 'button' : 'button'}
-                    aria-disabled={beat.metrics && beat.metrics.status !== 'done'}
+                    role="button"
+                    aria-disabled={isCalculating}
                   >
                     {selectedBeatId === beat._id && (
                       <div className="beat-card__check">
@@ -225,9 +270,17 @@ const CreateDashboards = () => {
                         </span>
                       </div>
 
-                      {beat.metrics && beat.metrics.status !== 'done' && (
+                      {isCalculating ? (
                         <div className="beat-card__metrics">
-                          <span className="beat-card__metrics-badge">Calculando métricas…</span>
+                          <span className="beat-card__metrics-badge beat-card__metrics-badge--calculating">
+                           Calculando métricas…
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="beat-card__metrics">
+                          <span className="beat-card__metrics-badge beat-card__metrics-badge--done">
+                            ✅ Métricas calculadas
+                          </span>
                         </div>
                       )}
 
@@ -243,7 +296,8 @@ const CreateDashboards = () => {
                       )}
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             ) : (
               <div className="create-dashboard__no-beats">
