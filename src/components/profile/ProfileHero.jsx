@@ -6,6 +6,7 @@ import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
 import SocialLinkEditor from './SocialLinkEditor';
 import { MAX_ABOUT_ME_LENGTH } from '@/pages/app/profile/ProfileView';
+import { DecoratedAvatar, DecoratorSelector } from '@/components/decorators';
 
 /**
  * ProfileHero component - displays the main profile header section
@@ -23,6 +24,7 @@ export default function ProfileHero({
   onSubmitAbout,
   onCancelAbout,
   onAvatarUpdate,
+  onDecoratorUpdate,
   onAddCertification,
   onRemoveCertification,
   onCertificationError,
@@ -30,6 +32,7 @@ export default function ProfileHero({
 }) {
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showDecoratorSelector, setShowDecoratorSelector] = useState(false);
 
   const handleAvatarClick = () => {
     if (isOwnProfile && fileInputRef.current) {
@@ -66,11 +69,13 @@ export default function ProfileHero({
       {/* Columna izquierda - Avatar y contacto */}
       <div className="profile-hero-left">
         <div className={`avatar-wrapper ${isOwnProfile ? 'editable' : ''}`} onClick={handleAvatarClick}>
-          <Avatar
-            src={profile.avatar || ''}
-            alt={profile.username}
-            size="xlarge"
-          />
+          <DecoratedAvatar decoratorId={profile.avatarDecorator || 'none'} size="xlarge">
+            <Avatar
+              src={profile.avatar || ''}
+              alt={profile.username}
+              size="xlarge"
+            />
+          </DecoratedAvatar>
           {isOwnProfile && (
             <div className={`avatar-overlay ${uploadingAvatar ? 'uploading' : ''}`}>
               {uploadingAvatar ? (
@@ -95,6 +100,33 @@ export default function ProfileHero({
           <div className="profile-completion">
             <Badge variant="warning">Completa tu perfil</Badge>
           </div>
+        )}
+
+        {/* Botón para cambiar decorador - solo si es tu perfil */}
+        {isOwnProfile && (
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => setShowDecoratorSelector(!showDecoratorSelector)}
+            style={{ marginTop: '0.5rem' }}
+          >
+            {showDecoratorSelector ? 'Cerrar decoradores' : '✨ Decoradores'}
+          </Button>
+        )}
+
+        {/* Selector de decoradores (modal) */}
+        {isOwnProfile && showDecoratorSelector && (
+          <DecoratorSelector
+            currentDecorator={profile.avatarDecorator || 'none'}
+            ownedDecorators={['none', 'green_ring', 'neon_ring', 'animated_ring', 'lightning_ring', 'lava_ring']}
+            avatarUrl={profile.avatar || ''}
+            onSelect={(decoratorId) => {
+              onDecoratorUpdate(decoratorId);
+              setShowDecoratorSelector(false);
+            }}
+            onClose={() => setShowDecoratorSelector(false)}
+            saving={saving}
+          />
         )}
 
         {/* Info de contacto */}
@@ -199,14 +231,7 @@ export default function ProfileHero({
           )}
         </div>
 
-        {/* Beats destacados - Grid de 3 */}
-        <div className="profile-beats-preview">
-          {[1, 2, 3].map((beat) => (
-            <div key={beat} className="beat-preview-card">
-              <span className="beat-icon">🎵</span>
-            </div>
-          ))}
-        </div>
+
       </div>
 
       {/* Columna derecha - Certificaciones */}

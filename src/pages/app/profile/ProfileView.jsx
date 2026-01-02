@@ -106,6 +106,18 @@ export default function ProfileView() {
     }
   };
 
+  const handleDecoratorUpdate = async (decoratorId) => {
+    try {
+      await updateMyProfile({ avatarDecorator: decoratorId });
+      await loadProfile();
+      notifyProfileUpdate();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar el decorador');
+      setShowErrorModal(true);
+    }
+  };
+
   // Handlers para certificaciones
   const handleAddCertification = async (certification) => {
     try {
@@ -205,6 +217,7 @@ export default function ProfileView() {
           onSubmitAbout={handleAboutSubmit}
           onCancelAbout={handleCancelAbout}
           onAvatarUpdate={handleAvatarUpdate}
+          onDecoratorUpdate={handleDecoratorUpdate}
           onAddCertification={handleAddCertification}
           onRemoveCertification={handleRemoveCertification}
           onCertificationError={(message) => {

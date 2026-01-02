@@ -1,0 +1,491 @@
+/* =================================
+   Avatar Decorator Styles
+   ================================= */
+
+.decorator-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.decorator-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+/* Base ring styles */
+.decorator-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+/* Base glow styles */
+.decorator-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* =================================
+   Green Ring Decorator - Radioactive Breathing Glow
+   ================================= */
+
+.green-ring {
+    border-style: solid;
+    border-color: #39ff14;
+    background: transparent;
+    box-shadow:
+        0 0 8px rgba(57, 255, 20, 0.2),
+        0 0 15px rgba(57, 255, 20, 0.1),
+        inset 0 0 8px rgba(57, 255, 20, 0.05);
+}
+
+.green-glow {
+    background: radial-gradient(circle,
+            rgba(57, 255, 20, 0.25) 20%,
+            rgba(57, 255, 20, 0.15) 80%,
+            transparent 70%);
+    filter: blur(10px);
+}
+
+/* Green breathing animation - Continuous 20% to 80% intensity */
+@keyframes green-breathe {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 8px rgba(57, 255, 20, 0.2),
+            0 0 15px rgba(57, 255, 20, 0.1),
+            inset 0 0 8px rgba(57, 255, 20, 0.05);
+        border-color: #39ff14;
+    }
+
+    50% {
+        box-shadow:
+            0 0 20px rgba(57, 255, 20, 0.8),
+            0 0 40px rgba(57, 255, 20, 0.5),
+            0 0 60px rgba(57, 255, 20, 0.3),
+            inset 0 0 15px rgba(57, 255, 20, 0.2);
+        border-color: #7fff00;
+    }
+}
+
+@keyframes green-glow-breathe {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+}
+
+/* =================================
+   Neon Ring Decorator - Purple Flickering
+   ================================= */
+
+
+.neon-ring {
+    border-style: solid;
+    border-color: transparent;
+    background: linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+        linear-gradient(90deg,
+            #9d00ff,
+            #bf00ff,
+            #9d00ff,
+            #7b00ff,
+            #9d00ff) border-box;
+    box-shadow:
+        0 0 10px rgba(157, 0, 255, 0.6),
+        0 0 20px rgba(157, 0, 255, 0.4),
+        0 0 30px rgba(157, 0, 255, 0.2);
+}
+
+.neon-glow {
+    background: radial-gradient(circle,
+            rgba(157, 0, 255, 0.5) 0%,
+            rgba(191, 0, 255, 0.3) 40%,
+            rgba(123, 0, 255, 0.15) 70%,
+            transparent 85%);
+    filter: blur(12px);
+}
+
+
+/* Neon purple flicker animation */
+@keyframes neon-flicker {
+
+    0%,
+    18%,
+    22%,
+    25%,
+    53%,
+    57%,
+    100% {
+        box-shadow:
+            0 0 10px rgba(157, 0, 255, 0.6),
+            0 0 20px rgba(157, 0, 255, 0.4),
+            0 0 30px rgba(157, 0, 255, 0.2);
+        opacity: 1;
+    }
+
+    20%,
+    24%,
+    55% {
+        box-shadow:
+            0 0 5px rgba(157, 0, 255, 0.3),
+            0 0 10px rgba(157, 0, 255, 0.15);
+        opacity: 0.7;
+    }
+}
+
+@keyframes neon-glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+}
+
+/* =================================
+   Animated Ring Decorator
+   ================================= */
+
+.animated-ring {
+    border: 4px solid transparent;
+    background: linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+        conic-gradient(from 0deg,
+            #ff6b6b,
+            #feca57,
+            #48dbfb,
+            #ff9ff3,
+            #54a0ff,
+            #5f27cd,
+            #ff6b6b) border-box;
+    box-shadow:
+        0 0 20px rgba(255, 107, 107, 0.3),
+        0 0 40px rgba(84, 160, 255, 0.2);
+}
+
+.animated-glow {
+    background: radial-gradient(circle,
+            rgba(255, 107, 107, 0.3) 0%,
+            rgba(84, 160, 255, 0.2) 30%,
+            rgba(95, 39, 205, 0.1) 60%,
+            transparent 80%);
+    filter: blur(12px);
+}
+
+/* =================================
+   CSS Animations (replacing Framer Motion)
+   ================================= */
+
+/* Appear animation for rings */
+@keyframes ring-appear {
+    from {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Glow appear animation */
+@keyframes glow-appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 0.3;
+    }
+}
+
+/* Rotation animation for animated ring */
+@keyframes ring-rotate {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Pulse animation for animated glow */
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+/* Apply animations to ring classes */
+.green-ring-appear {
+    animation: ring-appear 0.3s ease-out forwards, green-breathe 4s linear infinite;
+}
+
+.green-glow-breathe {
+    animation: green-glow-breathe 4s linear infinite;
+}
+
+.neon-ring-appear {
+    animation: ring-appear 0.3s ease-out forwards, neon-flicker 4s ease-in-out infinite;
+}
+
+.neon-glow-appear {
+    animation: neon-glow-pulse 2s ease-in-out infinite;
+}
+
+.animated-ring-rotate {
+    animation: ring-appear 0.3s ease-out forwards, ring-rotate 8s linear infinite;
+}
+
+.animated-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* =================================
+   Decorator Selector (for future store)
+   ================================= */
+
+.decorator-preview {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.decorator-preview:hover {
+    transform: scale(1.05);
+}
+
+.decorator-preview.active {
+    box-shadow: 0 0 0 3px var(--color-primary, #7c3aed);
+}
+
+/* =================================
+   Lightning Ring Decorator
+   ================================= */
+
+.lightning-ring {
+    border: 4px solid transparent;
+    background: linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+        linear-gradient(90deg,
+            #ffd700,
+            #fff176,
+            #ffeb3b,
+            #87ceeb,
+            #00bfff,
+            #ffd700) border-box;
+    box-shadow:
+        0 0 15px rgba(255, 215, 0, 0.5),
+        0 0 30px rgba(0, 191, 255, 0.3);
+}
+
+.lightning-glow {
+    background: radial-gradient(circle,
+            rgba(255, 215, 0, 0.4) 0%,
+            rgba(135, 206, 235, 0.3) 30%,
+            rgba(0, 191, 255, 0.2) 60%,
+            transparent 80%);
+    filter: blur(10px);
+}
+
+.lightning-bolts {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    background: transparent;
+    box-shadow:
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Lightning flash animation */
+@keyframes lightning-flash {
+
+    0%,
+    90%,
+    100% {
+        opacity: 1;
+        box-shadow:
+            0 0 15px rgba(255, 215, 0, 0.5),
+            0 0 30px rgba(0, 191, 255, 0.3);
+    }
+
+    92%,
+    94%,
+    96% {
+        opacity: 1;
+        box-shadow:
+            0 0 25px rgba(255, 255, 255, 0.9),
+            0 0 50px rgba(255, 215, 0, 0.8),
+            0 0 80px rgba(0, 191, 255, 0.6);
+    }
+
+    93%,
+    95% {
+        opacity: 0.9;
+        box-shadow:
+            0 0 15px rgba(255, 215, 0, 0.5),
+            0 0 30px rgba(0, 191, 255, 0.3);
+    }
+}
+
+@keyframes lightning-glow-pulse {
+
+    0%,
+    85%,
+    100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    90%,
+    95% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.lightning-ring-flash {
+    animation: ring-appear 0.3s ease-out forwards, lightning-flash 3s ease-in-out infinite;
+}
+
+.lightning-glow-pulse {
+    animation: lightning-glow-pulse 3s ease-in-out infinite;
+}
+
+/* =================================
+   Lava Ring Decorator
+   ================================= */
+
+.lava-ring {
+    border: 5px solid transparent;
+    background: linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+        linear-gradient(var(--lava-angle, 0deg),
+            #ff4500,
+            #ff6347,
+            #ff8c00,
+            #ffd700,
+            #ff4500,
+            #8b0000,
+            #ff4500) border-box;
+    box-shadow:
+        0 0 20px rgba(255, 69, 0, 0.6),
+        0 0 40px rgba(255, 140, 0, 0.4),
+        inset 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+.lava-glow {
+    background: radial-gradient(circle,
+            rgba(255, 69, 0, 0.5) 0%,
+            rgba(255, 140, 0, 0.3) 40%,
+            rgba(139, 0, 0, 0.2) 70%,
+            transparent 90%);
+    filter: blur(12px);
+}
+
+/* Lava flow animation - rotating gradient */
+@keyframes lava-flow {
+    0% {
+        --lava-angle: 0deg;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        --lava-angle: 360deg;
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes lava-glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: translate(-50%, -50%) scale(1);
+        filter: blur(12px);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.08);
+        filter: blur(15px);
+    }
+}
+
+/* Lava bubble effect */
+@keyframes lava-bubble {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 20px rgba(255, 69, 0, 0.6),
+            0 0 40px rgba(255, 140, 0, 0.4),
+            inset 0 0 15px rgba(255, 215, 0, 0.2);
+    }
+
+    25% {
+        box-shadow:
+            0 0 25px rgba(255, 69, 0, 0.7),
+            0 0 50px rgba(255, 140, 0, 0.5),
+            inset 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        box-shadow:
+            0 0 30px rgba(255, 69, 0, 0.8),
+            0 0 60px rgba(255, 140, 0, 0.6),
+            inset 0 0 25px rgba(255, 215, 0, 0.4);
+    }
+
+    75% {
+        box-shadow:
+            0 0 25px rgba(255, 69, 0, 0.7),
+            0 0 45px rgba(255, 140, 0, 0.5),
+            inset 0 0 18px rgba(255, 215, 0, 0.3);
+    }
+}
+
+.lava-ring-flow {
+    animation: ring-appear 0.3s ease-out forwards, lava-flow 6s linear infinite, lava-bubble 4s ease-in-out infinite;
+}
+
+.lava-glow-pulse {
+    animation: lava-glow-pulse 3s ease-in-out infinite;
+}
