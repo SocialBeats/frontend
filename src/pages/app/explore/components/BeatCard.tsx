@@ -1,7 +1,9 @@
-import { Play, Pause, Download, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Pause, Download, Clock, Loader2 } from 'lucide-react';
 import './BeatCard.css';
 import { usePlayerStore } from '../../../../store/usePlayerStore';
 import { Beat } from '../../../../store/usePlayerStore';
+import { getAudioStreamUrl } from '../../../../services/beatsService';
 
 /**
  * BeatCard - Tarjeta de beat para la vista de exploración
@@ -19,8 +21,9 @@ interface BeatCardProps {
 
 export default function BeatCard({ beat, variant = 'default', onClick }: BeatCardProps) {
   const { currentBeat, isPlaying, play, pause } = usePlayerStore();
+  const [isLoadingPlay, setIsLoadingPlay] = useState(false);
   
-  const isActive = currentBeat?.id === beat.id || currentBeat?._id === beat._id;
+  const isActive = currentBeat?.id === beat.id || currentBeat?.id === beat._id;
   const isPlayingThis = isActive && isPlaying;
 
   const {
@@ -62,24 +65,38 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
     return num.toString();
   };
 
-  const handlePlayToggle = (e: React.MouseEvent) => {
+  const handlePlayToggle = async (e: React.MouseEvent) => {
     e.preventDefault(); // Por si es un enlace
     e.stopPropagation(); // CRÍTICO: Para que no salte el click de la tarjeta padre
     
     if (isPlayingThis) {
       pause();
-    } else {
-      // Map current beat object to store Beat if necessary
-      // Assuming beat object structure is compatible or handled by store
-      // We might need to map _id to id if store expects id
-       const beatForStore: Beat = {
-          ...beat,
-          id: beat.id || beat._id, // Ensure id is present
-          author: beat.createdBy?.username || 'Unknown', // Map author
-          cover: coverImageUrl || undefined
+      return;
+    }
+    
+    // Si es otro beat, obtener URL firmada (usa caché si está disponible)
+    setIsLoadingPlay(true);
+    try {
+      const beatId = beat._id || beat.id;
+      const { streamUrl, coverUrl } = await getAudioStreamUrl(beatId);
+      
+      const beatForStore: Beat = {
+        ...beat,
+        id: beatId,
+        author: beat.createdBy?.username || 'Unknown',
+        cover: coverUrl || coverImageUrl || undefined,
+        audio: {
+          url: streamUrl,
+          coverUrl: coverUrl || coverImageUrl || undefined,
+          duration: beat.duration
+        }
       };
       
       play(beatForStore);
+    } catch (error) {
+      console.error('Error playing beat:', error);
+    } finally {
+      setIsLoadingPlay(false);
     }
   };
 
@@ -94,7 +111,7 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
 
   return (
     <div
-      className={`beat-card ${variant === 'carousel' ? 'beat-card-carousel' : ''}`}
+      className={`beat-card ${variant === 'carousel' ? 'beat-card-carousel' : ''} ${isActive ? 'beat-card-active' : ''}`}
       onClick={onClick}
     >
       {/* Cover Image */}
@@ -111,10 +128,13 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
         <div className="beat-card-overlay">
           <button 
             className="beat-card-play-btn" 
-            aria-label={isPlayingThis ? "Pausar" : "Reproducir"}
+            aria-label={isPlayingThis ? "Pausar" : isLoadingPlay ? "Cargando" : "Reproducir"}
             onClick={handlePlayToggle}
+            disabled={isLoadingPlay}
           >
-            {isPlayingThis ? (
+            {isLoadingPlay ? (
+               <Loader2 size={24} className="animate-spin" />
+            ) : isPlayingThis ? (
                <Pause size={24} fill="currentColor" />
             ) : (
                <Play size={24} fill="currentColor" />
