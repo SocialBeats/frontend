@@ -5,6 +5,7 @@ import { useProfileForm } from '@/hooks/use-profile-form';
 import { useProfileContext } from '@/contexts/ProfileContext';
 import { updateMyProfile } from '@/services/profileService';
 import { uploadBannerToS3, deleteCertification } from '@/services/uploadService';
+import { Feature, On, Default } from 'space-react-client';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -274,28 +275,40 @@ export default function ProfileView() {
                 <Button variant="secondary" onClick={() => setIsEditingBasic(true)}>
                   Editar perfil
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  onClick={handleBannerClick}
-                  disabled={uploadingBanner}
-                >
-                  {uploadingBanner ? '⏳ Subiendo...' : 'Editar banner'}
-                </Button>
-                {profile.bannerURL && (
-                  <Button 
-                    variant="danger" 
-                    onClick={handleRemoveBanner}
-                  >
-                    Quitar banner
-                  </Button>
-                )}
-                <input
-                  ref={bannerInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerChange}
-                  style={{ display: 'none' }}
-                />
+                <Feature id="socialbeats-banner">
+                  <On>
+                    <Button 
+                      variant="secondary" 
+                      onClick={handleBannerClick}
+                      disabled={uploadingBanner}
+                    >
+                      {uploadingBanner ? '⏳ Subiendo...' : 'Editar banner'}
+                    </Button>
+                    {profile.bannerURL && (
+                      <Button 
+                        variant="danger" 
+                        onClick={handleRemoveBanner}
+                      >
+                        Quitar banner
+                      </Button>
+                    )}
+                    <input
+                      ref={bannerInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBannerChange}
+                      style={{ display: 'none' }}
+                    />
+                  </On>
+                  <Default>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => navigate('/app/pricing')}
+                    >
+                      🔒 Mejora tu plan para banner
+                    </Button>
+                  </Default>
+                </Feature>
               </>
             )}
           </div>
