@@ -51,6 +51,7 @@ export default function NavBar() {
     { path: '/app/playlists/me', icon: '📚', label: 'Biblioteca' },
     { path: '/app/messages', icon: '💬', label: 'Mensajes' },
     { path: '/app/dashboards', icon: '📊', label: 'Dashboards' },
+    { path: '/app/pricing', icon: '💎', label: 'Pricing' },
   ];
 
   return (
