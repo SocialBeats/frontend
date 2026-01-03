@@ -9,6 +9,7 @@ import {
   updateDashboard,
 } from "../../../services/analytics/dashboards";
 import "./DashboardsPage.css";
+import { Default, Feature } from "space-react-client";
 
 const DashboardsPage = () => {
   const navigate = useNavigate();
@@ -123,6 +124,10 @@ const DashboardsPage = () => {
   const handleCreate = () => {
     navigate("/app/dashboards/create");
   };
+  
+  const handleUpgrade = () => {
+    navigate("/app/pricing")
+  }
 
   // If there's a fatal load error and we have no data cached, show full error/retry
   if (loadError && dashboards.length === 0) {
@@ -161,10 +166,22 @@ const DashboardsPage = () => {
 
   return (
     <div className="dashboards-page">
-      <div className="dashboards-page__header">
-        <h1 className="dashboards-page__title">Mis Dashboards</h1>
-        <Button onClick={handleCreate}>+ Crear Dashboard</Button>
-      </div>
+      <Feature id="socialbeats-dashboards">
+        <On>
+          {/* Rendered when feature is enabled */}
+          <div className="dashboards-page__header">
+            <h1 className="dashboards-page__title">Mis Dashboards</h1>
+            <Button onClick={handleCreate}>+ Crear Dashboard</Button>
+          </div>
+        </On>
+        <Default>
+          {/* Rendered when feature is disabled */}
+          <div className="dashboards-page__header">
+            <h1 className="dashboards-page__title">Mis Dashboards</h1>
+            <Button onClick={handleUpgrade}>+ Obtener más dashboards</Button>
+          </div>
+        </Default>
+      </Feature>
 
       <DashboardList
         dashboards={dashboards}
