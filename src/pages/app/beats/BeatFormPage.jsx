@@ -161,13 +161,19 @@ const BeatFormPage = () => {
 
       <Modal
         isOpen={showCreatedModal}
-        onClose={() => setShowCreatedModal(false)}
+        onClose={() => {
+          setShowCreatedModal(false);
+          if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);
+        }}
         title="Métricas en proceso"
       >
         <div className="created-beat-modal">
           <p>Se están calculando las métricas de tu beat. En breve podrás crear tus dashboards basados en este beat.</p>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Button variant="secondary" onClick={() => setShowCreatedModal(false)}>Cerrar</Button>
+            <Button variant="secondary" onClick={() => {
+              setShowCreatedModal(false);
+              if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);
+            }}>Cerrar</Button>
             <Button variant="primary" onClick={() => {
               setShowCreatedModal(false);
               if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);

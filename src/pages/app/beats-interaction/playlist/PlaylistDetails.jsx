@@ -16,6 +16,7 @@ import {
 import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { searchBeats, getBeatById, getAudioStreamUrl, getBatchSignedUrls } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 import { usePlayerStore } from "../../../../store/usePlayerStore";
 import "./PlaylistDetails.css";
 
@@ -26,10 +27,10 @@ const PlaylistDetails = () => {
   const containerRef = useRef(null);
 
   // Global Player Store
-  const { 
-    currentBeat, 
-    isPlaying: globalIsPlaying, 
-    play: globalPlay, 
+  const {
+    currentBeat,
+    isPlaying: globalIsPlaying,
+    play: globalPlay,
     pause: globalPause,
     queue: globalQueue
   } = usePlayerStore();
@@ -54,6 +55,9 @@ const PlaylistDetails = () => {
   const [loadingUrls, setLoadingUrls] = useState(false);
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* ================= FETCH PLAYLIST ================= */
 
@@ -148,12 +152,12 @@ const PlaylistDetails = () => {
 
     const preloadSignedUrls = async () => {
       setLoadingUrls(true);
-      
+
       // Obtener IDs de beats que no están en caché local
       const beatIds = beats
         .map(beat => getBeatApiId(beat))
         .filter(id => !signedUrlsCache[id]);
-      
+
       if (beatIds.length === 0) {
         setLoadingUrls(false);
         console.log('📦 All URLs already cached locally');
@@ -164,7 +168,7 @@ const PlaylistDetails = () => {
         // Usar batch endpoint (máx 10 por petición, el servicio lo maneja)
         console.log('🔄 Batch fetching signed URLs for', beatIds.length, 'beats');
         const batchUrls = await getBatchSignedUrls(beatIds);
-        
+
         // Actualizar caché local con los resultados
         setSignedUrlsCache(prev => ({ ...prev, ...batchUrls }));
         console.log('✅ Pre-loaded signed URLs for', Object.keys(batchUrls).length, 'beats');
@@ -207,11 +211,11 @@ const PlaylistDetails = () => {
   // Construir la cola de reproducción con URLs firmadas
   const buildPlaylistQueue = useCallback(async () => {
     const queueBeats = [];
-    
+
     for (const beat of beats) {
       const apiId = getBeatApiId(beat);
       let cached = signedUrlsCache[apiId];
-      
+
       // Si no está en cache, intentar obtenerla
       if (!cached) {
         try {
@@ -223,20 +227,20 @@ const PlaylistDetails = () => {
           continue;
         }
       }
-      
+
       queueBeats.push(mapBeatToStoreFormat(beat, cached.streamUrl, cached.coverUrl));
     }
-    
+
     return queueBeats;
   }, [beats, signedUrlsCache, mapBeatToStoreFormat]);
 
   // Reproducir un beat específico de la playlist
   const handlePlayBeat = async (beat) => {
     const apiId = getBeatApiId(beat);
-    
+
     // Verificar si este beat ya está reproduciéndose
     const isThisBeatActive = currentBeat?.id === apiId;
-    
+
     if (isThisBeatActive) {
       // Solo toggle play/pause
       if (globalIsPlaying) {
@@ -254,7 +258,7 @@ const PlaylistDetails = () => {
     // Nuevo beat - construir cola y reproducir
     try {
       let cached = signedUrlsCache[apiId];
-      
+
       // Si no tenemos la URL, obtenerla
       if (!cached) {
         console.log('🔄 Fetching signed URLs for beat:', apiId);
@@ -265,17 +269,18 @@ const PlaylistDetails = () => {
 
       // Construir la cola completa de la playlist
       const playlistQueue = await buildPlaylistQueue();
-      
+
       // Encontrar el beat actual en la cola
       const beatForStore = mapBeatToStoreFormat(beat, cached.streamUrl, cached.coverUrl);
-      
+
       // Reproducir con la cola
       globalPlay(beatForStore, playlistQueue);
       console.log('▶️ Playing beat from playlist with queue of', playlistQueue.length, 'beats');
-      
+
     } catch (error) {
       console.error('❌ Error playing beat:', error);
-      alert(error.message || 'Error al reproducir el audio');
+      setErrorMessage("Error al reproducir el audio");
+      setErrorModalOpen(true);
     }
   };
 
@@ -298,7 +303,8 @@ const PlaylistDetails = () => {
       await deletePlaylist(playlist._id);
       navigate("/app/playlists/me");
     } catch {
-      alert("Error al eliminar la playlist");
+      setErrorMessage("Error al eliminar la playlist");
+      setErrorModalOpen(true);
     }
   };
 
@@ -339,7 +345,8 @@ const PlaylistDetails = () => {
       setPlaylist(data);
       setAddBeatModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || "Error al añadir beat");
+      setErrorMessage(err.response?.data?.message || "Error al añadir beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -360,7 +367,8 @@ const PlaylistDetails = () => {
         globalPause();
       }
     } catch {
-      alert("Error al quitar el beat");
+      setErrorMessage("Error al quitar el beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -387,7 +395,8 @@ const PlaylistDetails = () => {
       closeReportModal();
     } catch (err) {
       console.error(err);
-      alert("Error denunciando playlist");
+      setErrorMessage("Error denunciando playlist");
+      setErrorModalOpen(true);
       closeReportModal();
     }
   };
@@ -430,7 +439,7 @@ const PlaylistDetails = () => {
 
         {playlist && (
           <div className="playlist-actions">
-            { playlist && playlist.ownerId === myUserId  ? (
+            {playlist && playlist.ownerId === myUserId ? (
               <>
                 <IconButton
                   variant="ghost"
@@ -505,9 +514,9 @@ const PlaylistDetails = () => {
 
                 <div>{new Date(beat.addedAt).toLocaleDateString()}</div>
 
-                <img 
-                  src={getSignedCoverUrl(beat)} 
-                  alt="cover" 
+                <img
+                  src={getSignedCoverUrl(beat)}
+                  alt="cover"
                   className="beat-cover-small"
                   onError={(e) => { e.target.src = logo; }}
                 />
@@ -607,6 +616,12 @@ const PlaylistDetails = () => {
           )}
         </div>
       </Modal>
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };
