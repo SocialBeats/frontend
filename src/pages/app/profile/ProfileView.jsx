@@ -4,7 +4,7 @@ import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
 import { useProfileContext } from '@/contexts/ProfileContext';
 import { updateMyProfile } from '@/services/profileService';
-import { uploadBannerToS3 } from '@/services/uploadService';
+import { uploadBannerToS3, deleteCertification } from '@/services/uploadService';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -137,15 +137,13 @@ export default function ProfileView() {
     }
   };
 
-  const handleRemoveCertification = async (index) => {
+  const handleRemoveCertification = async (certificationId) => {
     try {
-      const currentCerts = profile.certifications || [];
-      const newCerts = currentCerts.filter((_, i) => i !== index);
-      await updateMyProfile({ certifications: newCerts });
+      await deleteCertification(certificationId);
       await loadProfile();
       setShowSuccessModal(true);
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
+      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Error al eliminar certificación');
       setShowErrorModal(true);
       throw error;
     }
