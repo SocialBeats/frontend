@@ -4,6 +4,7 @@ import Button from "../../../../components/ui/Button";
 import "./CreatePlaylist.css";
 import { createPlaylist } from "../../../../services/beats-interaction/playlistService";
 import { searchProfiles } from "../../../../services/profileService";
+import { Default, Feature, On } from "space-react-client";
 
 const CreatePlaylist = () => {
   const navigate = useNavigate();
@@ -107,7 +108,6 @@ const CreatePlaylist = () => {
   return (
     <div className="create-playlist">
       <div className="create-playlist__container">
-
         <div className="create-playlist__header">
           <h1 className="create-playlist__title">Crear Nueva Playlist</h1>
           <p className="create-playlist__subtitle">
@@ -116,7 +116,6 @@ const CreatePlaylist = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="playlist__form">
-
           {/* Name */}
           <div className="create-playlist__form-group">
             <label className="create-playlist__label">
@@ -149,7 +148,7 @@ const CreatePlaylist = () => {
 
             {/* Chips */}
             <div className="selected-collaborators">
-              {playlistCollaborators.map(user => (
+              {playlistCollaborators.map((user) => (
                 <div key={user.userId} className="collab-chip">
                   {user.username}
                   <span
@@ -186,7 +185,7 @@ const CreatePlaylist = () => {
                     No se encontraron usuarios
                   </div>
                 ) : (
-                  foundUsers.map(user => (
+                  foundUsers.map((user) => (
                     <div
                       key={user.userId}
                       className="collaborator-dropdown__item"
@@ -212,7 +211,7 @@ const CreatePlaylist = () => {
                 type="checkbox"
                 checked={playlistIsPublic}
                 onChange={() => {
-                  setPlaylistIsPublic(prev => !prev);
+                  setPlaylistIsPublic((prev) => !prev);
                   setPlaylistCollaborators([]);
                   setSearchQuery("");
                   setFoundUsers([]);
@@ -226,11 +225,22 @@ const CreatePlaylist = () => {
             <Button type="button" variant="secondary" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={!playlistName.trim() || isCreating}>
-              {isCreating ? "Creando..." : "Crear Playlist"}
-            </Button>
+            <Feature id="socialbeats-playlists">
+              <On>
+                <Button
+                  type="submit"
+                  disabled={!playlistName.trim() || isCreating}
+                >
+                  {isCreating ? "Creando..." : "Crear Playlist"}
+                </Button>
+              </On>
+              <Default>
+                <Button type="submit" disabled={true}>
+                  {"Mejora tu plan para poder crear playlists"}
+                </Button>
+              </Default>
+            </Feature>
           </div>
-
         </form>
       </div>
     </div>
