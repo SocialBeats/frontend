@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
+import { BadgeCheck } from 'lucide-react';
 import Avatar from '@/components/ui/Avatar';
-import Badge from '@/components/ui/Badge';
+
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
 import ProfileCertifications from './ProfileCertifications';
 import SocialLinkEditor from './SocialLinkEditor';
 import { MAX_ABOUT_ME_LENGTH } from '@/pages/app/profile/ProfileView';
+import { DecoratedAvatar, DecoratorSelector } from '@/components/decorators';
 
 /**
  * ProfileHero component - displays the main profile header section
@@ -14,15 +16,14 @@ export default function ProfileHero({
   profile,
   formData,
   isOwnProfile,
-  isEditingBasic,
   isEditingAbout,
   saving,
-  onEditClick,
   onEditAboutClick,
   onInputChange,
   onSubmitAbout,
   onCancelAbout,
   onAvatarUpdate,
+  onDecoratorUpdate,
   onAddCertification,
   onRemoveCertification,
   onCertificationError,
@@ -30,6 +31,7 @@ export default function ProfileHero({
 }) {
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showDecoratorSelector, setShowDecoratorSelector] = useState(false);
 
   const handleAvatarClick = () => {
     if (isOwnProfile && fileInputRef.current) {
@@ -62,15 +64,26 @@ export default function ProfileHero({
   };
 
   return (
-    <div className="profile-hero">
+    <div 
+      className="profile-hero"
+      style={{
+        ...(profile.bannerURL && {
+          backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.95)), url(${profile.bannerURL})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }),
+      }}
+    >
       {/* Columna izquierda - Avatar y contacto */}
       <div className="profile-hero-left">
         <div className={`avatar-wrapper ${isOwnProfile ? 'editable' : ''}`} onClick={handleAvatarClick}>
-          <Avatar
-            src={profile.avatar || ''}
-            alt={profile.username}
-            size="xlarge"
-          />
+          <DecoratedAvatar decoratorId={profile.avatarDecorator || 'none'} size="xlarge">
+            <Avatar
+              src={profile.avatar || ''}
+              alt={profile.username}
+              size="xlarge"
+            />
+          </DecoratedAvatar>
           {isOwnProfile && (
             <div className={`avatar-overlay ${uploadingAvatar ? 'uploading' : ''}`}>
               {uploadingAvatar ? (
@@ -90,11 +103,33 @@ export default function ProfileHero({
         </div>
         <h2 className="profile-username">{profile.username}</h2>
 
-        {/* Badge de completitud - solo si es tu perfil */}
+
+
+        {/* Botón para cambiar decorador - solo si es tu perfil */}
         {isOwnProfile && (
-          <div className="profile-completion">
-            <Badge variant="warning">Completa tu perfil</Badge>
-          </div>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => setShowDecoratorSelector(!showDecoratorSelector)}
+            style={{ marginTop: '0.5rem' }}
+          >
+            {showDecoratorSelector ? 'Cerrar decoradores' : '✨ Decoradores'}
+          </Button>
+        )}
+
+        {/* Selector de decoradores (modal) */}
+        {isOwnProfile && showDecoratorSelector && (
+          <DecoratorSelector
+            currentDecorator={profile.avatarDecorator || 'none'}
+            ownedDecorators={['none', 'green_ring', 'neon_ring', 'animated_ring', 'lightning_ring', 'lava_ring']}
+            avatarUrl={profile.avatar || ''}
+            onSelect={(decoratorId) => {
+              onDecoratorUpdate(decoratorId);
+              setShowDecoratorSelector(false);
+            }}
+            onClose={() => setShowDecoratorSelector(false)}
+            saving={saving}
+          />
         )}
 
         {/* Info de contacto */}
@@ -131,14 +166,19 @@ export default function ProfileHero({
       <div className="profile-hero-center">
         {/* Header con nombre */}
         <div className="profile-name-header">
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
+            {profile.identityVerified && (
+              <BadgeCheck
+                size={28}
+                className="verified-badge"
+                fill="#3b82f6"
+                color="white"
+                aria-label="Perfil verificado"
+                title="Perfil verificado"
+              />
+            )}
           </div>
-          {isOwnProfile && !isEditingBasic && (
-            <Button variant="secondary" onClick={onEditClick}>
-              Editar perfil
-            </Button>
-          )}
         </div>
 
         {/* About Me */}
@@ -199,14 +239,7 @@ export default function ProfileHero({
           )}
         </div>
 
-        {/* Beats destacados - Grid de 3 */}
-        <div className="profile-beats-preview">
-          {[1, 2, 3].map((beat) => (
-            <div key={beat} className="beat-preview-card">
-              <span className="beat-icon">🎵</span>
-            </div>
-          ))}
-        </div>
+
       </div>
 
       {/* Columna derecha - Certificaciones */}

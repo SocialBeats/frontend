@@ -8,18 +8,17 @@ import {
 import "./CreateRating.css";
 
 
-const MAX_SCORE = 5;
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
-const showApiError = (error, fallbackMessage) => {
-  console.error(fallbackMessage, error);
-  alert(error?.response?.data?.message || fallbackMessage);
-};
+const MAX_SCORE = 5;
 
 const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
   const [score, setScore] = useState(0);
   const [hoverScore, setHoverScore] = useState(null);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +47,9 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
         onRatingCreated(createdRating);
       }
     } catch (error) {
-      showApiError(error, "Error creando valoración");
+
+      setErrorMessage(error?.response?.data?.message || "Error creando valoración");
+      setErrorModalOpen(true);
     } finally {
       setSubmitting(false);
     }
@@ -99,6 +100,12 @@ const CreateRating = ({ isBeat = false, resourceId, onRatingCreated }) => {
       >
         {submitting ? "Enviando..." : "Enviar valoración"}
       </Button>
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </form>
   );
 };

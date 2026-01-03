@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
 import { useProfileContext } from '@/contexts/ProfileContext';
 import { updateMyProfile } from '@/services/profileService';
+import { uploadBannerToS3 } from '@/services/uploadService';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -22,10 +23,12 @@ export const MAX_ABOUT_ME_LENGTH = 500;
 export default function ProfileView() {
   const { username } = useParams();
   const navigate = useNavigate();
+  const bannerInputRef = useRef(null);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [uploadingBanner, setUploadingBanner] = useState(false);
 
   // Use custom hooks for data and form management
   const handleRedirect = () => {
@@ -107,6 +110,18 @@ export default function ProfileView() {
     }
   };
 
+  const handleDecoratorUpdate = async (decoratorId) => {
+    try {
+      await updateMyProfile({ avatarDecorator: decoratorId });
+      await loadProfile();
+      notifyProfileUpdate();
+      setShowSuccessModal(true);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Error al actualizar el decorador');
+      setShowErrorModal(true);
+    }
+  };
+
   // Handlers para certificaciones
   const handleAddCertification = async (certification) => {
     try {
@@ -148,6 +163,46 @@ export default function ProfileView() {
   const handleGoToPlaylists = () => {
     if (!profile?.userId) return;
     navigate(`/app/users/${profile.userId}/playlists`);
+  };
+
+  const handleBannerClick = () => {
+    if (bannerInputRef.current) {
+      bannerInputRef.current.click();
+    }
+  };
+
+  const handleBannerChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingBanner(true);
+      const bannerUrl = await uploadBannerToS3(file);
+      await updateMyProfile({ bannerURL: bannerUrl });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Error subiendo banner:', error);
+      setErrorMessage(error.message || 'Error al subir el banner');
+      setShowErrorModal(true);
+    } finally {
+      setUploadingBanner(false);
+      if (bannerInputRef.current) {
+        bannerInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveBanner = async () => {
+    try {
+      await updateMyProfile({ bannerURL: '' });
+      await loadProfile();
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Error eliminando banner:', error);
+      setErrorMessage(error.message || 'Error al eliminar el banner');
+      setShowErrorModal(true);
+    }
   };
 
   // Show error from useProfileData
@@ -197,15 +252,14 @@ export default function ProfileView() {
           profile={profile}
           formData={formData}
           isOwnProfile={isOwnProfile}
-          isEditingBasic={isEditingBasic}
           isEditingAbout={isEditingAbout}
           saving={saving}
-          onEditClick={() => setIsEditingBasic(true)}
           onEditAboutClick={() => setIsEditingAbout(true)}
           onInputChange={handleInputChange}
           onSubmitAbout={handleAboutSubmit}
           onCancelAbout={handleCancelAbout}
           onAvatarUpdate={handleAvatarUpdate}
+          onDecoratorUpdate={handleDecoratorUpdate}
           onAddCertification={handleAddCertification}
           onRemoveCertification={handleRemoveCertification}
           onCertificationError={(message) => {
@@ -214,11 +268,44 @@ export default function ProfileView() {
           }}
           onSocialLinkUpdate={handleSocialLinkUpdate}
         />
-        {/* Botón para ver playlists del usuario */}
-        <div style={{ marginTop: '1rem' }}>
-          <Button onClick={handleGoToPlaylists}>
-            Ver playlists
-          </Button>
+        {/* Barra de acciones debajo del hero */}
+        <div className="profile-actions-bar">
+          <div className="profile-actions-left">
+            {isOwnProfile && (
+              <>
+                <Button variant="secondary" onClick={() => setIsEditingBasic(true)}>
+                  Editar perfil
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={handleBannerClick}
+                  disabled={uploadingBanner}
+                >
+                  {uploadingBanner ? '⏳ Subiendo...' : 'Editar banner'}
+                </Button>
+                {profile.bannerURL && (
+                  <Button 
+                    variant="danger" 
+                    onClick={handleRemoveBanner}
+                  >
+                    Quitar banner
+                  </Button>
+                )}
+                <input
+                  ref={bannerInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerChange}
+                  style={{ display: 'none' }}
+                />
+              </>
+            )}
+          </div>
+          <div className="profile-actions-right">
+            <Button onClick={handleGoToPlaylists}>
+              Ver playlists
+            </Button>
+          </div>
         </div>
       </div>
 

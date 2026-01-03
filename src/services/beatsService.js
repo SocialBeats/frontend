@@ -1,5 +1,66 @@
 import { client } from '../api/axiosClient';
 
+// ============================================================
+// SIGNED URL CACHE - Lightweight cache with TTL (1.5 hours)
+// ============================================================
+const CACHE_TTL_MS = 90 * 60 * 1000; // 1.5 hours (URLs expire in 2h)
+const signedUrlCache = new Map();
+
+/**
+ * Get cached signed URL if still valid
+ * @param {string} beatId 
+ * @returns {Object|null} { streamUrl, coverUrl } or null if expired/missing
+ */
+const getCachedSignedUrl = (beatId) => {
+  const cached = signedUrlCache.get(beatId);
+  if (!cached) return null;
+  
+  // Check if expired
+  if (Date.now() > cached.expiresAt) {
+    signedUrlCache.delete(beatId);
+    return null;
+  }
+  
+  return cached.urls;
+};
+
+/**
+ * Store signed URLs in cache
+ * @param {string} beatId 
+ * @param {Object} urls - { streamUrl, coverUrl }
+ */
+const setCachedSignedUrl = (beatId, urls) => {
+  signedUrlCache.set(beatId, {
+    urls,
+    expiresAt: Date.now() + CACHE_TTL_MS
+  });
+};
+
+/**
+ * Store multiple signed URLs in cache (from batch response)
+ * @param {Object} urlsMap - { beatId: { streamUrl, coverUrl } }
+ */
+const setCachedSignedUrls = (urlsMap) => {
+  const expiresAt = Date.now() + CACHE_TTL_MS;
+  Object.entries(urlsMap).forEach(([beatId, urls]) => {
+    if (urls) {
+      signedUrlCache.set(beatId, { urls, expiresAt });
+    }
+  });
+};
+
+/**
+ * Clear all cached signed URLs (useful on logout)
+ */
+export const clearSignedUrlCache = () => {
+  signedUrlCache.clear();
+  console.log('🧹 Signed URL cache cleared');
+};
+
+// ============================================================
+// BEATS API METHODS
+// ============================================================
+
 export const getBeats = async (filters = {}) => {
   try {
     console.log('📡 Making API request to /beats with filters:', filters);
@@ -160,25 +221,44 @@ export const getPresignedUrl = async ({ extension, mimetype, size }) => {
   }
 };
 
-export const uploadFileToS3 = async (uploadUrl, file) => {
+/**
+ * Upload file to S3 using Presigned POST
+ * @param {Object} presignedData - Object containing {url, fields} from backend
+ * @param {File} file - File to upload
+ * @returns {Promise<boolean>} True if upload succeeded
+ */
+export const uploadFileToS3 = async (presignedData, file) => {
   try {
-    console.log('📤 Uploading file to S3...');
+    console.log('📤 Uploading file to S3 via Presigned POST...');
+    const { url, fields } = presignedData;
 
-    // Note: We use fetch here because axios might add headers that S3 doesn't like
-    // or we want to keep it simple without the interceptors
-    const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type
-      }
+    // Build FormData with all presigned policy fields
+    const formData = new FormData();
+
+    // Add all policy fields FIRST (order matters for S3)
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // ⚠️ CRITICAL: File MUST be appended LAST (AWS S3 requirement)
+    // If file is not the last field, S3 will reject the upload
+    formData.append('file', file);
+
+    // POST to S3 endpoint
+    // Note: Don't set Content-Type header - browser will set it with correct boundary
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
+      // No headers needed - signature is in the form fields
     });
 
     if (!response.ok) {
-      throw new Error(`S3 Upload failed: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('🚨 S3 Upload error response:', errorText);
+      throw new Error(`S3 Upload failed: ${response.status} - ${errorText}`);
     }
 
-    console.log('✅ File uploaded to S3 successfully');
+    console.log('✅ File uploaded to S3 successfully via POST');
     return true;
   } catch (error) {
     console.error('🚨 Error uploading to S3:', error);
@@ -282,5 +362,126 @@ export const downloadBeat = async (id) => {
   } catch (error) {
     console.error('🚨 Error downloading beat:', error);
     throw error;
+  }
+};
+
+/**
+ * Get signed CloudFront URLs for audio streaming and cover (Just-in-Time)
+ * Uses cache to avoid redundant requests. Call this before playing.
+ * @param {string} id - Beat ID
+ * @param {boolean} skipCache - Force fresh fetch (default: false)
+ * @returns {Promise<{streamUrl: string, coverUrl: string|null}>} Signed CloudFront URLs
+ */
+export const getAudioStreamUrl = async (id, skipCache = false) => {
+  // Check cache first (unless skipCache is true)
+  if (!skipCache) {
+    const cached = getCachedSignedUrl(id);
+    if (cached) {
+      console.log('📦 Using cached signed URL for beat:', id);
+      return cached;
+    }
+  }
+
+  try {
+    console.log('🎵 Fetching signed stream URL for beat:', id);
+    const { data } = await client.get(`/beats/${id}/audio`);
+
+    // Backend returns { streamUrl: "...", coverUrl: "..." }
+    if (data.streamUrl) {
+      console.log('✅ Stream URL received', data.coverUrl ? '(with cover)' : '(no cover)');
+      const urls = {
+        streamUrl: data.streamUrl,
+        coverUrl: data.coverUrl || null
+      };
+      
+      // Cache the result
+      setCachedSignedUrl(id, urls);
+      
+      return urls;
+    }
+
+    // Fallback: direct URL in response (legacy support)
+    if (typeof data === 'string' && data.startsWith('http')) {
+      return { streamUrl: data, coverUrl: null };
+    }
+
+    throw new Error('No stream URL in response');
+  } catch (error) {
+    // Handle specific HTTP error codes
+    if (error.response?.status === 403) {
+      console.error('🚫 Not authorized to stream this beat');
+      throw new Error('No autorizado para reproducir este beat');
+    }
+    if (error.response?.status === 429) {
+      console.error('⏳ Rate limit exceeded for streaming');
+      throw new Error('Límite de reproducciones excedido. Intenta más tarde.');
+    }
+    if (error.response?.status === 404) {
+      console.error('🔍 Beat audio not found');
+      throw new Error('Audio no encontrado');
+    }
+
+    console.error('🚨 Error fetching stream URL:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get signed CloudFront URLs for multiple beats at once (batch)
+ * More efficient than calling getAudioStreamUrl multiple times.
+ * Max 10 beats per request. Uses cache intelligently.
+ * @param {string[]} beatIds - Array of beat IDs (max 10)
+ * @returns {Promise<Object>} Map of beatId -> { streamUrl, coverUrl }
+ */
+export const getBatchSignedUrls = async (beatIds) => {
+  if (!Array.isArray(beatIds) || beatIds.length === 0) {
+    return {};
+  }
+
+  // Separate cached and uncached IDs
+  const result = {};
+  const uncachedIds = [];
+
+  for (const id of beatIds) {
+    const cached = getCachedSignedUrl(id);
+    if (cached) {
+      result[id] = cached;
+    } else {
+      uncachedIds.push(id);
+    }
+  }
+
+  // If all are cached, return immediately
+  if (uncachedIds.length === 0) {
+    console.log('📦 All', beatIds.length, 'signed URLs from cache');
+    return result;
+  }
+
+  console.log('📦 Cache hit:', beatIds.length - uncachedIds.length, '| Fetching:', uncachedIds.length);
+
+  try {
+    // Batch fetch only uncached IDs (limit 10 per request)
+    const batchSize = 10;
+    for (let i = 0; i < uncachedIds.length; i += batchSize) {
+      const batch = uncachedIds.slice(i, i + batchSize);
+      
+      console.log('🎵 Batch fetching signed URLs for', batch.length, 'beats');
+      const { data } = await client.post('/beats/batch/signed-urls', { beatIds: batch });
+
+      if (data.success && data.data) {
+        // Cache and add to result
+        setCachedSignedUrls(data.data);
+        Object.assign(result, data.data);
+        
+        console.log('✅ Batch URLs received:', data.meta?.resolved, 'resolved,', data.meta?.errors, 'errors');
+      }
+    }
+
+    return result;
+  } catch (error) {
+    console.error('🚨 Error fetching batch signed URLs:', error);
+    
+    // Fallback: return what we have from cache, don't break the UI
+    return result;
   }
 };

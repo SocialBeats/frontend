@@ -11,16 +11,14 @@ import {
   deleteComment,
   updateComment,
 } from "../../../../services/beats-interaction/commentService.js";
-// import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { createCommentModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateComment from "./CreateComment";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 import "./ListComments.css";
 
 
-const showApiError = (error, fallbackMessage) => {
-  console.error(fallbackMessage, error);
-  alert(error?.response?.data?.message || fallbackMessage);
-};
+
 
 
 const ListComments = ({ isBeat, resourceId }) => {
@@ -41,6 +39,9 @@ const ListComments = ({ isBeat, resourceId }) => {
 
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState("");
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const safeLimit = useMemo(() => (limit <= 0 ? 1 : limit), [limit]);
   const totalPages = useMemo(() => {
@@ -82,7 +83,8 @@ const ListComments = ({ isBeat, resourceId }) => {
           : 1;
       if (page > newTotalPages) setPage(newTotalPages);
     } catch (error) {
-      showApiError(error, "Error cargando comentarios");
+      setErrorMessage(error?.response?.data?.message || "Error cargando comentarios");
+      setErrorModalOpen(true);
       setComments([]);
       setTotalComments(0);
     }
@@ -141,7 +143,8 @@ const ListComments = ({ isBeat, resourceId }) => {
       closeDeleteModal();
       await fetchComments();
     } catch (error) {
-      showApiError(error, "Error eliminando comentario");
+      setErrorMessage(error?.response?.data?.message || "Error eliminando comentario");
+      setErrorModalOpen(true);
       closeDeleteModal();
     }
   };
@@ -188,7 +191,8 @@ const ListComments = ({ isBeat, resourceId }) => {
 
       cancelEditing();
     } catch (error) {
-      showApiError(error, "Error editando comentario");
+      setErrorMessage(error?.response?.data?.message || "Error editando comentario");
+      setErrorModalOpen(true);
     }
   };
 
@@ -211,19 +215,13 @@ const ListComments = ({ isBeat, resourceId }) => {
     if (!commentToReport?._id) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createCommentModerationReport(commentToReport._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report comment:", {
-        commentId: commentToReport._id,
-        reporterUserId: currentUserId,
-      });
-      alert("Denuncia enviada (simulado).");
+      await createCommentModerationReport(commentToReport._id);
+      alert("Denuncia enviada con éxito");
 
       closeReportModal();
     } catch (error) {
-      showApiError(error, "Error reportando comentario");
+      setErrorMessage(error?.response?.data?.message || "Error reportando comentario");
+      setErrorModalOpen(true);
       closeReportModal();
     }
   };
@@ -466,6 +464,12 @@ const ListComments = ({ isBeat, resourceId }) => {
             </div>
           </div>
         </Modal>
+
+        <ErrorModal
+          isOpen={errorModalOpen}
+          onClose={() => setErrorModalOpen(false)}
+          message={errorMessage}
+        />
       </Card>
     </div>
   );

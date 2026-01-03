@@ -25,6 +25,72 @@
   border-radius: 16px;
   margin: 1rem;
   overflow: hidden;
+  position: relative;
+  transition: background-image 0.3s ease;
+}
+
+/* Botón para editar banner */
+.banner-edit-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.profile-hero:hover .banner-edit-button {
+  opacity: 1;
+}
+
+.banner-edit-button:hover {
+  background: rgba(102, 126, 234, 0.9);
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.banner-edit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7 !important;
+}
+
+.banner-edit-button.uploading {
+  opacity: 1 !important;
+  background: rgba(102, 126, 234, 0.9);
+}
+
+.banner-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Barra de acciones debajo del hero */
+.profile-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin: 0 1rem;
+}
+
+.profile-actions-left {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-actions-right {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* Columna izquierda - Avatar */
@@ -41,7 +107,9 @@
 /* Avatar editable wrapper */
 .avatar-wrapper {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-wrapper.editable {
@@ -50,10 +118,11 @@
 
 .avatar-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 128px;
+  height: 128px;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -61,6 +130,7 @@
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.2s ease;
+  z-index: 10;
 }
 
 .avatar-wrapper.editable:hover .avatar-overlay {
@@ -166,7 +236,7 @@
 }
 
 .profile-about-section.clickable::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -229,33 +299,7 @@
   margin-top: 0.25rem;
 }
 
-/* Beats preview - 3 cuadrados */
-.profile-beats-preview {
-  display: flex;
-  gap: 0.75rem;
-}
 
-.beat-preview-card {
-  width: 80px;
-  height: 80px;
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.beat-preview-card:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
-}
-
-.beat-icon {
-  font-size: 2rem;
-}
 
 /* Columna derecha - Certificaciones */
 .profile-hero-right {
@@ -264,8 +308,7 @@
   padding: 1.25rem 1rem;
   background: #0f172a;
   border-left: 1px solid #334155;
-  max-height: 400px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* Los estilos de certificaciones están en ProfileCertifications.css */
@@ -354,7 +397,7 @@
   margin-bottom: 0.75rem;
 }
 
-.tag-input-row>div {
+.tag-input-row > div {
   flex: 1;
 }
 
@@ -502,14 +545,7 @@
     font-size: 1.5rem;
   }
 
-  .profile-beats-preview {
-    justify-content: center;
-  }
 
-  .beat-preview-card {
-    width: 60px;
-    height: 60px;
-  }
 
   .profile-section-block {
     margin: 0.5rem;
@@ -527,4 +563,15 @@
   .form-actions button {
     width: 100%;
   }
+}
+
+/* Verified Badge */
+.verified-badge {
+  cursor: help;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.verified-badge:hover {
+  transform: scale(1.1);
 }

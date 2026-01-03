@@ -274,11 +274,17 @@
 }
 
 .playlist-beat-row.playing {
-  background-color: rgba(99, 102, 241, 0.1);
+  background-color: rgba(99, 102, 241, 0.15);
   border-left: 3px solid #6366f1;
 }
 
-.playlist-beat-row.playing strong {
+.playlist-beat-row.active {
+  background-color: rgba(99, 102, 241, 0.08);
+  border-left: 3px solid #818cf8;
+}
+
+.playlist-beat-row.playing strong,
+.playlist-beat-row.active strong {
   color: #6366f1;
 }
 

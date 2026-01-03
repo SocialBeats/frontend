@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PlaylistLists.css";
 import { getPublicPlaylists } from "../../../../services/beats-interaction/playlistService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
 const PAGE_SIZE = 12;
 
@@ -13,6 +14,9 @@ const PublicPlaylists = () => {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchPublicPlaylists = async () => {
@@ -33,7 +37,8 @@ const PublicPlaylists = () => {
         setTotalPages(backendTotalPages);
       } catch (error) {
         console.error("Error loading public playlists:", error);
-        alert("No se pudieron cargar las playlists públicas");
+        setErrorMessage("No se pudieron cargar las playlists públicas");
+        setErrorModalOpen(true);
       } finally {
         setIsLoading(false);
       }
@@ -112,6 +117,11 @@ const PublicPlaylists = () => {
           </>
         )}
       </div>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };

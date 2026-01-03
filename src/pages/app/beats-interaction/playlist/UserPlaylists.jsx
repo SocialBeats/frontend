@@ -2,25 +2,52 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./PlaylistLists.css";
 import { getUserPlaylists } from "../../../../services/beats-interaction/playlistService";
+import { getProfileInfoByUserId } from "../../../../services/profileService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
+
 
 const UserPlaylists = () => {
   const navigate = useNavigate();
   const { id: userId } = useParams();
 
   const [playlists, setPlaylists] = useState([]);
+  const [username, setUsername] = useState("este usuario");
   const [isLoading, setIsLoading] = useState(true);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchPlaylists = async () => {
       try {
-        const response = await getUserPlaylists(userId);
-        const data = Array.isArray(response.data)
-          ? response.data
-          : response.data?.playlists || [];
-        setPlaylists(data);
-      } catch (error) {
-        console.error("Error loading user playlists:", error);
-        alert("No se pudieron cargar las playlists del usuario");
+        const [playlistsRes, profileRes] = await Promise.allSettled([
+          getUserPlaylists(userId),
+          getProfileInfoByUserId(userId),
+        ]);
+
+        if (profileRes.status === "fulfilled") {
+          const profile = profileRes.value;
+          const name =
+            profile?.username ||
+            profile?.profile?.username ||
+            profile?.data?.username ||
+            profile?.data?.profile?.username;
+
+          if (name) setUsername(name);
+        }
+
+        if (playlistsRes.status === "fulfilled") {
+          const response = playlistsRes.value;
+          const data = Array.isArray(response.data)
+            ? response.data
+            : response.data?.playlists || [];
+          setPlaylists(data);
+        } else {
+          console.error("Error loading user playlists:", playlistsRes.reason);
+          setErrorMessage("No se pudieron cargar las playlists del usuario");
+          setErrorModalOpen(true);
+          setPlaylists([]);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -40,13 +67,15 @@ const UserPlaylists = () => {
   return (
     <div className="playlist-list">
       <div className="playlist-list__container">
-        <h1 className="playlist-list__title">Playlists del usuario</h1>
+        <h1 className="playlist-list__title">Playlists de {username}</h1>
         <p className="playlist-list__subtitle">
-          Lista de playlists creadas o compartidas por este usuario.
+          Lista de playlists creadas o compartidas por {username}
         </p>
 
         {playlists.length === 0 ? (
-          <p className="playlist-list__empty">Este usuario aún no tiene playlists</p>
+          <p className="playlist-list__empty">
+            {username} aún no tiene playlists
+          </p>
         ) : (
           <div className="playlist-grid">
             {playlists.map((pl) => (
@@ -60,11 +89,18 @@ const UserPlaylists = () => {
                   {pl.description || "Sin descripción"}
                 </p>
                 <div className="playlist-card__meta">
-                  <span className={`playlist-badge ${pl.isPublic ? "public" : "private"}`}>
+                  <span
+                    className={`playlist-badge ${
+                      pl.isPublic ? "public" : "private"
+                    }`}
+                  >
                     {pl.isPublic ? "🌍 Pública" : "🔒 Privada"}
                   </span>
+
                   {pl.collaborators?.length > 0 && (
-                    <span className="playlist-badge collaborators">👥 {pl.collaborators.length}</span>
+                    <span className="playlist-badge collaborators">
+                      👥 {pl.collaborators.length}
+                    </span>
                   )}
                 </div>
               </div>
@@ -72,6 +108,11 @@ const UserPlaylists = () => {
           </div>
         )}
       </div>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };

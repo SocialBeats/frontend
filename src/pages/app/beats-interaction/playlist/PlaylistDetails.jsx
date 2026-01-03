@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Modal from "../../../../components/ui/Modal";
 import Card from "../../../../components/ui/Card";
@@ -13,9 +13,11 @@ import {
   addBeatToPlaylist,
   removeBeatFromPlaylist,
 } from "../../../../services/beats-interaction/playlistService";
-// import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
-import { searchBeats, getBeatById } from "../../../../services/beatsService";
+import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { searchBeats, getBeatById, getAudioStreamUrl, getBatchSignedUrls } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
+import { usePlayerStore } from "../../../../store/usePlayerStore";
 import "./PlaylistDetails.css";
 
 
@@ -23,7 +25,15 @@ const PlaylistDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const containerRef = useRef(null);
-  const audioRef = useRef(null);
+
+  // Global Player Store
+  const {
+    currentBeat,
+    isPlaying: globalIsPlaying,
+    play: globalPlay,
+    pause: globalPause,
+    queue: globalQueue
+  } = usePlayerStore();
 
   const myUserId = getCurrentUserId();
 
@@ -40,10 +50,14 @@ const PlaylistDetails = () => {
 
   const [fixedWidth, setFixedWidth] = useState(null);
 
-  const [currentPlayingId, setCurrentPlayingId] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  // Cache de URLs firmadas para los beats de la playlist
+  const [signedUrlsCache, setSignedUrlsCache] = useState({});
+  const [loadingUrls, setLoadingUrls] = useState(false);
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* ================= FETCH PLAYLIST ================= */
 
@@ -123,72 +137,163 @@ const PlaylistDetails = () => {
     return () => window.removeEventListener("resize", captureWidth);
   }, []);
 
-  /* ================= AUDIO PLAYER ================= */
+  /* ================= GLOBAL PLAYER INTEGRATION ================= */
 
-  const getAudioUrl = (beat) => {
-    if (beat.audio?.s3Key) {
-      const cdnDomain =
-        window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN ||
-        import.meta.env.VITE_CDN_DOMAIN ||
-        "";
-      return `${cdnDomain}/${beat.audio.s3Key}`;
-    }
-    if (beat.audio?.url) return beat.audio.url;
-    if (beat.audioUrl) return beat.audioUrl;
-    return null;
+  // Helper para obtener el ID correcto del beat para llamadas al API
+  // beatsData viene de BeatMaterialized que tiene beatId (ID original del microservicio beats-upload)
+  const getBeatApiId = (beat) => {
+    // Priorizar beatId (ID del microservicio beats-upload) sobre _id (ID de la materialized view)
+    return beat.beatId || beat._id;
   };
 
-  const togglePlay = (beatId, beat) => {
-    if (!audioRef.current) {
-      console.error("Audio ref not available");
-      return;
-    }
+  // Pre-cargar URLs firmadas para todos los beats de la playlist (usando batch)
+  useEffect(() => {
+    if (beats.length === 0) return;
 
-    const audioUrl = getAudioUrl(beat);
+    const preloadSignedUrls = async () => {
+      setLoadingUrls(true);
 
-    if (!audioUrl) {
-      console.error("No audio URL found for beat:", beat);
-      alert("Audio no disponible para este beat");
-      return;
-    }
+      // Obtener IDs de beats que no están en caché local
+      const beatIds = beats
+        .map(beat => getBeatApiId(beat))
+        .filter(id => !signedUrlsCache[id]);
 
-    if (currentPlayingId === beatId) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play().catch((err) => {
-          console.error("Error playing audio:", err);
-          alert("Error al reproducir el audio");
-        });
-        setIsPlaying(true);
+      if (beatIds.length === 0) {
+        setLoadingUrls(false);
+        console.log('📦 All URLs already cached locally');
+        return;
       }
-    } else {
-      console.log("Loading audio from:", audioUrl);
-      audioRef.current.src = audioUrl;
-      audioRef.current
-        .play()
-        .then(() => {
-          setCurrentPlayingId(beatId);
-          setIsPlaying(true);
-        })
-        .catch((err) => {
-          console.error("Error playing audio:", err);
-          alert("Error al reproducir el audio");
-        });
+
+      try {
+        // Usar batch endpoint (máx 10 por petición, el servicio lo maneja)
+        console.log('🔄 Batch fetching signed URLs for', beatIds.length, 'beats');
+        const batchUrls = await getBatchSignedUrls(beatIds);
+
+        // Actualizar caché local con los resultados
+        setSignedUrlsCache(prev => ({ ...prev, ...batchUrls }));
+        console.log('✅ Pre-loaded signed URLs for', Object.keys(batchUrls).length, 'beats');
+      } catch (error) {
+        console.warn('⚠️ Batch URL fetch failed:', error);
+      } finally {
+        setLoadingUrls(false);
+      }
+    };
+
+    preloadSignedUrls();
+  }, [beats]);
+
+  // Helper para obtener la cover URL firmada de un beat
+  const getSignedCoverUrl = (beat) => {
+    const apiId = getBeatApiId(beat);
+    const cached = signedUrlsCache[apiId];
+    if (cached?.coverUrl) return cached.coverUrl;
+    return logo; // Fallback al logo si no hay cover
+  };
+
+  // Convertir beat de playlist al formato del store
+  // Usamos beatId (ID original) como identificador único en el store
+  const mapBeatToStoreFormat = useCallback((beat, streamUrl, coverUrl) => {
+    const apiId = getBeatApiId(beat);
+    return {
+      ...beat,
+      id: apiId, // Usar el ID del API para consistencia
+      title: beat.title,
+      author: beat.createdBy?.username || beat.artist || 'Unknown',
+      cover: coverUrl || logo,
+      audio: {
+        url: streamUrl,
+        coverUrl: coverUrl || logo,
+        duration: beat.duration
+      }
+    };
+  }, []);
+
+  // Construir la cola de reproducción con URLs firmadas
+  const buildPlaylistQueue = useCallback(async () => {
+    const queueBeats = [];
+
+    for (const beat of beats) {
+      const apiId = getBeatApiId(beat);
+      let cached = signedUrlsCache[apiId];
+
+      // Si no está en cache, intentar obtenerla
+      if (!cached) {
+        try {
+          const { streamUrl, coverUrl } = await getAudioStreamUrl(apiId);
+          cached = { streamUrl, coverUrl };
+          setSignedUrlsCache(prev => ({ ...prev, [apiId]: cached }));
+        } catch (error) {
+          console.warn(`⚠️ Could not get URL for beat ${apiId}, skipping`);
+          continue;
+        }
+      }
+
+      queueBeats.push(mapBeatToStoreFormat(beat, cached.streamUrl, cached.coverUrl));
+    }
+
+    return queueBeats;
+  }, [beats, signedUrlsCache, mapBeatToStoreFormat]);
+
+  // Reproducir un beat específico de la playlist
+  const handlePlayBeat = async (beat) => {
+    const apiId = getBeatApiId(beat);
+
+    // Verificar si este beat ya está reproduciéndose
+    const isThisBeatActive = currentBeat?.id === apiId;
+
+    if (isThisBeatActive) {
+      // Solo toggle play/pause
+      if (globalIsPlaying) {
+        globalPause();
+      } else {
+        // Si pausamos, solo necesitamos hacer play de nuevo
+        const cached = signedUrlsCache[apiId];
+        if (cached?.streamUrl) {
+          globalPlay(mapBeatToStoreFormat(beat, cached.streamUrl, cached.coverUrl));
+        }
+      }
+      return;
+    }
+
+    // Nuevo beat - construir cola y reproducir
+    try {
+      let cached = signedUrlsCache[apiId];
+
+      // Si no tenemos la URL, obtenerla
+      if (!cached) {
+        console.log('🔄 Fetching signed URLs for beat:', apiId);
+        const { streamUrl, coverUrl } = await getAudioStreamUrl(apiId);
+        cached = { streamUrl, coverUrl };
+        setSignedUrlsCache(prev => ({ ...prev, [apiId]: cached }));
+      }
+
+      // Construir la cola completa de la playlist
+      const playlistQueue = await buildPlaylistQueue();
+
+      // Encontrar el beat actual en la cola
+      const beatForStore = mapBeatToStoreFormat(beat, cached.streamUrl, cached.coverUrl);
+
+      // Reproducir con la cola
+      globalPlay(beatForStore, playlistQueue);
+      console.log('▶️ Playing beat from playlist with queue of', playlistQueue.length, 'beats');
+
+    } catch (error) {
+      console.error('❌ Error playing beat:', error);
+      setErrorMessage("Error al reproducir el audio");
+      setErrorModalOpen(true);
     }
   };
 
-  const handleAudioEnded = () => {
-    setIsPlaying(false);
+  // Verificar si un beat específico está activo y reproduciéndose
+  // Usamos getBeatApiId para comparar con el ID del store
+  const isBeatPlaying = (beat) => {
+    const apiId = getBeatApiId(beat);
+    return currentBeat?.id === apiId && globalIsPlaying;
+  };
 
-    const currentIndex = beats.findIndex((b) => b._id === currentPlayingId);
-    if (currentIndex !== -1 && currentIndex < beats.length - 1) {
-      const nextBeat = beats[currentIndex + 1];
-      togglePlay(nextBeat._id, nextBeat);
-    } else {
-      setCurrentPlayingId(null);
-    }
+  const isBeatActive = (beat) => {
+    const apiId = getBeatApiId(beat);
+    return currentBeat?.id === apiId;
   };
 
   /* ================= PLAYLIST ACTIONS ================= */
@@ -198,7 +303,8 @@ const PlaylistDetails = () => {
       await deletePlaylist(playlist._id);
       navigate("/app/playlists/me");
     } catch {
-      alert("Error al eliminar la playlist");
+      setErrorMessage("Error al eliminar la playlist");
+      setErrorModalOpen(true);
     }
   };
 
@@ -239,7 +345,8 @@ const PlaylistDetails = () => {
       setPlaylist(data);
       setAddBeatModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || "Error al añadir beat");
+      setErrorMessage(err.response?.data?.message || "Error al añadir beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -248,13 +355,20 @@ const PlaylistDetails = () => {
       const { data } = await removeBeatFromPlaylist(playlist._id, itemId);
       setPlaylist(data);
 
-      if (currentPlayingId === beatId) {
-        audioRef.current?.pause();
-        setIsPlaying(false);
-        setCurrentPlayingId(null);
+      // Limpiar URL del cache
+      setSignedUrlsCache(prev => {
+        const newCache = { ...prev };
+        delete newCache[beatId];
+        return newCache;
+      });
+
+      // Si el beat eliminado estaba reproduciéndose, pausar
+      if (currentBeat?.id === beatId) {
+        globalPause();
       }
     } catch {
-      alert("Error al quitar el beat");
+      setErrorMessage("Error al quitar el beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -275,22 +389,14 @@ const PlaylistDetails = () => {
     if (canEditPlaylist) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createPlaylistModerationReport(playlist._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report playlist:", {
-        playlistId: playlist._id,
-        reporterUserId: myUserId,
-        ownerId: playlist.ownerId,
-        collaborators: playlist.collaborators ?? [],
-      });
-      alert("Denuncia enviada (simulado).");
+      await createPlaylistModerationReport(playlist._id);
+      alert("Denuncia enviada con éxito");
 
       closeReportModal();
     } catch (err) {
       console.error(err);
-      alert("Error denunciando playlist");
+      setErrorMessage("Error denunciando playlist");
+      setErrorModalOpen(true);
       closeReportModal();
     }
   };
@@ -309,16 +415,6 @@ const PlaylistDetails = () => {
       className="playlist-details-page"
       style={fixedWidth ? { width: fixedWidth, maxWidth: fixedWidth } : {}}
     >
-      {/* Audio Element */}
-      <audio
-        ref={audioRef}
-        onEnded={handleAudioEnded}
-        onError={(e) => {
-          console.error("Audio playback error:", e);
-          setIsPlaying(false);
-        }}
-      />
-
       {/* HEADER */}
       <div className="playlist-details-header">
         <div>
@@ -334,12 +430,16 @@ const PlaylistDetails = () => {
             {playlist.collaboratorsData?.length > 0 && (
               <span>👥 {playlist.collaboratorsData.length} colaboradores</span>
             )}
+
+            {loadingUrls && (
+              <span className="text-muted">🔄 Cargando audio...</span>
+            )}
           </div>
         </div>
 
         {playlist && (
           <div className="playlist-actions">
-            { playlist && playlist.ownerId === myUserId  ? (
+            {playlist && playlist.ownerId === myUserId ? (
               <>
                 <IconButton
                   variant="ghost"
@@ -384,25 +484,23 @@ const PlaylistDetails = () => {
           <div className="empty-state">Esta playlist aún no tiene beats</div>
         ) : (
           beats.map((beat, index) => {
-            const beatId = beat._id || beat.beatId;
+            const apiId = getBeatApiId(beat);
             const itemId = beat.itemId;
-            const isCurrentlyPlaying = currentPlayingId === beatId && isPlaying;
-            const hasAudio = getAudioUrl(beat) !== null;
+            const isCurrentlyPlaying = isBeatPlaying(beat);
+            const isActive = isBeatActive(beat);
+            const hasSignedUrl = !!signedUrlsCache[apiId]?.streamUrl;
 
             return (
               <Card
-                key={beatId}
-                className={`playlist-beat-row ${
-                  isCurrentlyPlaying ? "playing" : ""
-                }`}
+                key={apiId}
+                className={`playlist-beat-row ${isCurrentlyPlaying ? "playing" : ""} ${isActive ? "active" : ""}`}
                 padding="none"
               >
                 {/* Play Button */}
                 <IconButton
                   variant="ghost"
-                  onClick={() => togglePlay(beatId, beat)}
-                  disabled={!hasAudio}
-                  title={hasAudio ? "Reproducir" : "Audio no disponible"}
+                  onClick={() => handlePlayBeat(beat)}
+                  title={hasSignedUrl ? "Reproducir" : "Cargando..."}
                 >
                   {isCurrentlyPlaying ? "⏸" : "▶"}
                 </IconButton>
@@ -411,17 +509,22 @@ const PlaylistDetails = () => {
 
                 <div>
                   <strong>{beat.title}</strong>
-                  <div className="text-muted">{beat.artist}</div>
+                  <div className="text-muted">{beat.createdBy?.username || beat.artist}</div>
                 </div>
 
                 <div>{new Date(beat.addedAt).toLocaleDateString()}</div>
 
-                <img src={logo} alt="cover" className="beat-cover-small" />
+                <img
+                  src={getSignedCoverUrl(beat)}
+                  alt="cover"
+                  className="beat-cover-small"
+                  onError={(e) => { e.target.src = logo; }}
+                />
 
                 {canEditPlaylist && (
                   <IconButton
                     variant="danger"
-                    onClick={() => handleRemoveBeat(itemId, beatId)}
+                    onClick={() => handleRemoveBeat(itemId, apiId)}
                   >
                     ❌
                   </IconButton>
@@ -513,6 +616,12 @@ const PlaylistDetails = () => {
           )}
         </div>
       </Modal>
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };

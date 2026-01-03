@@ -21,3 +21,7 @@ export function deleteDashboard(id) {
   return client.delete(`/analytics/dashboards/${id}`);
 }
 
+export function deleteDashboardWithBeat(dashboardId, beatId){
+  return client.delete(`/analytics/dashboards/${dashboardId}/withbeat/${beatId}`);
+}
+

@@ -22,10 +22,33 @@ const GlobalPlayerDock: React.FC = () => {
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const seekPending = useRef<number | null>(null);
+    const previousUrl = useRef<string | null>(null);
+    const isLoadingAudio = useRef<boolean>(false);
+    const pendingPlay = useRef<boolean>(false);
 
-    // Audio Synchronization Effects
     useEffect(() => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || !currentBeat?.audio?.url) return;
+        
+        const newUrl = currentBeat.audio.url;
+        
+        // Only reload if URL actually changed
+        if (previousUrl.current !== newUrl) {
+            console.log('🔄 Loading new audio source:', newUrl.substring(0, 80) + '...');
+            previousUrl.current = newUrl;
+            isLoadingAudio.current = true;
+            
+            // Store the play intent
+            pendingPlay.current = isPlaying;
+            
+            // Force the audio element to load the new source
+            // The canplaythrough event will handle actual playback
+            audioRef.current.load();
+        }
+    }, [currentBeat?.audio?.url, isPlaying]);
+
+    // Audio Synchronization Effects - ONLY for play/pause toggle on SAME track
+    useEffect(() => {
+        if (!audioRef.current || isLoadingAudio.current) return;
 
         if (isPlaying) {
             audioRef.current.play().catch(err => {
@@ -35,7 +58,7 @@ const GlobalPlayerDock: React.FC = () => {
         } else {
             audioRef.current.pause();
         }
-    }, [isPlaying, currentBeat]);
+    }, [isPlaying, pause]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -115,6 +138,24 @@ const GlobalPlayerDock: React.FC = () => {
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleEnded}
+                onError={(e) => {
+                    const audio = e.currentTarget;
+                    console.error('🚨 Audio error:', audio.error?.message, audio.error?.code);
+                }}
+                onCanPlayThrough={() => {
+                    console.log('✅ Audio ready to play through');
+                    isLoadingAudio.current = false;
+                    
+                    // Execute pending play intent
+                    if (pendingPlay.current && audioRef.current) {
+                        console.log('▶️ Executing pending play intent');
+                        audioRef.current.play().catch(err => {
+                            console.error("Audio play after canplaythrough failed:", err);
+                            pause();
+                        });
+                        pendingPlay.current = false;
+                    }
+                }}
             />
 
             {/* LEFT SECTION */}

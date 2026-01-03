@@ -357,6 +357,228 @@
   }
 }
 
+/* Quote Section Styles */
+.view-dashboard__quote-wrapper {
+  max-width: 1200px;
+  margin: 0 auto 2.5rem;
+  padding: 0 1rem;
+}
+
+.view-dashboard__quote-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.view-dashboard__quote-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #3b82f6 100%);
+}
+
+.view-dashboard__quote-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.view-dashboard__quote-icon {
+  flex-shrink: 0;
+  color: #8b5cf6;
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.view-dashboard__quote-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.view-dashboard__quote-text {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: #e2e8f0;
+  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+}
+
+.view-dashboard__quote-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.view-dashboard__quote-author {
+  font-size: 1rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin: 0;
+}
+
+.view-dashboard__translate-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.view-dashboard__translate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.view-dashboard__translate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.view-dashboard__spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State Styles */
+.view-dashboard__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.view-dashboard__empty-state:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+}
+
+.view-dashboard__empty-icon {
+  color: #8b5cf6;
+  opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.view-dashboard__empty-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin: 0;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.view-dashboard__empty-description {
+  font-size: 1rem;
+  color: #94a3b8;
+  text-align: center;
+  max-width: 500px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.view-dashboard__empty-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  margin-top: 0.5rem;
+}
+
+.view-dashboard__empty-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+}
+
+.view-dashboard__empty-button:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .view-dashboard__quote-card {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .view-dashboard__quote-icon {
+    align-self: center;
+  }
+
+  .view-dashboard__quote-text {
+    font-size: 1.125rem;
+    text-align: center;
+  }
+
+  .view-dashboard__quote-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .view-dashboard__empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .view-dashboard__empty-text {
+    font-size: 1.25rem;
+  }
+}
+
 /* Floating Add Widget button (FAB) */
 .view-dashboard__fab {
   position: fixed;

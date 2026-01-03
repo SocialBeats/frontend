@@ -13,18 +13,13 @@ import {
   patchRating,
   deleteRating,
 } from "../../../../services/beats-interaction/ratingService";
-// import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
+import { createRatingModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { getCurrentUserId } from "../../../../services/authService";
 import CreateRating from "./CreateRating";
 import "./ListRatings.css";
-
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
 const MAX_SCORE = 5;
-
-const showApiError = (error, fallbackMessage) => {
-  console.error(fallbackMessage, error);
-  alert(error?.response?.data?.message || fallbackMessage);
-};
 
 function renderStars(score) {
   const rounded = Math.round(score ?? 0);
@@ -81,6 +76,8 @@ const ListRatings = ({ isBeat, resourceId }) => {
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [ratingToReport, setRatingToReport] = useState(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const safeLimit = useMemo(() => (limit <= 0 ? 1 : limit), [limit]);
 
@@ -133,7 +130,9 @@ const ListRatings = ({ isBeat, resourceId }) => {
 
       if (page > newTotalPages) setPage(newTotalPages);
     } catch (error) {
-      showApiError(error, "Error cargando valoraciones");
+
+      setErrorMessage(error?.response?.data?.message || "Error cargando valoraciones");
+      setErrorModalOpen(true);
       setRatings([]);
       setAverage(null);
       setCount(0);
@@ -260,7 +259,8 @@ const ListRatings = ({ isBeat, resourceId }) => {
       await fetchRatings();
       await fetchMyRating();
     } catch (error) {
-      showApiError(error, "Error editando valoración");
+      setErrorMessage(error?.response?.data?.message || "Error editando valoración");
+      setErrorModalOpen(true);
     }
   };
 
@@ -276,11 +276,11 @@ const ListRatings = ({ isBeat, resourceId }) => {
       await fetchRatings();
       await fetchMyRating();
     } catch (error) {
-      showApiError(error, "Error eliminando valoración");
+      setErrorMessage(error?.response?.data?.message || "Error eliminando valoración");
+      setErrorModalOpen(true);
     }
   };
 
-  // ✅ REPORT (igual que comments): open/close + confirm
   const openReportModal = (rating) => {
     if (!rating?._id) return;
 
@@ -300,19 +300,12 @@ const ListRatings = ({ isBeat, resourceId }) => {
     if (!ratingToReport?._id) return;
 
     try {
-      // BACKEND (cuando esté listo) — descomenta:
-      // await createRatingModerationReport(ratingToReport._id);
-
-      // SIMULACIÓN mientras tanto:
-      console.log("🚩 [SIMULATION] Report rating:", {
-        ratingId: ratingToReport._id,
-        reporterUserId: currentUserId,
-      });
-      alert("Denuncia enviada (simulado).");
+      await createRatingModerationReport(ratingToReport._id);
 
       closeReportModal();
     } catch (error) {
-      showApiError(error, "Error reportando valoración");
+      setErrorMessage(error?.response?.data?.message || "Error reportando valoración");
+      setErrorModalOpen(true);
       closeReportModal();
     }
   };
@@ -695,6 +688,12 @@ const ListRatings = ({ isBeat, resourceId }) => {
           </div>
         </Modal>
       </Card>
+      
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };

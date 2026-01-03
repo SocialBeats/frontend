@@ -7,14 +7,14 @@ import {
 } from "../../../../services/beats-interaction/commentService";
 import "./CreateComment.css";
 
-const showApiError = (error, fallbackMessage) => {
-  console.error(fallbackMessage, error);
-  alert(error?.response?.data?.message || fallbackMessage);
-};
+import ErrorModal from "../../../../components/ui/ErrorModal";
+import "./CreateComment.css";
 
 const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,34 +37,42 @@ const CreateComment = ({ isBeat = false, resourceId, onCommentCreated }) => {
         onCommentCreated(createdComment);
       }
     } catch (error) {
-      showApiError(error, "Error creando comentario");
+      setErrorMessage(error?.response?.data?.message || "Error creando comentario");
+      setErrorModalOpen(true);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <form className="create-comment" onSubmit={handleSubmit}>
-      <div className="create-comment-input-wrapper">
-        <Input
-          fullWidth
-          placeholder="Escribe un comentario..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="create-comment-input"
-        />
-      </div>
+    <>
+      <form className="create-comment" onSubmit={handleSubmit}>
+        <div className="create-comment-input-wrapper">
+          <Input
+            fullWidth
+            placeholder="Escribe un comentario..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="create-comment-input"
+          />
+        </div>
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="small"
-        disabled={!text.trim() || submitting || !resourceId}
-        className="create-comment-button"
-      >
-        {submitting ? "Enviando..." : "Enviar"}
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          variant="primary"
+          size="small"
+          disabled={!text.trim() || submitting || !resourceId}
+          className="create-comment-button"
+        >
+          {submitting ? "Enviando..." : "Enviar"}
+        </Button>
+      </form>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
+    </>
   );
 };
 

@@ -57,21 +57,21 @@ const BeatFormPage = () => {
       if (audioFile && !isEditing) {
         const extension = audioFile.name.split('.').pop().toLowerCase();
 
-        // Get Presigned URL
+        // Get Presigned POST data from backend
         const presignedData = await getPresignedUrl({
           extension,
           mimetype: audioFile.type || 'audio/mpeg',
           size: audioFile.size
         });
 
-        // Upload to S3
-        await uploadFileToS3(presignedData.uploadUrl, audioFile);
+        // Upload to S3 using POST with FormData
+        // presignedData contains: { url, fields, fileKey, expiresIn, maxFileSize }
+        await uploadFileToS3(presignedData, audioFile);
 
         // Add/Overwrite audio info
-        // Si ya habíamos copiado algo (caso raro en create si reintentamos), sobrescribimos
         submitData.audio = {
           ...submitData.audio,
-          s3Key: presignedData.s3Key,
+          s3Key: presignedData.fileKey,
           filename: audioFile.name,
           size: audioFile.size,
           format: extension,
@@ -81,20 +81,20 @@ const BeatFormPage = () => {
       // 2. Handle Cover Upload (For both Create and Edit)
       if (coverFile) {
         const extension = coverFile.name.split('.').pop().toLowerCase();
-        // Get Presigned URL for Image
+        // Get Presigned POST data for Image
         const presignedCoverData = await getPresignedUrl({
           extension,
-          mimetype: coverFile.type || 'image/jpeg', // Fallback
+          mimetype: coverFile.type || 'image/jpeg',
           size: coverFile.size
         });
 
-        // Upload Image to S3
-        await uploadFileToS3(presignedCoverData.uploadUrl, coverFile);
+        // Upload Image to S3 using POST with FormData
+        await uploadFileToS3(presignedCoverData, coverFile);
 
         // Add s3CoverKey to audio object
         submitData.audio = {
-          ...(submitData.audio || {}), // Ensure object exists
-          s3CoverKey: presignedCoverData.s3Key
+          ...(submitData.audio || {}),
+          s3CoverKey: presignedCoverData.fileKey
         };
       }
 
@@ -161,13 +161,19 @@ const BeatFormPage = () => {
 
       <Modal
         isOpen={showCreatedModal}
-        onClose={() => setShowCreatedModal(false)}
+        onClose={() => {
+          setShowCreatedModal(false);
+          if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);
+        }}
         title="Métricas en proceso"
       >
         <div className="created-beat-modal">
           <p>Se están calculando las métricas de tu beat. En breve podrás crear tus dashboards basados en este beat.</p>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-            <Button variant="secondary" onClick={() => setShowCreatedModal(false)}>Cerrar</Button>
+            <Button variant="secondary" onClick={() => {
+              setShowCreatedModal(false);
+              if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);
+            }}>Cerrar</Button>
             <Button variant="primary" onClick={() => {
               setShowCreatedModal(false);
               if (createdBeatId) navigate(`/app/beats/${createdBeatId}`);

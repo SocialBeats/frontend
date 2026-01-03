@@ -8,6 +8,7 @@ import {
 } from "../../../../services/beats-interaction/playlistService";
 import { getCurrentUserId } from "../../../../services/authService";
 import Button from '@/components/ui/Button';
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
 
 const MyPlaylists = () => {
@@ -19,6 +20,9 @@ const MyPlaylists = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [currentUserId, setCurrentUserId] = useState(null);
 
@@ -38,7 +42,6 @@ const MyPlaylists = () => {
         setPlaylists(data);
       } catch (error) {
         console.error("Error loading playlists:", error);
-        alert("No se pudieron cargar tus playlists");
       } finally {
         setIsLoading(false);
       }
@@ -73,7 +76,8 @@ const MyPlaylists = () => {
       setDeleteTarget(null);
     } catch (error) {
       console.error("Error deleting playlist:", error);
-      alert("No se pudo eliminar la playlist");
+      setErrorMessage("No se pudo eliminar la playlist");
+      setErrorModalOpen(true);
 
       setPlaylists(previousPlaylists);
     } finally {
@@ -215,6 +219,12 @@ const MyPlaylists = () => {
           </div>
         </Modal>
       </div>
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };
