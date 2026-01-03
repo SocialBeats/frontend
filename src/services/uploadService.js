@@ -114,3 +114,13 @@ export async function uploadBannerToS3(file) {
   // 3. Retornar URL final del CDN
   return finalUrl;
 }
+
+/**
+ * Elimina una certificación del perfil y S3
+ * @param {string} certificationId - ID de la certificación a eliminar
+ * @returns {Promise<{message: string, certifications: Array}>}
+ */
+export async function deleteCertification(certificationId) {
+  const response = await client.delete(`/auth/upload/certification/${certificationId}`);
+  return response.data;
+}

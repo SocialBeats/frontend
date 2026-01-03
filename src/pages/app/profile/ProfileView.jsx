@@ -4,7 +4,8 @@ import { useProfileData } from '@/hooks/use-profile-data';
 import { useProfileForm } from '@/hooks/use-profile-form';
 import { useProfileContext } from '@/contexts/ProfileContext';
 import { updateMyProfile } from '@/services/profileService';
-import { uploadBannerToS3 } from '@/services/uploadService';
+import { uploadBannerToS3, deleteCertification } from '@/services/uploadService';
+import { Feature, On, Default } from 'space-react-client';
 import Button from '@/components/ui/Button';
 import SuccessModal from '@/components/ui/SuccessModal';
 import ErrorModal from '@/components/ui/ErrorModal';
@@ -137,15 +138,13 @@ export default function ProfileView() {
     }
   };
 
-  const handleRemoveCertification = async (index) => {
+  const handleRemoveCertification = async (certificationId) => {
     try {
-      const currentCerts = profile.certifications || [];
-      const newCerts = currentCerts.filter((_, i) => i !== index);
-      await updateMyProfile({ certifications: newCerts });
+      await deleteCertification(certificationId);
       await loadProfile();
       setShowSuccessModal(true);
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Error al eliminar certificación');
+      setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Error al eliminar certificación');
       setShowErrorModal(true);
       throw error;
     }
@@ -276,28 +275,40 @@ export default function ProfileView() {
                 <Button variant="secondary" onClick={() => setIsEditingBasic(true)}>
                   Editar perfil
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  onClick={handleBannerClick}
-                  disabled={uploadingBanner}
-                >
-                  {uploadingBanner ? '⏳ Subiendo...' : 'Editar banner'}
-                </Button>
-                {profile.bannerURL && (
-                  <Button 
-                    variant="danger" 
-                    onClick={handleRemoveBanner}
-                  >
-                    Quitar banner
-                  </Button>
-                )}
-                <input
-                  ref={bannerInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerChange}
-                  style={{ display: 'none' }}
-                />
+                <Feature id="socialbeats-banner">
+                  <On>
+                    <Button 
+                      variant="secondary" 
+                      onClick={handleBannerClick}
+                      disabled={uploadingBanner}
+                    >
+                      {uploadingBanner ? '⏳ Subiendo...' : 'Editar banner'}
+                    </Button>
+                    {profile.bannerURL && (
+                      <Button 
+                        variant="danger" 
+                        onClick={handleRemoveBanner}
+                      >
+                        Quitar banner
+                      </Button>
+                    )}
+                    <input
+                      ref={bannerInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBannerChange}
+                      style={{ display: 'none' }}
+                    />
+                  </On>
+                  <Default>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => navigate('/app/pricing')}
+                    >
+                      🔒 Mejora tu plan para banner
+                    </Button>
+                  </Default>
+                </Feature>
               </>
             )}
           </div>
