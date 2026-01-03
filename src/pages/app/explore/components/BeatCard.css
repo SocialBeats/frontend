@@ -17,6 +17,17 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), var(--shadow-glow);
 }
 
+/* Active state - currently playing */
+.beat-card-active {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.beat-card-active .beat-card-overlay {
+  opacity: 1;
+  background: rgba(139, 92, 246, 0.3);
+}
+
 /* Carousel variant */
 .beat-card-carousel {
   flex-shrink: 0;
@@ -75,13 +86,28 @@
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 }
 
+.beat-card-play-btn:disabled {
+  cursor: wait;
+  opacity: 0.8;
+}
+
 .beat-card:hover .beat-card-play-btn {
   transform: scale(1);
 }
 
-.beat-card-play-btn:hover {
+.beat-card-play-btn:hover:not(:disabled) {
   transform: scale(1.1) !important;
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 /* Badges */

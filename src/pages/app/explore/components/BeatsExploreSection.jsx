@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getBeats, searchBeats } from '../../../../services/beatsService';
+import { getBeats, searchBeats, getBatchSignedUrls } from '../../../../services/beatsService';
 import FilterBar from './FilterBar';
 import BeatCard from './BeatCard.tsx';
 import './BeatsExploreSection.css';
@@ -37,6 +37,22 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
         isDownloadable: ''
     });
 
+    // Pre-cargar URLs firmadas para beats visibles (optimización)
+    const preloadSignedUrls = useCallback(async (beats) => {
+        if (!beats || beats.length === 0) return;
+        
+        // Solo pre-cargar los primeros 10 beats (límite del batch)
+        const beatIds = beats.slice(0, 10).map(b => b._id).filter(Boolean);
+        if (beatIds.length > 0) {
+            try {
+                await getBatchSignedUrls(beatIds);
+                console.log('🎵 Pre-loaded signed URLs for explore beats');
+            } catch (error) {
+                console.warn('⚠️ Could not pre-load signed URLs:', error);
+            }
+        }
+    }, []);
+
     // Cargar beats más reproducidos
     const loadMostPlayedBeats = useCallback(async () => {
         try {
@@ -46,14 +62,17 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                 sortOrder: 'desc',
                 limit: 10
             });
-            setMostPlayedBeats(Array.isArray(data) ? data : data.beats || []);
+            const beats = Array.isArray(data) ? data : data.beats || [];
+            setMostPlayedBeats(beats);
+            // Pre-cargar URLs firmadas para reproducción instantánea
+            preloadSignedUrls(beats);
         } catch (error) {
             console.error('Error loading most played beats:', error);
             setMostPlayedBeats([]);
         } finally {
             setLoadingMostPlayed(false);
         }
-    }, []);
+    }, [preloadSignedUrls]);
 
     // Cargar beats más recientes
     const loadRecentBeats = useCallback(async () => {
@@ -64,14 +83,17 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                 sortOrder: 'desc',
                 limit: 12
             });
-            setRecentBeats(Array.isArray(data) ? data : data.beats || []);
+            const beats = Array.isArray(data) ? data : data.beats || [];
+            setRecentBeats(beats);
+            // Pre-cargar URLs firmadas para reproducción instantánea
+            preloadSignedUrls(beats);
         } catch (error) {
             console.error('Error loading recent beats:', error);
             setRecentBeats([]);
         } finally {
             setLoadingRecent(false);
         }
-    }, []);
+    }, [preloadSignedUrls]);
 
     // Cargar beats filtrados
     const loadFilteredBeats = useCallback(async (currentFilters, currentSearchTerm) => {

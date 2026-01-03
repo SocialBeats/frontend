@@ -75,13 +75,13 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
             setStreamError(null);
 
             try {
-                // Pre-fetch audio URL for instant playback
-                const audioUrl = await getAudioStreamUrl(beatId);
+                // Pre-fetch audio and cover URLs (both signed)
+                const { streamUrl, coverUrl } = await getAudioStreamUrl(beatId);
                 if (isMounted) {
-                    setSignedAudioUrl(audioUrl);
-                    // Set cover URL (using existing logic)
-                    setSignedCoverUrl(getCoverUrl());
-                    console.log('✅ Pre-fetched signed URLs successfully');
+                    setSignedAudioUrl(streamUrl);
+                    // Use signed cover URL from backend, fallback to logo
+                    setSignedCoverUrl(coverUrl || logo);
+                    console.log('✅ Pre-fetched signed URLs successfully', coverUrl ? '(with cover)' : '(no cover)');
 
                     // --- EXTRACT DURATION FROM METADATA ---
                     // Only execute if we don't have duration from backend or local state
@@ -106,7 +106,7 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
                             console.warn('⚠️ Metadata extraction failed (non-critical):', e);
                         });
 
-                        tempAudio.src = audioUrl;
+                        tempAudio.src = streamUrl;
                     }
                 }
             } catch (error) {
@@ -135,18 +135,6 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
         };
     }, [beat?._id, beat?.id, beat?.duration, localDuration]);
 
-    const getCoverUrl = () => {
-        if (beat?.audio?.coverUrl) return beat.audio.coverUrl;
-        if (beat?.audio?.s3CoverKey) {
-            const domain = window.RUNTIME_CONFIG?.VITE_CDN_DOMAIN || import.meta.env.VITE_CDN_DOMAIN || '';
-            const key = beat.audio.s3CoverKey.startsWith('/')
-                ? beat.audio.s3CoverKey.slice(1)
-                : beat.audio.s3CoverKey;
-            return `${domain}/${key}`;
-        }
-        return logo;
-    };
-
     const formatTime = (time) => {
         if (isNaN(time) || time === undefined) return "0:00";
         const minutes = Math.floor(time / 60);
@@ -165,11 +153,15 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
             let audioUrlToUse = signedAudioUrl;
 
             // If URL is not available (expired or initial load failed), re-fetch
+            let coverUrlToUse = signedCoverUrl;
             if (!audioUrlToUse) {
                 console.log('🔄 Audio URL not cached, fetching fresh URL...');
                 try {
-                    audioUrlToUse = await getAudioStreamUrl(beat._id || beat.id);
-                    setSignedAudioUrl(audioUrlToUse);
+                    const { streamUrl, coverUrl } = await getAudioStreamUrl(beat._id || beat.id);
+                    audioUrlToUse = streamUrl;
+                    coverUrlToUse = coverUrl || logo;
+                    setSignedAudioUrl(streamUrl);
+                    setSignedCoverUrl(coverUrlToUse);
                 } catch (error) {
                     setStreamError(error.message);
                     console.error("Error getting stream URL:", error);
@@ -178,15 +170,15 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
             }
 
             // Load beat with signed URL - INSTANT since URL is pre-fetched!
-            const coverUrl = signedCoverUrl || getCoverUrl();
+            const finalCoverUrl = coverUrlToUse || logo;
             const beatForStore = {
                 ...beat,
                 id: beat._id || beat.id,
                 author: beat.createdBy?.username || 'Unknown',
-                cover: coverUrl,
+                cover: finalCoverUrl,
                 audio: {
                     url: audioUrlToUse,
-                    coverUrl: coverUrl,
+                    coverUrl: finalCoverUrl,
                     duration: beat.duration
                 }
             };
@@ -254,19 +246,12 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
             {/* PORTADA */}
             <div className="bd-player__cover-wrapper">
                 <img
-                    src={signedCoverUrl || getCoverUrl()}
+                    src={signedCoverUrl || logo}
                     alt={beat?.title || 'Beat'}
                     className={`bd-player__cover ${isPlaying ? 'bd-player__cover--playing' : ''}`}
-                    onError={async (e) => {
-                        // If signed URL expired, attempt to refresh
-                        if (signedCoverUrl && e.target.src === signedCoverUrl) {
-                            console.log('🔄 Cover URL may have expired, refreshing...');
-                            setSignedCoverUrl(getCoverUrl());
-                            e.target.src = getCoverUrl();
-                        } else {
-                            // Fallback to placeholder
-                            e.target.src = logo;
-                        }
+                    onError={(e) => {
+                        // Fallback to placeholder
+                        e.target.src = logo;
                     }}
                 />
                 <div className="bd-player__cover-glow" />
