@@ -1,3 +1,50 @@
+# Release v1.0.1
+
+## Features
+- feat: add pricing to front
+- feat: global player integrated with playlists
+- feat: Implement functionality to load existing dashboards and display associated beats
+- feat: Added new option to modal for dashboards deletion to also delete the beat
+- feat: update analytics service URL and enhance quote translation functionality
+- feat: implement metrics notifications and status updates with SSE
+- feat: banner
+- feat: added avatar decorators to profile
+- feat: presigned beat url player
+- feat: Added UI to translate the quotes using the translator API
+- feat: add moderation report functionality using endpoint and delete mock data
+- feat: add username in user playlist view
+- feat: add completion badge persona
+- feat: persona frontend integration
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+No fixes added.
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #62 from SocialBeats/develop
+- Merge pull request #56 from SocialBeats/feat/personalized-banner
+- Merge pull request #61 from SocialBeats/feat/player-enhancement
+- Merge branch 'develop' into feat/player-enhancement
+- style: change alerts to modals to improve UX in beats-interactions pages
+- Merge pull request #60 from SocialBeats/feat/unique-dashboard
+- Merge pull request #59 from SocialBeats/feat/delete-beat-command
+- Merge pull request #58 from SocialBeats/feat/azure-api
+- Merge pull request #57 from SocialBeats/feat/metrics-notifications
+- Merge pull request #54 from SocialBeats/feat/avatar-decorators
+- Merge pull request #55 from SocialBeats/develop
+- Merge pull request #53 from SocialBeats/feat/translator-api
+- Merge pull request #52 from SocialBeats/feat/add-completion-badge
+- Merge pull request #51 from SocialBeats/feat/persona-integration
+- Merge branch 'develop' into feat/persona-integration
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.0.0...v1.0.1).
+
 # Release v1.0.0
 
 ## Features
