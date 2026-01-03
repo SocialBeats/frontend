@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./PlaylistLists.css";
 import { getUserPlaylists } from "../../../../services/beats-interaction/playlistService";
 import { getProfileInfoByUserId } from "../../../../services/profileService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
 
 const UserPlaylists = () => {
@@ -12,6 +13,9 @@ const UserPlaylists = () => {
   const [playlists, setPlaylists] = useState([]);
   const [username, setUsername] = useState("este usuario");
   const [isLoading, setIsLoading] = useState(true);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -40,7 +44,8 @@ const UserPlaylists = () => {
           setPlaylists(data);
         } else {
           console.error("Error loading user playlists:", playlistsRes.reason);
-          alert("No se pudieron cargar las playlists del usuario");
+          setErrorMessage("No se pudieron cargar las playlists del usuario");
+          setErrorModalOpen(true);
           setPlaylists([]);
         }
       } finally {
@@ -103,6 +108,11 @@ const UserPlaylists = () => {
           </div>
         )}
       </div>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import "./CreatePlaylist.css";
 import { createPlaylist } from "../../../../services/beats-interaction/playlistService";
 import { searchProfiles } from "../../../../services/profileService";
 import { Default, Feature, On } from "space-react-client";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 
 const CreatePlaylist = () => {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ const CreatePlaylist = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [foundUsers, setFoundUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!playlistIsPublic || searchQuery.trim().length < 2) {
@@ -62,17 +66,20 @@ const CreatePlaylist = () => {
     e.preventDefault();
 
     if (!playlistName.trim()) {
-      alert("Por favor ingresa un nombre para la playlist");
+      setErrorMessage("Por favor ingresa un nombre para la playlist");
+      setErrorModalOpen(true);
       return;
     }
 
     if (!playlistIsPublic && playlistCollaborators.length > 0) {
-      alert("No puedes añadir colaboradores a una playlist privada");
+      setErrorMessage("No puedes añadir colaboradores a una playlist privada");
+      setErrorModalOpen(true);
       return;
     }
 
     if (playlistCollaborators.length > 30) {
-      alert("Máximo 30 colaboradores");
+      setErrorMessage("Máximo 30 colaboradores");
+      setErrorModalOpen(true);
       return;
     }
 
@@ -95,7 +102,8 @@ const CreatePlaylist = () => {
       navigate(`/app/playlists/${createdPlaylist._id}`);
     } catch (error) {
       console.error("Error al crear playlist:", error);
-      alert(error?.response?.data?.message || "Error al crear la playlist");
+      setErrorMessage(error?.response?.data?.message || "Error al crear la playlist");
+      setErrorModalOpen(true);
     } finally {
       setIsCreating(false);
     }
@@ -106,144 +114,151 @@ const CreatePlaylist = () => {
   };
 
   return (
-    <div className="create-playlist">
-      <div className="create-playlist__container">
-        <div className="create-playlist__header">
-          <h1 className="create-playlist__title">Crear Nueva Playlist</h1>
-          <p className="create-playlist__subtitle">
-            Crea una playlist y luego podrás agregar canciones.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="playlist__form">
-          {/* Name */}
-          <div className="create-playlist__form-group">
-            <label className="create-playlist__label">
-              Nombre de la Playlist *
-            </label>
-            <input
-              type="text"
-              className="create-playlist__input"
-              value={playlistName}
-              onChange={(e) => setPlaylistName(e.target.value)}
-              disabled={isCreating}
-              autoFocus
-            />
+    <>
+      <div className="create-playlist">
+        <div className="create-playlist__container">
+          <div className="create-playlist__header">
+            <h1 className="create-playlist__title">Crear Nueva Playlist</h1>
+            <p className="create-playlist__subtitle">
+              Crea una playlist y luego podrás agregar canciones.
+            </p>
           </div>
 
-          {/* Description */}
-          <div className="create-playlist__form-group">
-            <label className="create-playlist__label">Descripción</label>
-            <textarea
-              className="create-playlist__textarea"
-              value={playlistDescription}
-              onChange={(e) => setPlaylistDescription(e.target.value)}
-              disabled={isCreating}
-            />
-          </div>
-
-          {/* collaborators */}
-          <div className="create-playlist__form-group">
-            <label className="create-playlist__label">Colaboradores</label>
-
-            {/* Chips */}
-            <div className="selected-collaborators">
-              {playlistCollaborators.map((user) => (
-                <div key={user.userId} className="collab-chip">
-                  {user.username}
-                  <span
-                    className="remove-chip"
-                    onClick={() => toggleCollaborator(user)}
-                  >
-                    ✕
-                  </span>
-                </div>
-              ))}
+          <form onSubmit={handleSubmit} className="playlist__form">
+            {/* Name */}
+            <div className="create-playlist__form-group">
+              <label className="create-playlist__label">
+                Nombre de la Playlist *
+              </label>
+              <input
+                type="text"
+                className="create-playlist__input"
+                value={playlistName}
+                onChange={(e) => setPlaylistName(e.target.value)}
+                disabled={isCreating}
+                autoFocus
+              />
             </div>
 
-            <input
-              type="text"
-              className="create-playlist__input collaborator-search"
-              placeholder={
-                playlistIsPublic
-                  ? "Buscar colaboradores..."
-                  : "Haz la playlist pública para añadir colaboradores"
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={!playlistIsPublic || isCreating}
-            />
-
-            {playlistIsPublic && searchQuery.trim() && (
-              <div className="collaborator-dropdown">
-                {isSearching ? (
-                  <div className="collaborator-dropdown__empty">
-                    Buscando...
-                  </div>
-                ) : foundUsers.length === 0 ? (
-                  <div className="collaborator-dropdown__empty">
-                    No se encontraron usuarios
-                  </div>
-                ) : (
-                  foundUsers.map((user) => (
-                    <div
-                      key={user.userId}
-                      className="collaborator-dropdown__item"
-                      onClick={() => {
-                        toggleCollaborator(user);
-                        setSearchQuery("");
-                        setFoundUsers([]);
-                      }}
-                    >
-                      <strong>{user.username}</strong>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Visibility */}
-          <div className="create-playlist__form-group switch-row">
-            <label className="create-playlist__label">Playlist Pública</label>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={playlistIsPublic}
-                onChange={() => {
-                  setPlaylistIsPublic((prev) => !prev);
-                  setPlaylistCollaborators([]);
-                  setSearchQuery("");
-                  setFoundUsers([]);
-                }}
+            {/* Description */}
+            <div className="create-playlist__form-group">
+              <label className="create-playlist__label">Descripción</label>
+              <textarea
+                className="create-playlist__textarea"
+                value={playlistDescription}
+                onChange={(e) => setPlaylistDescription(e.target.value)}
+                disabled={isCreating}
               />
-              <span className="slider"></span>
-            </label>
-          </div>
+            </div>
 
-          <div className="create-playlist__actions">
-            <Button type="button" variant="secondary" onClick={handleCancel}>
-              Cancelar
-            </Button>
-            <Feature id="socialbeats-playlists">
-              <On>
-                <Button
-                  type="submit"
-                  disabled={!playlistName.trim() || isCreating}
-                >
-                  {isCreating ? "Creando..." : "Crear Playlist"}
-                </Button>
-              </On>
-              <Default>
-                <Button type="submit" disabled={true}>
-                  {"Mejora tu plan para poder crear playlists"}
-                </Button>
-              </Default>
-            </Feature>
-          </div>
-        </form>
+            {/* collaborators */}
+            <div className="create-playlist__form-group">
+              <label className="create-playlist__label">Colaboradores</label>
+
+              {/* Chips */}
+              <div className="selected-collaborators">
+                {playlistCollaborators.map((user) => (
+                  <div key={user.userId} className="collab-chip">
+                    {user.username}
+                    <span
+                      className="remove-chip"
+                      onClick={() => toggleCollaborator(user)}
+                    >
+                      ✕
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <input
+                type="text"
+                className="create-playlist__input collaborator-search"
+                placeholder={
+                  playlistIsPublic
+                    ? "Buscar colaboradores..."
+                    : "Haz la playlist pública para añadir colaboradores"
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                disabled={!playlistIsPublic || isCreating}
+              />
+
+              {playlistIsPublic && searchQuery.trim() && (
+                <div className="collaborator-dropdown">
+                  {isSearching ? (
+                    <div className="collaborator-dropdown__empty">
+                      Buscando...
+                    </div>
+                  ) : foundUsers.length === 0 ? (
+                    <div className="collaborator-dropdown__empty">
+                      No se encontraron usuarios
+                    </div>
+                  ) : (
+                    foundUsers.map((user) => (
+                      <div
+                        key={user.userId}
+                        className="collaborator-dropdown__item"
+                        onClick={() => {
+                          toggleCollaborator(user);
+                          setSearchQuery("");
+                          setFoundUsers([]);
+                        }}
+                      >
+                        <strong>{user.username}</strong>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Visibility */}
+            <div className="create-playlist__form-group switch-row">
+              <label className="create-playlist__label">Playlist Pública</label>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={playlistIsPublic}
+                  onChange={() => {
+                    setPlaylistIsPublic((prev) => !prev);
+                    setPlaylistCollaborators([]);
+                    setSearchQuery("");
+                    setFoundUsers([]);
+                  }}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="create-playlist__actions">
+              <Button type="button" variant="secondary" onClick={handleCancel}>
+                Cancelar
+              </Button>
+              <Feature id="socialbeats-playlists">
+                <On>
+                  <Button
+                    type="submit"
+                    disabled={!playlistName.trim() || isCreating}
+                  >
+                    {isCreating ? "Creando..." : "Crear Playlist"}
+                  </Button>
+                </On>
+                <Default>
+                  <Button type="submit" disabled={true}>
+                    {"Mejora tu plan para poder crear playlists"}
+                  </Button>
+                </Default>
+              </Feature>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
+    </>
   );
 };
 

@@ -16,6 +16,7 @@ import {
 import { createPlaylistModerationReport } from "../../../../services/beats-interaction/moderationReportService.js";
 import { searchBeats, getBeatById } from "../../../../services/beatsService";
 import { getCurrentUserId } from "../../../../services/authService";
+import ErrorModal from "../../../../components/ui/ErrorModal";
 import "./PlaylistDetails.css";
 
 
@@ -44,6 +45,9 @@ const PlaylistDetails = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* ================= FETCH PLAYLIST ================= */
 
@@ -148,7 +152,8 @@ const PlaylistDetails = () => {
 
     if (!audioUrl) {
       console.error("No audio URL found for beat:", beat);
-      alert("Audio no disponible para este beat");
+      setErrorMessage("Audio no disponible para este beat");
+      setErrorModalOpen(true);
       return;
     }
 
@@ -159,7 +164,8 @@ const PlaylistDetails = () => {
       } else {
         audioRef.current.play().catch((err) => {
           console.error("Error playing audio:", err);
-          alert("Error al reproducir el audio");
+          setErrorMessage("Error al reproducir el audio");
+          setErrorModalOpen(true);
         });
         setIsPlaying(true);
       }
@@ -174,7 +180,8 @@ const PlaylistDetails = () => {
         })
         .catch((err) => {
           console.error("Error playing audio:", err);
-          alert("Error al reproducir el audio");
+          setErrorMessage("Error al reproducir el audio");
+          setErrorModalOpen(true);
         });
     }
   };
@@ -198,7 +205,8 @@ const PlaylistDetails = () => {
       await deletePlaylist(playlist._id);
       navigate("/app/playlists/me");
     } catch {
-      alert("Error al eliminar la playlist");
+      setErrorMessage("Error al eliminar la playlist");
+      setErrorModalOpen(true);
     }
   };
 
@@ -239,7 +247,8 @@ const PlaylistDetails = () => {
       setPlaylist(data);
       setAddBeatModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || "Error al añadir beat");
+      setErrorMessage(err.response?.data?.message || "Error al añadir beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -254,7 +263,8 @@ const PlaylistDetails = () => {
         setCurrentPlayingId(null);
       }
     } catch {
-      alert("Error al quitar el beat");
+      setErrorMessage("Error al quitar el beat");
+      setErrorModalOpen(true);
     }
   };
 
@@ -281,7 +291,8 @@ const PlaylistDetails = () => {
       closeReportModal();
     } catch (err) {
       console.error(err);
-      alert("Error denunciando playlist");
+      setErrorMessage("Error denunciando playlist");
+      setErrorModalOpen(true);
       closeReportModal();
     }
   };
@@ -504,6 +515,12 @@ const PlaylistDetails = () => {
           )}
         </div>
       </Modal>
+
+      <ErrorModal
+              isOpen={errorModalOpen}
+              onClose={() => setErrorModalOpen(false)}
+              message={errorMessage}
+            />
     </div>
   );
 };
