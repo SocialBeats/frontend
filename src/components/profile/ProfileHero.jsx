@@ -16,10 +16,8 @@ export default function ProfileHero({
   profile,
   formData,
   isOwnProfile,
-  isEditingBasic,
   isEditingAbout,
   saving,
-  onEditClick,
   onEditAboutClick,
   onInputChange,
   onSubmitAbout,
@@ -66,7 +64,16 @@ export default function ProfileHero({
   };
 
   return (
-    <div className="profile-hero">
+    <div 
+      className="profile-hero"
+      style={{
+        ...(profile.bannerURL && {
+          backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.95)), url(${profile.bannerURL})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }),
+      }}
+    >
       {/* Columna izquierda - Avatar y contacto */}
       <div className="profile-hero-left">
         <div className={`avatar-wrapper ${isOwnProfile ? 'editable' : ''}`} onClick={handleAvatarClick}>
@@ -172,11 +179,6 @@ export default function ProfileHero({
               />
             )}
           </div>
-          {isOwnProfile && !isEditingBasic && (
-            <Button variant="secondary" onClick={onEditClick}>
-              Editar perfil
-            </Button>
-          )}
         </div>
 
         {/* About Me */}

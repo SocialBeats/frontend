@@ -87,3 +87,30 @@ export async function uploadCertificationToS3(file) {
   // 3. Retornar URL final del CDN
   return finalUrl;
 }
+
+/**
+ * Sube un banner de perfil a S3 y retorna la URL final del CDN
+ * @param {File} file - Archivo de imagen a subir
+ * @returns {Promise<string>} - URL final del banner en el CDN
+ */
+export async function uploadBannerToS3(file) {
+  // Validar que sea una imagen
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Solo se permiten archivos de imagen');
+  }
+
+  // Validar tamaño máximo (10MB para banners más grandes)
+  const MAX_SIZE = 10 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    throw new Error('El archivo es demasiado grande. Máximo 10MB');
+  }
+
+  // 1. Obtener URL prefirmada para banner
+  const { uploadUrl, finalUrl } = await getPresignedUrl(file.name, file.type, 'banner');
+
+  // 2. Subir directamente a S3
+  await uploadToS3(uploadUrl, file);
+
+  // 3. Retornar URL final del CDN
+  return finalUrl;
+}
