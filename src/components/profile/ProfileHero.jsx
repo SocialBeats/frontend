@@ -185,7 +185,7 @@ export default function ProfileHero({
             <h1 className="profile-fullname">{formData.full_name || profile.username}</h1>
             {profile.identityVerified && (
               <BadgeCheck
-                size={28}
+                size={48}
                 className="verified-badge"
                 fill="#3b82f6"
                 color="white"
