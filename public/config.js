@@ -4,5 +4,7 @@ window.RUNTIME_CONFIG = {
   VITE_CDN_DOMAIN: "s3-cdn-server-for-retrieving-files",
   VITE_SPACE_URL: "http://localhost:5403",
   VITE_SPACE_API_KEY: "",
-  VITE_ANALYTICS_SERVICE_URL: "http://localhost:3003"
+  // Analytics should go through API Gateway, not directly to the service
+  // In production, this will be the API Gateway URL (e.g., https://api.socialbeats.es/socialbeats-api)
+  VITE_ANALYTICS_SERVICE_URL: "http://localhost:3000"
 };
