@@ -9,7 +9,7 @@ import {
   updateDashboard,
 } from "../../../services/analytics/dashboards";
 import "./DashboardsPage.css";
-import { Default, Feature } from "space-react-client";
+import { Default, Feature, On } from "space-react-client";
 
 const DashboardsPage = () => {
   const navigate = useNavigate();
