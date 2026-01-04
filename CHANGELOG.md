@@ -1,3 +1,34 @@
+# Release v1.1.0
+
+## Features
+- feat: pricing adaptation
+- feat: Add SPACE Feature component for dashboards
+- feat: scroll in certs and delete from s3.
+- feat: added pricing section to navbar
+- feat: add-ons logic added and managed
+- feat: socialbeats pricing plans view updated
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: actualize addons to adjust new pricing
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #67 from SocialBeats/develop
+- Merge pull request #66 from SocialBeats/feat/pricing-users
+- Merge pull request #65 from SocialBeats/feat/analytics-space-integration
+- Merge pull request #64 from SocialBeats/feat/update-yaml
+- Merge pull request #63 from SocialBeats/feat/socialbeats-pricing
+- Merge branch 'develop' into feat/socialbeats-pricing
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.0.1...v1.1.0).
+
 # Release v1.0.1
 
 ## Features
