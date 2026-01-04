@@ -1,3 +1,28 @@
+# Release v1.1.1
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: Update SSE connection to use API Gateway and include auth token handling
+- fix: style in verification badge
+- fix: Update analytics service URL in configuration and dashboard component
+- fix: Add On import from SPACE library
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #69 from SocialBeats/develop
+- Merge branch 'develop' of https://github.com/SocialBeats/frontend into develop
+- Merge pull request #68 from SocialBeats/feat/fix-profile-badge
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.1.0...v1.1.1).
+
 # Release v1.1.0
 
 ## Features
