@@ -79,9 +79,9 @@ const CreateDashboards = () => {
         // Check initial metrics status for each beat using new status endpoint
         if (beatsData.length > 0) {
           try {
-            const analyticsUrl = window.APP_CONFIG?.ANALYTICS_SERVICE_URL || 
+            const analyticsUrl = window.RUNTIME_CONFIG?.VITE_ANALYTICS_SERVICE_URL || 
                                import.meta.env.VITE_ANALYTICS_SERVICE_URL || 
-                               'http://localhost:3003';
+                               'http://localhost:3000';
             
             const beatIds = beatsData.map(b => b._id).join(',');
             const response = await fetch(`${analyticsUrl}/api/v1/analytics/beat-metrics-status?beatIds=${beatIds}`);
