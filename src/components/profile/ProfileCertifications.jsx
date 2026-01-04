@@ -21,7 +21,7 @@ export default function ProfileCertifications({
   const [isUploading, setIsUploading] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [selectedPdf, setSelectedPdf] = useState(null);
-  const [deleteIndex, setDeleteIndex] = useState(null);
+  const [deleteCertId, setDeleteCertId] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleAddClick = () => {
@@ -48,7 +48,9 @@ export default function ProfileCertifications({
     } catch (error) {
       console.error('Error subiendo certificación:', error);
       if (onError) {
-        onError(error.message || 'Error al subir la certificación');
+        // Extraer mensaje de error del backend (Axios) o usar mensaje genérico
+        const errorMessage = error.response?.data?.error || error.message || 'Error al subir la certificación';
+        onError(errorMessage);
       }
     } finally {
       setIsUploading(false);
@@ -58,14 +60,14 @@ export default function ProfileCertifications({
     }
   };
 
-  const handleRemove = (index) => {
-    setDeleteIndex(index);
+  const handleRemove = (certId) => {
+    setDeleteCertId(certId);
   };
 
   const confirmDelete = async () => {
-    if (deleteIndex !== null) {
-      await onRemoveCertification(deleteIndex);
-      setDeleteIndex(null);
+    if (deleteCertId !== null) {
+      await onRemoveCertification(deleteCertId);
+      setDeleteCertId(null);
     }
   };
 
@@ -145,12 +147,12 @@ export default function ProfileCertifications({
               onClick={() => handleCertClick(cert)}
             >
               <span className="cert-title">{cert.title}</span>
-              {isOwnProfile && isEditing && (
+              {isOwnProfile && (
                 <button
                   className="cert-remove-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemove(index);
+                    handleRemove(cert._id);
                   }}
                   disabled={saving}
                   title="Eliminar"
@@ -175,8 +177,8 @@ export default function ProfileCertifications({
 
       {/* Modal de confirmación para eliminar */}
       <ConfirmModal
-        isOpen={deleteIndex !== null}
-        onClose={() => setDeleteIndex(null)}
+        isOpen={deleteCertId !== null}
+        onClose={() => setDeleteCertId(null)}
         onConfirm={confirmDelete}
         title="Eliminar certificación"
         message="¿Estás seguro de que quieres eliminar esta certificación?"

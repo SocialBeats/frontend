@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { BadgeCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@/components/ui/Avatar';
 
 import Button from '@/components/ui/Button';
 import { uploadAvatarToS3 } from '@/services/uploadService';
+import { Feature, On, Default } from 'space-react-client';
 import ProfileCertifications from './ProfileCertifications';
 import SocialLinkEditor from './SocialLinkEditor';
 import { MAX_ABOUT_ME_LENGTH } from '@/pages/app/profile/ProfileView';
@@ -29,6 +31,7 @@ export default function ProfileHero({
   onCertificationError,
   onSocialLinkUpdate,
 }) {
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showDecoratorSelector, setShowDecoratorSelector] = useState(false);
@@ -103,18 +106,30 @@ export default function ProfileHero({
         </div>
         <h2 className="profile-username">{profile.username}</h2>
 
-
-
         {/* Botón para cambiar decorador - solo si es tu perfil */}
         {isOwnProfile && (
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => setShowDecoratorSelector(!showDecoratorSelector)}
-            style={{ marginTop: '0.5rem' }}
-          >
-            {showDecoratorSelector ? 'Cerrar decoradores' : '✨ Decoradores'}
-          </Button>
+          <Feature id="socialbeats-decoratives">
+            <On>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => setShowDecoratorSelector(!showDecoratorSelector)}
+                style={{ marginTop: '0.5rem' }}
+              >
+                {showDecoratorSelector ? 'Cerrar decoradores' : '✨ Decoradores'}
+              </Button>
+            </On>
+            <Default>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => navigate('/app/pricing')}
+                style={{ marginTop: '0.5rem' }}
+              >
+                🔒 Mejora para decoradores
+              </Button>
+            </Default>
+          </Feature>
         )}
 
         {/* Selector de decoradores (modal) */}
