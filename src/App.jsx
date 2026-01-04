@@ -32,6 +32,8 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import MessagingLayout from './pages/app/messages/MessagingLayout';
+import ConversationsPage from './pages/app/messages/ConversationsPage.jsx';
+import ConversationThreadPage from './pages/app/messages/ConversationThreadPage.jsx';
 
 function App() {
   const spaceClient = useSpaceClient();
