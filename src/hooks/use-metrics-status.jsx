@@ -30,17 +30,26 @@ export function useMetricsStatus(onMetricsCompleted) {
 
     const connectSSE = () => {
       try {
-        // Connect directly to analytics service (SSE shouldn't go through API Gateway)
+        // Get auth token from localStorage (use 'accessToken' not 'token')
+        const token = localStorage.getItem('accessToken');
+        
+        if (!token) {
+          logger.warn('⚠️ No auth token found, SSE connection may fail');
+          return; // Don't attempt connection without token
+        }
+        
+        // Connect through API Gateway (required for Kubernetes)
         const analyticsUrl = window.RUNTIME_CONFIG?.VITE_ANALYTICS_SERVICE_URL || 
                            import.meta.env.VITE_ANALYTICS_SERVICE_URL || 
-                           'http://localhost:3003';
+                           'http://localhost:3000';
         
-        const sseUrl = `${analyticsUrl}/api/v1/analytics/metrics-events`;
+        // SSE doesn't support custom headers, so we pass token as query param
+        const sseUrl = `${analyticsUrl}/api/v1/analytics/metrics-events${token ? `?token=${token}` : ''}`;
         
-        logger.info('🔌 Connecting to SSE:', sseUrl);
+        logger.info('🔌 Connecting to SSE:', analyticsUrl + '/api/v1/analytics/metrics-events');
         
         const eventSource = new EventSource(sseUrl, {
-          withCredentials: false // No auth needed for SSE
+          withCredentials: true // Send cookies for auth
         });
         
         eventSourceRef.current = eventSource;
