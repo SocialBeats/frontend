@@ -38,17 +38,11 @@ function hashToHue(input) {
   return h % 360;
 }
 
-function pickDisplayName(profile, fallbackId) {
-  const candidates = [
-    profile?.displayName,
-    profile?.name,
-    profile?.fullName,
-    profile?.username,
-    profile?.userName,
-  ].filter(Boolean);
-  if (candidates.length > 0) return String(candidates[0]);
-  return fallbackId ? `Usuario ${fallbackId}` : 'Conversación';
+function pickDisplayName(profile) {
+  const u = String(profile?.username || '').trim();
+  return u ? u : 'Usuario';
 }
+
 
 export default function ConversationsPage() {
   const [items, setItems] = useState([]);
@@ -755,7 +749,7 @@ export default function ConversationsPage() {
                 {filtered.map((c) => {
                   const otherId = c.otherUserId ? String(c.otherUserId) : '';
                   const profileState = otherId ? profiles?.[otherId] : null;
-                  const displayName = pickDisplayName(profileState?.data, otherId);
+                  const displayName = pickDisplayName(profileState?.data);
 
                   const hue = hashToHue(otherId || c._id);
                   const avatarBg = `linear-gradient(135deg, hsla(${hue}, 85%, 58%, 0.95), hsla(${
@@ -792,12 +786,8 @@ export default function ConversationsPage() {
                       <div style={styles.itemInner}>
                         <div style={{ ...styles.avatar, background: avatarBg }} title={titleForAvatar}>
                           {safeInitialFromName(
-                            (profileState?.data?.displayName ||
-                              profileState?.data?.name ||
-                              profileState?.data?.fullName ||
-                              profileState?.data?.username ||
-                              otherId ||
-                              c._id
+                            (profileState?.data?.username ||
+                              'Usuario'
                             )
                               .toString()
                               .trim()

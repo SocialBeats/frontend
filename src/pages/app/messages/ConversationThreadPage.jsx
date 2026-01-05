@@ -32,16 +32,9 @@ function formatDayLabel(iso) {
   return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
 }
 
-function pickDisplayName(profile, fallbackId) {
-  const candidates = [
-    profile?.displayName,
-    profile?.name,
-    profile?.fullName,
-    profile?.username,
-    profile?.userName,
-  ].filter(Boolean);
-  if (candidates.length > 0) return String(candidates[0]);
-  return fallbackId ? `Usuario ${fallbackId}` : 'Usuario';
+function pickDisplayName(profile) {
+  const u = String(profile?.username || '').trim();
+  return u ? u : 'Usuario';
 }
 
 function safeInitialFromName(nameOrId) {
@@ -149,7 +142,7 @@ export default function ConversationThreadPage() {
   }, [items, myUserId, uniqueSenderIds]);
 
   const otherProfile = otherUserId ? profiles?.[otherUserId]?.data : null;
-  const otherName = pickDisplayName(otherProfile, otherUserId);
+  const otherName = pickDisplayName(otherProfile);
 
   async function ensureProfilesFor(userIds) {
     const ids = Array.from(new Set((userIds || []).filter(Boolean).map((x) => String(x))));
@@ -322,10 +315,10 @@ export default function ConversationThreadPage() {
 
       const senderId = normalizeId(m?.senderId);
       const prof = senderId ? profiles?.[senderId]?.data : null;
-      const senderName = pickDisplayName(prof, senderId);
+      const senderName = pickDisplayName(prof);
 
       // Regla: coincide con el nombre de la conversación -> IZQ, si no -> DER
-      const alignRight = norm(senderName) !== norm(otherName);
+      const alignRight = norm(senderId) !== norm(otherUserId);
 
       rows.push({
         kind: 'msg',
