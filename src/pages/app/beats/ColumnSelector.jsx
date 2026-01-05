@@ -4,7 +4,7 @@ import './ColumnSelector.css';
 const ColumnSelector = ({ columns, visibleColumns, onColumnChange }) => {
   return (
     <div className="column-selector-panel">
-      <h4 className="column-selector-title">Customize Columns</h4>
+      <h4 className="column-selector-title">Personalizar Columnas</h4>
       <div className="column-selector-list">
         {columns.map((column) => (
           <label key={column.key} className="column-selector-item">

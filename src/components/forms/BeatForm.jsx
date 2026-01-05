@@ -63,7 +63,6 @@ const BeatForm = ({
   // Sync state with initialData if it changes (async load)
   useEffect(() => {
     if (initialData) {
-      console.log('BeatForm received initialData:', initialData);
       setFormData({
         title: initialData.title || '',
         genre: initialData.genre || '',
@@ -74,7 +73,6 @@ const BeatForm = ({
       });
 
       const derivedCoverUrl = getCoverUrl(initialData);
-      console.log('Derived Cover URL:', derivedCoverUrl);
       setCoverPreviewUrl(derivedCoverUrl);
     }
   }, [initialData]);
@@ -126,22 +124,21 @@ const BeatForm = ({
     const fileExtension = file.name.split('.').pop().toLowerCase();
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
-      setError('Invalid file type. Allowed: MP3, WAV, FLAC, AAC');
+      setError('Tipo de archivo inválido. Permitidos: MP3, WAV, FLAC, AAC');
       return false;
     }
     if (file.size > 50 * 1024 * 1024) {
-      setError('File size too large. Maximum size is 50MB.');
+      setError('Archivo demasiado grande. El tamaño máximo es 50MB.');
       return false;
     }
     try {
       const metadata = await parseBlob(file);
       if (!metadata.format.codec) {
-        setError('Invalid audio file content.');
+        setError('Contenido de archivo de audio inválido.');
         return false;
       }
     } catch (err) {
-      console.error('Error parsing audio file:', err);
-      setError('Failed to verify audio file.');
+      setError('Error al verificar el archivo de audio.');
       return false;
     }
 
@@ -180,7 +177,7 @@ const BeatForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isEditing && !audioFile) { setError('Please upload an audio file.'); return; }
+    if (!isEditing && !audioFile) { setError('Por favor, sube un archivo de audio.'); return; }
     const submitData = {
       ...formData,
     };
@@ -207,8 +204,8 @@ const BeatForm = ({
               <div className="section-header-with-icon">
                 <Music size={24} className="section-icon" />
                 <div className="section-header-text">
-                  <h2>Audio File</h2>
-                  <p className="section-description">Upload your beat (MP3, WAV, FLAC, AAC)</p>
+                  <h2>Archivo de Audio</h2>
+                  <p className="section-description">Sube tu beat (MP3, WAV, FLAC, AAC)</p>
                 </div>
               </div>
 
@@ -219,10 +216,10 @@ const BeatForm = ({
                   file={audioFile}
                   onChange={handleAudioChange}
                   onClear={handleClearAudio}
-                  title="Drop your beat here"
-                  description="or click to browse files"
+                  title="Arrastra tu beat aquí"
+                  description="o haz clic para buscar archivos"
                   formats="MP3, WAV, FLAC, AAC"
-                  maxSizeText="Max 50MB"
+                  maxSizeText="Máx 50MB"
                 />
               </div>
             </Card>
@@ -235,8 +232,8 @@ const BeatForm = ({
                 <div className="section-header-with-icon">
                   <Image size={24} className="section-icon" />
                   <div className="section-header-text">
-                    <h2>Cover Art</h2>
-                    <p className="section-description">Upload an image for your beat</p>
+                    <h2>Portada</h2>
+                    <p className="section-description">Sube una imagen para tu beat</p>
                   </div>
                 </div>
 
@@ -247,10 +244,10 @@ const BeatForm = ({
                     file={coverFile}
                     onChange={handleCoverChange}
                     onClear={handleClearCover}
-                    title="Drop your cover here"
-                    description="or click to upload image"
+                    title="Arrastra tu portada aquí"
+                    description="o haz clic para subir imagen"
                     formats="JPG, PNG, WEBP"
-                    maxSizeText="Max 5MB"
+                    maxSizeText="Máx 5MB"
                     isImage={true}
                     previewUrl={coverPreviewUrl}
                     icon={Image}
@@ -286,27 +283,27 @@ const BeatForm = ({
             <div className="section-header-with-icon">
               <FileText size={24} className="section-icon" />
               <div className="section-header-text">
-                <h2>Beat Information</h2>
-                <p className="section-description">Add details about your beat</p>
+                <h2>Información del Beat</h2>
+                <p className="section-description">Añade detalles sobre tu beat</p>
               </div>
             </div>
 
             <div className="form-fields">
               {/* Title - Full Width Directo */}
               <Input
-                label="Title"
+                label="Título"
                 icon={<Type size={16} />}
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Enter beat title"
+                placeholder="Introduce el título del beat"
                 fullWidth
                 required
               />
 
               {/* Genre */}
               <Select
-                label="Genre"
+                label="Género"
                 icon={<Music2 size={16} />}
                 name="genre"
                 value={formData.genre}
@@ -314,7 +311,7 @@ const BeatForm = ({
                 fullWidth
                 required
               >
-                <option value="">Select genre</option>
+                <option value="">Selecciona un género</option>
                 <option value="Hip Hop">Hip Hop</option>
                 <option value="Trap">Trap</option>
                 <option value="R&B">R&B</option>
@@ -329,12 +326,12 @@ const BeatForm = ({
 
               {/* Description Directo */}
               <Textarea
-                label="Description"
+                label="Descripción"
                 icon={<AlignLeft size={16} />}
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Describe your beat, its vibe, and intended use..."
+                placeholder="Describe tu beat, su ambiente y uso previsto..."
                 fullWidth
                 rows={4}
               />
@@ -343,7 +340,7 @@ const BeatForm = ({
               <div className="tag-wrapper-block">
                 <label className="input-label tag-label">
                   <Hash size={16} className="label-icon" />
-                  Tags
+                  Etiquetas
                 </label>
 
                 <div className="tag-input-section">
@@ -351,12 +348,12 @@ const BeatForm = ({
                     <Input
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      placeholder="Add tag..."
+                      placeholder="Añadir etiqueta..."
                       fullWidth
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                     />
                     <Button type="button" onClick={handleAddTag} variant="outline">
-                      Add
+                      Añadir
                     </Button>
                   </div>
 
@@ -368,7 +365,7 @@ const BeatForm = ({
                           type="button"
                           onClick={() => handleRemoveTag(tag)}
                           className="tag-remove"
-                          aria-label={`Remove ${tag}`}
+                          aria-label={`Eliminar ${tag}`}
                         >
                           <X size={14} />
                         </button>
@@ -385,16 +382,16 @@ const BeatForm = ({
             <div className="section-header-with-icon">
               <Eye size={24} className="section-icon" />
               <div className="section-header-text">
-                <h2>Visibility & Download Options</h2>
-                <p className="section-description">Configure who can see and download your beat</p>
+                <h2>Visibilidad y Opciones de Descarga</h2>
+                <p className="section-description">Configura quién puede ver y descargar tu beat</p>
               </div>
             </div>
 
             <div className="form-fields">
               <div className="toggle-row">
                 <Toggle
-                  label="Public"
-                  description="Visible to everyone"
+                  label="Público"
+                  description="Visible para todos"
                   icon={<Eye size={16} />}
                   checked={formData.isPublic}
                   onChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
@@ -402,8 +399,8 @@ const BeatForm = ({
 
                 {formData.isPublic && (
                   <Toggle
-                    label="Allow downloads"
-                    description="Users can download this beat"
+                    label="Permitir descargas"
+                    description="Los usuarios pueden descargar este beat"
                     icon={<Download size={16} />}
                     checked={formData.isDownloadable}
                     onChange={(checked) => setFormData(prev => ({ ...prev, isDownloadable: checked }))}
@@ -422,7 +419,7 @@ const BeatForm = ({
           onClick={onCancel}
           disabled={loading}
         >
-          Cancel
+          Cancelar
         </Button>
 
         <Button
@@ -432,7 +429,7 @@ const BeatForm = ({
           className="submit-button gap-2"
         >
           <Save size={18} />
-          {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Beat' : 'Create Beat')}
+          {loading ? (isEditing ? 'Actualizando...' : 'Creando...') : (isEditing ? 'Actualizar Beat' : 'Crear Beat')}
         </Button>
       </div>
     </form>

@@ -54,7 +54,6 @@ const setCachedSignedUrls = (urlsMap) => {
  */
 export const clearSignedUrlCache = () => {
   signedUrlCache.clear();
-  console.log('🧹 Signed URL cache cleared');
 };
 
 // ============================================================
@@ -63,30 +62,15 @@ export const clearSignedUrlCache = () => {
 
 export const getBeats = async (filters = {}) => {
   try {
-    console.log('📡 Making API request to /beats with filters:', filters);
-    console.log('🔗 Base URL:', client.defaults.baseURL);
-
     const { data } = await client.get('/beats', { params: filters });
-    console.log('📦 Raw API response:', data);
 
     // Extract the beats array from the API response structure
     if (data.success && data.data) {
-      console.log('✅ Returning beats array:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data; // fallback to raw data
     }
   } catch (error) {
-    console.error('🚨 Service error details:', {
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      url: error.config?.url,
-      baseURL: error.config?.baseURL
-    });
     throw error;
   }
 };
@@ -134,75 +118,59 @@ export const getBeatById = async (id) => {
     const { data } = await client.get(`/beats/${id}`);
     // Extract the beats array from the API response structure
     if (data.success && data.data) {
-      console.log('✅ Returning beats array:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data; // fallback to raw data
     }
   } catch (error) {
-    console.error(`Error fetching beat with id ${id}:`, error);
     throw error;
   }
 };
 
 export const createBeat = async (beatData) => {
   try {
-    console.log('📝 Creating new beat:', beatData);
     const { data } = await client.post('/beats', beatData);
 
     if (data.success && data.data) {
-      console.log('✅ Beat created successfully:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error creating beat:', error);
     throw error;
   }
 };
 
 export const updateBeat = async (id, beatData) => {
   try {
-    console.log('✏️ Updating beat:', id, beatData);
     const { data } = await client.put(`/beats/${id}`, beatData);
 
     if (data.success && data.data) {
-      console.log('✅ Beat updated successfully:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error updating beat:', error);
     throw error;
   }
 };
 
 export const deleteBeat = async (id) => {
   try {
-    console.log('🗑️ Deleting beat:', id);
     const { data } = await client.delete(`/beats/${id}`);
 
     if (data.success) {
-      console.log('✅ Beat deleted successfully');
       return data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error deleting beat:', error);
     throw error;
   }
 };
 
 export const getPresignedUrl = async ({ extension, mimetype, size }) => {
   try {
-    console.log('🔑 Requesting presigned URL:', { extension, mimetype, size });
     const { data } = await client.post('/beats/upload-url', {
       extension,
       mimetype,
@@ -210,13 +178,11 @@ export const getPresignedUrl = async ({ extension, mimetype, size }) => {
     });
 
     if (data.success && data.data) {
-      console.log('✅ Presigned URL received:', data.data);
       return data.data;
     } else {
-      throw new Error(data.message || 'Failed to get upload URL');
+      throw new Error(data.message || 'Error al obtener la URL de subida');
     }
   } catch (error) {
-    console.error('🚨 Error getting presigned URL:', error);
     throw error;
   }
 };
@@ -229,7 +195,6 @@ export const getPresignedUrl = async ({ extension, mimetype, size }) => {
  */
 export const uploadFileToS3 = async (presignedData, file) => {
   try {
-    console.log('📤 Uploading file to S3 via Presigned POST...');
     const { url, fields } = presignedData;
 
     // Build FormData with all presigned policy fields
@@ -254,14 +219,11 @@ export const uploadFileToS3 = async (presignedData, file) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('🚨 S3 Upload error response:', errorText);
-      throw new Error(`S3 Upload failed: ${response.status} - ${errorText}`);
+      throw new Error(`Error al subir a S3: ${response.status} - ${errorText}`);
     }
 
-    console.log('✅ File uploaded to S3 successfully via POST');
     return true;
   } catch (error) {
-    console.error('🚨 Error uploading to S3:', error);
     throw error;
   }
 };
@@ -273,10 +235,7 @@ export const uploadFileToS3 = async (presignedData, file) => {
  */
 export const searchBeats = async (query) => {
   try {
-    console.log('🔍 Searching beats with query:', query);
-
     if (!query || query.length < 2) {
-      console.warn('⚠️ Search query must be at least 2 characters');
       return [];
     }
 
@@ -285,14 +244,11 @@ export const searchBeats = async (query) => {
     });
 
     if (data.success && data.data) {
-      console.log('✅ Search results:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return Array.isArray(data) ? data : [];
     }
   } catch (error) {
-    console.error('🚨 Error searching beats:', error);
     throw error;
   }
 };
@@ -303,18 +259,14 @@ export const searchBeats = async (query) => {
  */
 export const getBeatsStats = async () => {
   try {
-    console.log('📊 Fetching beats statistics...');
     const { data } = await client.get('/beats/stats');
 
     if (data.success && data.data) {
-      console.log('✅ Beats stats:', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error fetching beats stats:', error);
     throw error;
   }
 };
@@ -326,18 +278,14 @@ export const getBeatsStats = async () => {
  */
 export const incrementPlayCount = async (id) => {
   try {
-    console.log('▶️ Incrementing play count for beat:', id);
     const { data } = await client.post(`/beats/${id}/play`);
 
     if (data.success) {
-      console.log('✅ Play count incremented');
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error incrementing play count:', error);
     throw error;
   }
 };
@@ -349,18 +297,14 @@ export const incrementPlayCount = async (id) => {
  */
 export const downloadBeat = async (id) => {
   try {
-    console.log('⬇️ Downloading beat:', id);
     const { data } = await client.get(`/beats/${id}/download`);
 
     if (data.success && data.data) {
-      console.log('✅ Download initiated', data.data);
       return data.data;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {
-    console.error('🚨 Error downloading beat:', error);
     throw error;
   }
 };
@@ -377,18 +321,15 @@ export const getAudioStreamUrl = async (id, skipCache = false) => {
   if (!skipCache) {
     const cached = getCachedSignedUrl(id);
     if (cached) {
-      console.log('📦 Using cached signed URL for beat:', id);
       return cached;
     }
   }
 
   try {
-    console.log('🎵 Fetching signed stream URL for beat:', id);
     const { data } = await client.get(`/beats/${id}/audio`);
 
     // Backend returns { streamUrl: "...", coverUrl: "..." }
     if (data.streamUrl) {
-      console.log('✅ Stream URL received', data.coverUrl ? '(with cover)' : '(no cover)');
       const urls = {
         streamUrl: data.streamUrl,
         coverUrl: data.coverUrl || null
@@ -405,23 +346,19 @@ export const getAudioStreamUrl = async (id, skipCache = false) => {
       return { streamUrl: data, coverUrl: null };
     }
 
-    throw new Error('No stream URL in response');
+    throw new Error('No se recibió URL de streaming');
   } catch (error) {
     // Handle specific HTTP error codes
     if (error.response?.status === 403) {
-      console.error('🚫 Not authorized to stream this beat');
       throw new Error('No autorizado para reproducir este beat');
     }
     if (error.response?.status === 429) {
-      console.error('⏳ Rate limit exceeded for streaming');
       throw new Error('Límite de reproducciones excedido. Intenta más tarde.');
     }
     if (error.response?.status === 404) {
-      console.error('🔍 Beat audio not found');
       throw new Error('Audio no encontrado');
     }
 
-    console.error('🚨 Error fetching stream URL:', error);
     throw error;
   }
 };
@@ -453,11 +390,8 @@ export const getBatchSignedUrls = async (beatIds) => {
 
   // If all are cached, return immediately
   if (uncachedIds.length === 0) {
-    console.log('📦 All', beatIds.length, 'signed URLs from cache');
     return result;
   }
-
-  console.log('📦 Cache hit:', beatIds.length - uncachedIds.length, '| Fetching:', uncachedIds.length);
 
   try {
     // Batch fetch only uncached IDs (limit 10 per request)
@@ -465,22 +399,17 @@ export const getBatchSignedUrls = async (beatIds) => {
     for (let i = 0; i < uncachedIds.length; i += batchSize) {
       const batch = uncachedIds.slice(i, i + batchSize);
       
-      console.log('🎵 Batch fetching signed URLs for', batch.length, 'beats');
       const { data } = await client.post('/beats/batch/signed-urls', { beatIds: batch });
 
       if (data.success && data.data) {
         // Cache and add to result
         setCachedSignedUrls(data.data);
         Object.assign(result, data.data);
-        
-        console.log('✅ Batch URLs received:', data.meta?.resolved, 'resolved,', data.meta?.errors, 'errors');
       }
     }
 
     return result;
   } catch (error) {
-    console.error('🚨 Error fetching batch signed URLs:', error);
-    
     // Fallback: return what we have from cache, don't break the UI
     return result;
   }

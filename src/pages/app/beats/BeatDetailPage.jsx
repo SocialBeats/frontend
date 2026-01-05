@@ -55,11 +55,11 @@ const BeatDetailPage = () => {
             plays: beatData.stats?.plays || 0,
             downloads: beatData.stats?.downloads || 0,
           });
-        } else setError("Beat not found.");
-        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
+        } else setError("Beat no encontrado.");
+        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true);
       } catch (err) {
-        setError("Error fetching beat.");
-        console.error(err);
+        const errorMessage = err.response?.data?.message || "Error al cargar el beat.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -73,8 +73,8 @@ const BeatDetailPage = () => {
       await deleteBeat(beat._id);
       navigate(-1);
     } catch (err) {
-      console.error(err);
-      setError("Error deleting beat.");
+      const errorMessage = err.response?.data?.message || "Error al eliminar el beat.";
+      setError(errorMessage);
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
@@ -113,8 +113,7 @@ const BeatDetailPage = () => {
         document.body.removeChild(link);
       }
     } catch (error) {
-      console.error("Error downloading beat:", error);
-      // Error handling/toast could be added here
+      setError(error.response?.data?.message || "Error al descargar el beat.");
     }
   };
 
@@ -129,14 +128,13 @@ const BeatDetailPage = () => {
         }));
       }
     } catch (error) {
-      console.error("Error toggling promotion:", error);
-      // Could show toast with error.response?.data?.message
+      setError(error.response?.data?.message || "Error al cambiar el estado de promoción.");
     } finally {
       setPromoting(false);
     }
   };
 
-  if (loading) return <div className="page-loading">Loading...</div>;
+  if (loading) return <div className="page-loading">Cargando...</div>;
   if (error) return <div className="page-error">{error}</div>;
   if (!beat) return null;
 
@@ -149,7 +147,7 @@ const BeatDetailPage = () => {
           onClick={() => navigate(-1)}
           className="back-btn"
         >
-          <ArrowLeft size={20} className="mr-2" /> Back
+          <ArrowLeft size={20} className="mr-2" /> Volver
         </IconButton>
       </div>
 
@@ -162,11 +160,11 @@ const BeatDetailPage = () => {
           <div className="detail-column-content">
             <Card className="detail-card info-card">
               <div className="detail-card__header">
-                <h3>About this Track</h3>
+                <h3>Sobre este Beat</h3>
               </div>
               <div className="detail-card__content">
                 <p className="beat-description">
-                  {beat.description || "No description provided for this beat."}
+                  {beat.description || "Sin descripción para este beat."}
                 </p>
 
                 <div className="beat-card-genre-key">
@@ -179,7 +177,7 @@ const BeatDetailPage = () => {
                 <div className="tags-section">
                   <span className="tags-label">
                     <Tag size={16} />
-                    Vibe & Tags
+                    Etiquetas
                   </span>
                   <div className="tags-list">
                     {beat.tags && beat.tags.length > 0 ? (
@@ -194,7 +192,7 @@ const BeatDetailPage = () => {
                       ))
                     ) : (
                       <span className="text-muted text-sm italic">
-                        No tags added.
+                        Sin etiquetas.
                       </span>
                     )}
                   </div>
@@ -207,7 +205,7 @@ const BeatDetailPage = () => {
           <div className="detail-column-actions">
             <Card className="detail-card actions-card">
               <div className="detail-card__header">
-                <h3>Actions & License</h3>
+                <h3>Acciones y Licencia</h3>
               </div>
 
               <div className="detail-card__content actions-layout">
@@ -225,7 +223,7 @@ const BeatDetailPage = () => {
                           <EyeOff size={14} />
                         )}
                         <span>
-                          {beat.isPublic ? "Public Beat" : "Private Beat"}
+                          {beat.isPublic ? "Beat Público" : "Beat Privado"}
                         </span>
                       </div>
                     </div>
@@ -241,7 +239,7 @@ const BeatDetailPage = () => {
                           onClick={handleDownload}
                         >
                           <Download size={20} className="mr-2" />
-                          Download
+                          Descargar
                         </Button>
                       </On>
                       <Default>
@@ -270,7 +268,7 @@ const BeatDetailPage = () => {
                       <CheckCircle2 size={12} /> MP3 + WAV
                     </span>
                     <span className="feature-item">
-                      <CheckCircle2 size={12} /> Unlimited
+                      <CheckCircle2 size={12} /> Ilimitado
                     </span>
                   </div>
                 </div>
@@ -280,7 +278,7 @@ const BeatDetailPage = () => {
                 {/* 2. ADMIN CONTROLS (Intacto) */}
                 {isOwner && (
                   <div className="admin-controls">
-                    <span className="admin-label">Owner Controls</span>
+                    <span className="admin-label">Controles del Propietario</span>
                     
                     {/* Promote Beat Button */}
                     <Feature id="socialbeats-promotedBeat">
@@ -330,7 +328,7 @@ const BeatDetailPage = () => {
                         className="flex-1 justify-center"
                         onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
                       >
-                        <Edit size={16} className="mr-2" /> Edit
+                        <Edit size={16} className="mr-2" /> Editar
                       </Button>
 
                       <Button
@@ -340,7 +338,7 @@ const BeatDetailPage = () => {
                         onClick={() => setShowDeleteModal(true)}
                         disabled={deleting}
                       >
-                        <Trash2 size={16} className="mr-2" /> Delete
+                        <Trash2 size={16} className="mr-2" /> Eliminar
                       </Button>
                     </div>
                   </div>
@@ -360,10 +358,10 @@ const BeatDetailPage = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteBeat}
-        title="Delete Beat"
-        message={`Delete "${beat.title}"? This cannot be undone.`}
-        confirmText="Yes, Delete"
-        cancelText="Cancel"
+        title="Eliminar Beat"
+        message={`¿Eliminar "${beat.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Sí, Eliminar"
+        cancelText="Cancelar"
         variant="danger"
       />
     </div>
