@@ -10,7 +10,9 @@ import {
   Tag,
   Download,
   CheckCircle2,
+  Star,
 } from "lucide-react";
+import { Feature, On, Default, Loading, ErrorFallback } from 'space-react-client';
 
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
@@ -24,6 +26,7 @@ import {
   getBeatById,
   deleteBeat,
   downloadBeat,
+  togglePromotion,
 } from "../../../services/beatsService";
 import { getCurrentUserId } from "../../../services/authService";
 import "./BeatDetailPage.css";
@@ -37,6 +40,7 @@ const BeatDetailPage = () => {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [promoting, setPromoting] = useState(false);
   const [isOwner, setIsOwner] = useState(false); // Placeholder for ownership logic
   // Stats state to update download count locally
   const [stats, setStats] = useState({ plays: 0, downloads: 0 });
@@ -111,6 +115,24 @@ const BeatDetailPage = () => {
     } catch (error) {
       console.error("Error downloading beat:", error);
       // Error handling/toast could be added here
+    }
+  };
+
+  const handleTogglePromotion = async () => {
+    try {
+      setPromoting(true);
+      const data = await togglePromotion(beat._id);
+      if (data) {
+        setBeat((prev) => ({
+          ...prev,
+          promoted: data.promoted,
+        }));
+      }
+    } catch (error) {
+      console.error("Error toggling promotion:", error);
+      // Could show toast with error.response?.data?.message
+    } finally {
+      setPromoting(false);
     }
   };
 
@@ -194,9 +216,8 @@ const BeatDetailPage = () => {
                   {isOwner && (
                     <div className="status-container">
                       <div
-                        className={`status-badge ${
-                          beat.isPublic ? "status-public" : "status-private"
-                        }`}
+                        className={`status-badge ${beat.isPublic ? "status-public" : "status-private"
+                          }`}
                       >
                         {beat.isPublic ? (
                           <Eye size={14} />
@@ -212,14 +233,36 @@ const BeatDetailPage = () => {
 
                   {/* Botón Principal */}
                   {beat.isDownloadable && !isOwner && (
-                    <Button
-                      variant="primary"
-                      className="w-full justify-center btn-buy-large"
-                      onClick={handleDownload}
-                    >
-                      <Download size={20} className="mr-2" />
-                      Download
-                    </Button>
+                    <Feature id="socialbeats-downloads">
+                      <On>
+                        <Button
+                          variant="primary"
+                          className="w-full justify-center btn-buy-large"
+                          onClick={handleDownload}
+                        >
+                          <Download size={20} className="mr-2" />
+                          Download
+                        </Button>
+                      </On>
+                      <Default>
+                        <Button
+                          variant="primary"
+                          className="w-full justify-center btn-buy-large"
+                          onClick={() => {
+                            // Redirect to pricing or upgrade page
+                            navigate("/app/pricing");
+                          }}
+                        >
+                          Mejorar plan para descargar
+                        </Button>
+                      </Default>
+                      <Loading>
+                        <span>Comprobando tu plan...</span>
+                      </Loading>
+                      <ErrorFallback>
+                        <span>Error al verificar tu plan</span>
+                      </ErrorFallback>
+                    </Feature>
                   )}
 
                   <div className="license-features">
@@ -238,6 +281,48 @@ const BeatDetailPage = () => {
                 {isOwner && (
                   <div className="admin-controls">
                     <span className="admin-label">Owner Controls</span>
+                    
+                    {/* Promote Beat Button */}
+                    <Feature id="socialbeats-promotedBeat">
+                      <On>
+                        <Button
+                          variant={beat.promoted ? "secondary" : "primary"}
+                          size="medium"
+                          className="w-full justify-center mb-3"
+                          onClick={handleTogglePromotion}
+                          disabled={promoting}
+                        >
+                          <Star
+                            size={16}
+                            className="mr-2"
+                            fill={beat.promoted ? "currentColor" : "none"}
+                          />
+                          {promoting
+                            ? "Procesando..."
+                            : beat.promoted
+                              ? "Quitar Promoción"
+                              : "Promocionar Beat"}
+                        </Button>
+                      </On>
+                      <Default>
+                        <Button
+                          variant="secondary"
+                          size="medium"
+                          className="w-full justify-center mb-3"
+                          onClick={() => navigate("/app/pricing")}
+                        >
+                          <Star size={16} className="mr-2" />
+                          Promocionar (Add-on)
+                        </Button>
+                      </Default>
+                      <Loading>
+                        <span className="text-sm text-muted">Comprobando add-on...</span>
+                      </Loading>
+                      <ErrorFallback>
+                        <span className="text-sm text-danger">Error al verificar add-on</span>
+                      </ErrorFallback>
+                    </Feature>
+
                     <div className="admin-buttons-row">
                       <Button
                         variant="secondary"

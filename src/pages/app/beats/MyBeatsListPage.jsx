@@ -7,11 +7,14 @@ import logo from "../../../assets/logo-dark-no-fondo.png";
 // import { mockedBeats } from "./mockBeats";
 import { getMyBeats } from "../../../services/beatsService";
 import "./MyBeatsListPage.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { Feature, On, Default, Loading, ErrorFallback } from 'space-react-client';
 
 const MyBeatsListPage = () => {
   const [beats, setBeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBeats = async () => {
@@ -62,11 +65,28 @@ const MyBeatsListPage = () => {
             <h1 className="text-3xl font-bold">My Beats</h1>
             <p className="text-muted">Browse and manage your beat collection</p>
           </div>
-          <Link to="/app/beats/new" className="create-beat-link">
-            <Button variant="primary" size="large" className="create-beat-btn gap-2">
-              <Plus size={20} /> Create Beat
-            </Button>
-          </Link>
+          <Feature id="socialbeats-beats">
+            <On>
+              <Link to="/app/beats/new" className="create-beat-link">
+                <Button variant="primary" size="large" className="create-beat-btn gap-2">
+                  <Plus size={20} /> Create Beat
+                </Button>
+              </Link>
+            </On>
+            <Default>
+              <Link to="/app/pricing" className="create-beat-link">
+                <Button variant="primary" size="large" className="create-beat-btn gap-2">
+                  Mejorar plan para crear más Beats
+                </Button>
+              </Link>
+            </Default>
+            <Loading>
+              <span>Comprobando tu plan...</span>
+            </Loading>
+            <ErrorFallback>
+              <span>Error al verificar tu plan</span>
+            </ErrorFallback>
+          </Feature>
         </div>
       </div>
 

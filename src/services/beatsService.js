@@ -485,3 +485,22 @@ export const getBatchSignedUrls = async (beatIds) => {
     return result;
   }
 };
+
+/**
+ * Toggle beat promotion status
+ * @param {string} id - Beat ID
+ * @returns {Promise<Object>} Updated promotion status { beatId, promoted }
+ */
+export const togglePromotion = async (id) => {
+  try {
+    const { data } = await client.patch(`/beats/${id}/promote`);
+
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      return data;
+    }
+  } catch (error) {
+    throw error;
+  }
+};

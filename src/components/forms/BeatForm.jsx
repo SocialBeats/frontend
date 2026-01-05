@@ -22,6 +22,8 @@ import Textarea from '../ui/Textarea';
 import Toggle from '../ui/Toggle';
 import FileUploader from '../ui/FileUploader';
 import './BeatForm.css';
+import { useNavigate } from "react-router-dom";
+import { Feature, On, Default, Loading, ErrorFallback } from 'space-react-client';
 
 const BeatForm = ({
   initialData = null,
@@ -40,6 +42,7 @@ const BeatForm = ({
   });
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
+  const navigate = useNavigate();
 
   // Helper to resolve cover URL safely
   const getCoverUrl = (data) => {
@@ -226,32 +229,54 @@ const BeatForm = ({
           )}
 
           {/* Cover Art Section */}
-          <Card className="form-section">
-            <div className="section-header-with-icon">
-              <Image size={24} className="section-icon" />
-              <div className="section-header-text">
-                <h2>Cover Art</h2>
-                <p className="section-description">Upload an image for your beat</p>
-              </div>
-            </div>
+          <Feature id="socialbeats-downloads">
+            <On>
+              <Card className="form-section">
+                <div className="section-header-with-icon">
+                  <Image size={24} className="section-icon" />
+                  <div className="section-header-text">
+                    <h2>Cover Art</h2>
+                    <p className="section-description">Upload an image for your beat</p>
+                  </div>
+                </div>
 
-            <div className="form-fields">
-              <FileUploader
-                id="cover-upload"
-                accept=".jpg,.jpeg,.png,.webp"
-                file={coverFile}
-                onChange={handleCoverChange}
-                onClear={handleClearCover}
-                title="Drop your cover here"
-                description="or click to upload image"
-                formats="JPG, PNG, WEBP"
-                maxSizeText="Max 5MB"
-                isImage={true}
-                previewUrl={coverPreviewUrl}
-                icon={Image}
-              />
-            </div>
-          </Card>
+                <div className="form-fields">
+                  <FileUploader
+                    id="cover-upload"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    file={coverFile}
+                    onChange={handleCoverChange}
+                    onClear={handleClearCover}
+                    title="Drop your cover here"
+                    description="or click to upload image"
+                    formats="JPG, PNG, WEBP"
+                    maxSizeText="Max 5MB"
+                    isImage={true}
+                    previewUrl={coverPreviewUrl}
+                    icon={Image}
+                  />
+                </div>
+              </Card>
+            </On>
+            <Default>
+              <Button
+                variant="primary"
+                className="w-full justify-center btn-buy-large"
+                onClick={() => {
+                  // Redirect to pricing or upgrade page
+                  navigate("/app/pricing");
+                }}
+              >
+                Actualiza tu plan para añadir cover a tu Beat
+              </Button>
+            </Default>
+            <Loading>
+              <span>Comprobando tu plan...</span>
+            </Loading>
+            <ErrorFallback>
+              <span>Error al verificar tu plan</span>
+            </ErrorFallback>
+          </Feature>
         </div>
 
         {/* Right Column: Metadata */}
