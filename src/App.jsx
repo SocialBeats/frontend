@@ -51,7 +51,6 @@ function App() {
         {/* Public Routes - Accessible to everyone */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
-          <Route path="/pricing" element={<Landing />} />
           <Route path="/about" element={<Landing />} />
           <Route path="/contact" element={<Landing />} />
         </Route>
