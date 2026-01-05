@@ -153,7 +153,6 @@ export default function ConversationsPage() {
 
   useEffect(() => {
     if (items?.length) ensureProfilesFor(items);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   useEffect(() => {
@@ -177,21 +176,16 @@ export default function ConversationsPage() {
         ensureProfilesFor(next);
         return next;
       });
-
-      // eslint-disable-next-line no-console
-      console.log('[WS] inbox event', conversationId, message?._id);
     };
 
     onMessageNew(handler);
     return () => offMessageNew(handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const MIN_ROWS_VISUAL = 6;
   const rowHeightApprox = 88;
   const fillerCount = Math.max(0, MIN_ROWS_VISUAL - filtered.length);
 
-  // Ajuste para que el botón tenga EXACTAMENTE la misma altura que (fecha+hora+gap)
   const DATE_TIME_GAP = 6;
   const DATE_TIME_PAD_Y = 6;
   const DATE_TIME_LINE_H = 14;
@@ -273,7 +267,7 @@ export default function ConversationsPage() {
       animation: 'sbFloatC 16s ease-in-out infinite',
     },
 
-    // ====== BURBUJAS EXTRA (NUEVAS) ======
+    // ====== BURBUJAS EXTRA ======
     bubble1: {
       position: 'absolute',
       width: 260,
@@ -649,7 +643,6 @@ export default function ConversationsPage() {
             50% { transform: translate(10px, -16px) scale(1.02); }
           }
 
-          /* NUEVAS ANIMACIONES (burbujeo suave) */
           @keyframes sbBubble1 {
             0%, 100% { transform: translate(0px, 0px) scale(1); opacity: 0.70; }
             50% { transform: translate(16px, -18px) scale(1.06); opacity: 0.82; }

@@ -109,7 +109,7 @@ export default function ConversationThreadPage() {
   const [profiles, setProfiles] = useState({});
   const inFlightProfilesRef = useRef(new Set());
 
-  const myUserId = useMemo(() => getMyUserIdGuess(), []);
+  const myUserId = useMemo(() => 'userId', []);
 
   const uniqueSenderIds = useMemo(() => {
     const set = new Set();
@@ -431,20 +431,16 @@ export default function ConversationThreadPage() {
       minHeight: 0,
       position: 'relative',
       overflow: 'hidden',
-      background: 'rgb(232, 238, 251)', // mismo tono que chatBg para que “case”
+      background: 'rgb(232, 238, 251)',
     },
 
-    // Fondo con figuritas más separadas e irregulares (sin animación)
-    // Fondo con doodles tipo WhatsApp, pero DIFUSO (en overlay)
     chatBg: {
       position: 'absolute',
       inset: 0,
       pointerEvents: 'none',
 
-      // Base NO blanca (se ve mucho más “premium”)
       backgroundColor: 'rgba(30, 41, 59, 1)',
 
-      // Mezcla más agradable con el fondo
       mixBlendMode: 'multiply',
     },
 
