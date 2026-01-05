@@ -1,3 +1,23 @@
+# Release v1.1.2
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: Update CreateDashboards component and styles for improved UI and add getBeatMetricsStatus service
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #70 from SocialBeats/develop
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.1.1...v1.1.2).
+
 # Release v1.1.1
 
 ## Features
