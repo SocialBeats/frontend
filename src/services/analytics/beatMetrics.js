@@ -27,3 +27,8 @@ export function updateBeatMetric(id, data) {
 export function deleteBeatMetric(id) {
   return client.delete(`/analytics/beat-metrics/${id}`);
 }
+
+export function getBeatMetricsStatus(beatIds) {
+  const ids = Array.isArray(beatIds) ? beatIds.join(',') : beatIds;
+  return client.get('/analytics/beat-metrics-status', { params: { beatIds: ids } });
+}
