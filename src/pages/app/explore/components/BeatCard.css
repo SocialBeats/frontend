@@ -28,10 +28,13 @@
   background: rgba(139, 92, 246, 0.3);
 }
 
-/* Carousel variant */
+/* Carousel variant - dentro de explore-beats-grid */
 .beat-card-carousel {
-  flex-shrink: 0;
-  width: 200px;
+  flex: 0 0 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  width: 200px !important;
+  flex-shrink: 0 !important;
   scroll-snap-align: start;
 }
 

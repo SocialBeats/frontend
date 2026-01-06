@@ -236,11 +236,11 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                     </div>
 
                     {loadingFiltered ? (
-                        <div className="beats-grid">
+                        <div className="explore-beats-grid">
                             {renderSkeletons(8)}
                         </div>
                     ) : filteredBeats.length > 0 ? (
-                        <div className="beats-grid">
+                        <div className="explore-beats-grid">
                             {filteredBeats.map((beat) => (
                                 <BeatCard
                                     key={beat._id}
@@ -276,7 +276,7 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                                 {renderSkeletons(5, 'carousel')}
                             </div>
                         ) : mostPlayedBeats.length > 0 ? (
-                            <div className="beats-grid">
+                            <div className="explore-beats-grid">
                                 {mostPlayedBeats.map((beat) => (
                                     <BeatCard
                                         key={beat._id}
@@ -301,11 +301,11 @@ export default function BeatsExploreSection({ searchTerm = '', onClearSearch }) 
                         </div>
 
                         {loadingRecent ? (
-                            <div className="beats-grid">
+                            <div className="explore-beats-grid">
                                 {renderSkeletons(8)}
                             </div>
                         ) : recentBeats.length > 0 ? (
-                            <div className="beats-grid">
+                            <div className="explore-beats-grid">
                                 {recentBeats.map((beat) => (
                                     <BeatCard
                                         key={beat._id}

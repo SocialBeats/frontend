@@ -4,6 +4,12 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  /* Limitar al ancho del contenedor padre */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden; /* Contener hijos */
 }
 
 /* Section Header */
@@ -30,12 +36,7 @@
   font-size: 1rem;
 }
 
-/* Subsections */
-.beats-subsection {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+/* Subsections - eliminado el overflow:hidden para permitir scroll en la regla más abajo */
 
 .subsection-header {
   display: flex;
@@ -78,11 +79,63 @@
   display: none;
 }
 
-/* Grid Layout */
-.beats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+/* Grid Layout - Horizontal Scrollable */
+.beats-subsection {
+  /* Layout de columna para header + grid */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* Contener al ancho del padre */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden; /* Contener el grid */
+}
+
+/* Wrapper para el scroll horizontal */
+.explore-beats-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  padding: 0.5rem 0 1rem 0;
+  -webkit-overflow-scrolling: touch;
+  /* Scroll horizontal aquí */
+  overflow-x: scroll;
+  overflow-y: visible;
+  
+  /* Styled scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-primary) rgba(255, 255, 255, 0.05);
+}
+
+.explore-beats-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.explore-beats-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.explore-beats-grid::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 4px;
+}
+
+.explore-beats-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}
+
+/* Asegurar que las cards tengan tamaño fijo - selector más específico */
+.explore-beats-grid > .beat-card,
+.explore-beats-grid > .beat-card-carousel,
+.explore-beats-grid .beat-card {
+  flex: 0 0 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  width: 200px !important;
+  flex-shrink: 0 !important;
 }
 
 /* Filtered Results */
@@ -217,8 +270,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .beats-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  .explore-beats-grid {
     gap: 1rem;
   }
 
@@ -232,8 +284,7 @@
 }
 
 @media (max-width: 480px) {
-  .beats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .explore-beats-grid {
     gap: 0.75rem;
   }
 }

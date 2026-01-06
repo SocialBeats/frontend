@@ -7,29 +7,23 @@ import logo from "../../../assets/logo-dark-no-fondo.png";
 // import { mockedBeats } from "./mockBeats";
 import { getMyBeats } from "../../../services/beatsService";
 import "./MyBeatsListPage.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { Feature, On, Default, Loading, ErrorFallback } from 'space-react-client';
 
 const MyBeatsListPage = () => {
   const [beats, setBeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBeats = async () => {
       try {
-        console.log('🔍 Fetching beats from API...');
         const data = await getMyBeats();
-        console.log('✅ Beats fetched successfully:', data);
         setBeats(data);
       } catch (err) {
-        console.error('❌ Error fetching beats:', err);
-        console.error('Error details:', {
-          message: err.message,
-          status: err.response?.status,
-          statusText: err.response?.statusText,
-          data: err.response?.data,
-          config: err.config
-        });
-        setError("Error fetching beats. Please try again later.");
+        const errorMessage = err.response?.data?.message || "Error al cargar los beats. Por favor, inténtalo más tarde.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -41,7 +35,7 @@ const MyBeatsListPage = () => {
   if (loading) {
     return (
       <div className="flex-center" style={{ minHeight: "50vh" }}>
-        <div className="text-xl text-muted">Loading beats...</div>
+        <div className="text-xl text-muted">Cargando beats...</div>
       </div>
     );
   }
@@ -59,14 +53,31 @@ const MyBeatsListPage = () => {
       <div className="my-beats-header">
         <div className="header-content">
           <div className="header-text">
-            <h1 className="text-3xl font-bold">My Beats</h1>
-            <p className="text-muted">Browse and manage your beat collection</p>
+            <h1 className="text-3xl font-bold">Mis Beats</h1>
+            <p className="text-muted">Explora y gestiona tu colección de beats</p>
           </div>
-          <Link to="/app/beats/new" className="create-beat-link">
-            <Button variant="primary" size="large" className="create-beat-btn gap-2">
-              <Plus size={20} /> Create Beat
-            </Button>
-          </Link>
+          <Feature id="socialbeats-beats">
+            <On>
+              <Link to="/app/beats/new" className="create-beat-link">
+                <Button variant="primary" size="large" className="create-beat-btn gap-2">
+                  <Plus size={20} /> Crear Beat
+                </Button>
+              </Link>
+            </On>
+            <Default>
+              <Link to="/app/pricing" className="create-beat-link">
+                <Button variant="primary" size="large" className="create-beat-btn gap-2">
+                  Mejorar plan para crear más Beats
+                </Button>
+              </Link>
+            </Default>
+            <Loading>
+              <span>Comprobando tu plan...</span>
+            </Loading>
+            <ErrorFallback>
+              <span>Error al verificar tu plan</span>
+            </ErrorFallback>
+          </Feature>
         </div>
       </div>
 

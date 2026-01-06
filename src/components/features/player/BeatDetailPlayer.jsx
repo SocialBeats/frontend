@@ -8,6 +8,7 @@ import { incrementPlayCount, downloadBeat, getAudioStreamUrl } from '../../../se
 import LivingWaveform from './LivingWaveform';
 import { usePlayerStore } from '../../../store/usePlayerStore';
 import './BeatDetailPlayer.css';
+import { Feature, On, Default} from 'space-react-client';
 
 const BeatDetailPlayer = ({ beat, isOwner }) => {
     // Global player store - SINGLE SOURCE OF TRUTH
@@ -287,9 +288,14 @@ const BeatDetailPlayer = ({ beat, isOwner }) => {
 
                     <div className="bd-player__actions-top">
                         {beat.isDownloadable && (
-                            <button className="bd-btn-icon" title="Download" onClick={handleDownload}>
-                                <Download size={20} />
-                            </button>
+                            <Feature id="socialbeats-downloads">
+                                <On>
+                                    <button className="bd-btn-icon" title="Download" onClick={handleDownload}>
+                                        <Download size={20} />
+                                    </button>
+                                </On>
+                                <Default></Default>
+                            </Feature>
                         )}
                     </div>
 

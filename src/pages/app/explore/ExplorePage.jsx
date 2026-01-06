@@ -124,7 +124,9 @@ export default function ExplorePage() {
             </header>
 
             <main className="explore-content">
-                {renderSections()}
+                <div className="explore-content-wrapper">
+                    {renderSections()}
+                </div>
             </main>
         </div>
     );
