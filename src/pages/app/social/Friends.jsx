@@ -11,6 +11,7 @@ import {
   listReceivedRequests,
 } from '@/services/social/friendshipsService';
 import './Friends.css';
+import SendMessageButton from '@/components/ui/messages/SendMessageButton';
 
 // Obtiene un id estable del objeto amigo cualquiera sea su forma
 const getFriendId = (friend) => friend?.id || friend?._id || friend;
@@ -37,6 +38,12 @@ function FriendRow({ friend, onRemove, isRemoving }) {
         </div>
       </div>
       <div className="friend-row-actions">
+        <SendMessageButton
+          otherUserId={friendId}
+          className="friend-message-btn"
+          label="Enviar mensaje"
+        />
+
         <Button
           variant="danger"
           size="small"
