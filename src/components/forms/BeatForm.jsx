@@ -226,7 +226,7 @@ const BeatForm = ({
           )}
 
           {/* Cover Art Section */}
-          <Feature id="socialbeats-downloads">
+          <Feature id="socialbeats-cover">
             <On>
               <Card className="form-section">
                 <div className="section-header-with-icon">

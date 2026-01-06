@@ -4,6 +4,7 @@ import './BeatCard.css';
 import { usePlayerStore } from '../../../../store/usePlayerStore';
 import { Beat } from '../../../../store/usePlayerStore';
 import { getAudioStreamUrl } from '../../../../services/beatsService';
+import logo from '../../../../assets/logo-dark-no-fondo.png';
 
 /**
  * BeatCard - Tarjeta de beat para la vista de exploración
@@ -80,14 +81,17 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
       const beatId = beat._id || beat.id;
       const { streamUrl, coverUrl } = await getAudioStreamUrl(beatId);
       
+      // Usar defaultCover como fallback si no hay cover disponible
+      const finalCover = coverUrl || coverImageUrl || defaultCover;
+      
       const beatForStore: Beat = {
         ...beat,
         id: beatId,
         author: beat.createdBy?.username || 'Unknown',
-        cover: coverUrl || coverImageUrl || undefined,
+        cover: finalCover,
         audio: {
           url: streamUrl,
-          coverUrl: coverUrl || coverImageUrl || undefined,
+          coverUrl: finalCover,
           duration: beat.duration
         }
       };
@@ -100,14 +104,8 @@ export default function BeatCard({ beat, variant = 'default', onClick }: BeatCar
     }
   };
 
-  // Imagen por defecto si no hay cover
-  const defaultCover = 'data:image/svg+xml,' + encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-      <rect fill="#1e293b" width="100" height="100"/>
-      <circle fill="#8b5cf6" cx="50" cy="50" r="30" opacity="0.3"/>
-      <circle fill="#ec4899" cx="50" cy="50" r="20" opacity="0.3"/>
-    </svg>
-  `);
+  // Imagen por defecto si no hay cover (mismo logo que en BeatDetailPage y PlaylistDetails)
+  const defaultCover = logo;
 
   return (
     <div
