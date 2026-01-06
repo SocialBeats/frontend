@@ -1,0 +1,150 @@
+.user-search-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.user-search-header {
+  margin-bottom: 1.5rem;
+}
+
+.user-search-header h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.user-search-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.user-search-input-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.user-search-input {
+  width: 100%;
+  font-size: 1rem;
+}
+
+.user-search-error {
+  padding: 1rem;
+  background-color: var(--error-bg, #fee);
+  color: var(--error-text, #c00);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.user-search-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.user-search-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.user-search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  transition: background-color 0.2s;
+}
+
+.user-search-result-item:last-child {
+  border-bottom: none;
+}
+
+.user-search-result-item:hover {
+  background-color: var(--hover-bg, #f9fafb);
+}
+
+.user-search-result-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-search-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.user-search-result-username {
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.user-search-result-username:hover {
+  color: var(--primary-color, #3b82f6);
+  text-decoration: underline;
+}
+
+.user-search-result-fullname {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-search-friend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background-color: var(--success-bg, #dcfce7);
+  color: var(--success-text, #16a34a);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.user-search-result-actions {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+@media (max-width: 640px) {
+  .user-search-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .user-search-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .user-search-result-item {
+    padding: 0.75rem;
+  }
+
+  .user-search-result-left {
+    gap: 0.75rem;
+  }
+
+  .user-search-result-fullname {
+    display: none;
+  }
+}

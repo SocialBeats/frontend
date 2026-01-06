@@ -10,7 +10,9 @@ import {
   Tag,
   Download,
   CheckCircle2,
+  Star,
 } from "lucide-react";
+import { Feature, On, Default, Loading, ErrorFallback } from 'space-react-client';
 
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
@@ -24,6 +26,7 @@ import {
   getBeatById,
   deleteBeat,
   downloadBeat,
+  togglePromotion,
 } from "../../../services/beatsService";
 import { getCurrentUserId } from "../../../services/authService";
 import "./BeatDetailPage.css";
@@ -37,6 +40,7 @@ const BeatDetailPage = () => {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [promoting, setPromoting] = useState(false);
   const [isOwner, setIsOwner] = useState(false); // Placeholder for ownership logic
   // Stats state to update download count locally
   const [stats, setStats] = useState({ plays: 0, downloads: 0 });
@@ -51,11 +55,11 @@ const BeatDetailPage = () => {
             plays: beatData.stats?.plays || 0,
             downloads: beatData.stats?.downloads || 0,
           });
-        } else setError("Beat not found.");
-        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true); // Replace with actual user ID check
+        } else setError("Beat no encontrado.");
+        if (beatData.createdBy?.userId === getCurrentUserId()) setIsOwner(true);
       } catch (err) {
-        setError("Error fetching beat.");
-        console.error(err);
+        const errorMessage = err.response?.data?.message || "Error al cargar el beat.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -69,8 +73,8 @@ const BeatDetailPage = () => {
       await deleteBeat(beat._id);
       navigate(-1);
     } catch (err) {
-      console.error(err);
-      setError("Error deleting beat.");
+      const errorMessage = err.response?.data?.message || "Error al eliminar el beat.";
+      setError(errorMessage);
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
@@ -109,12 +113,28 @@ const BeatDetailPage = () => {
         document.body.removeChild(link);
       }
     } catch (error) {
-      console.error("Error downloading beat:", error);
-      // Error handling/toast could be added here
+      setError(error.response?.data?.message || "Error al descargar el beat.");
     }
   };
 
-  if (loading) return <div className="page-loading">Loading...</div>;
+  const handleTogglePromotion = async () => {
+    try {
+      setPromoting(true);
+      const data = await togglePromotion(beat._id);
+      if (data) {
+        setBeat((prev) => ({
+          ...prev,
+          promoted: data.promoted,
+        }));
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Error al cambiar el estado de promoción.");
+    } finally {
+      setPromoting(false);
+    }
+  };
+
+  if (loading) return <div className="page-loading">Cargando...</div>;
   if (error) return <div className="page-error">{error}</div>;
   if (!beat) return null;
 
@@ -127,7 +147,7 @@ const BeatDetailPage = () => {
           onClick={() => navigate(-1)}
           className="back-btn"
         >
-          <ArrowLeft size={20} className="mr-2" /> Back
+          <ArrowLeft size={20} className="mr-2" /> Volver
         </IconButton>
       </div>
 
@@ -140,11 +160,11 @@ const BeatDetailPage = () => {
           <div className="detail-column-content">
             <Card className="detail-card info-card">
               <div className="detail-card__header">
-                <h3>About this Track</h3>
+                <h3>Sobre este Beat</h3>
               </div>
               <div className="detail-card__content">
                 <p className="beat-description">
-                  {beat.description || "No description provided for this beat."}
+                  {beat.description || "Sin descripción para este beat."}
                 </p>
 
                 <div className="beat-card-genre-key">
@@ -157,7 +177,7 @@ const BeatDetailPage = () => {
                 <div className="tags-section">
                   <span className="tags-label">
                     <Tag size={16} />
-                    Vibe & Tags
+                    Etiquetas
                   </span>
                   <div className="tags-list">
                     {beat.tags && beat.tags.length > 0 ? (
@@ -172,7 +192,7 @@ const BeatDetailPage = () => {
                       ))
                     ) : (
                       <span className="text-muted text-sm italic">
-                        No tags added.
+                        Sin etiquetas.
                       </span>
                     )}
                   </div>
@@ -185,7 +205,7 @@ const BeatDetailPage = () => {
           <div className="detail-column-actions">
             <Card className="detail-card actions-card">
               <div className="detail-card__header">
-                <h3>Actions & License</h3>
+                <h3>Acciones y Licencia</h3>
               </div>
 
               <div className="detail-card__content actions-layout">
@@ -194,9 +214,8 @@ const BeatDetailPage = () => {
                   {isOwner && (
                     <div className="status-container">
                       <div
-                        className={`status-badge ${
-                          beat.isPublic ? "status-public" : "status-private"
-                        }`}
+                        className={`status-badge ${beat.isPublic ? "status-public" : "status-private"
+                          }`}
                       >
                         {beat.isPublic ? (
                           <Eye size={14} />
@@ -204,7 +223,7 @@ const BeatDetailPage = () => {
                           <EyeOff size={14} />
                         )}
                         <span>
-                          {beat.isPublic ? "Public Beat" : "Private Beat"}
+                          {beat.isPublic ? "Beat Público" : "Beat Privado"}
                         </span>
                       </div>
                     </div>
@@ -212,14 +231,36 @@ const BeatDetailPage = () => {
 
                   {/* Botón Principal */}
                   {beat.isDownloadable && !isOwner && (
-                    <Button
-                      variant="primary"
-                      className="w-full justify-center btn-buy-large"
-                      onClick={handleDownload}
-                    >
-                      <Download size={20} className="mr-2" />
-                      Download
-                    </Button>
+                    <Feature id="socialbeats-downloads">
+                      <On>
+                        <Button
+                          variant="primary"
+                          className="w-full justify-center btn-buy-large"
+                          onClick={handleDownload}
+                        >
+                          <Download size={20} className="mr-2" />
+                          Descargar
+                        </Button>
+                      </On>
+                      <Default>
+                        <Button
+                          variant="primary"
+                          className="w-full justify-center btn-buy-large"
+                          onClick={() => {
+                            // Redirect to pricing or upgrade page
+                            navigate("/app/pricing");
+                          }}
+                        >
+                          Mejorar plan para descargar
+                        </Button>
+                      </Default>
+                      <Loading>
+                        <span>Comprobando tu plan...</span>
+                      </Loading>
+                      <ErrorFallback>
+                        <span>Error al verificar tu plan</span>
+                      </ErrorFallback>
+                    </Feature>
                   )}
 
                   <div className="license-features">
@@ -227,7 +268,7 @@ const BeatDetailPage = () => {
                       <CheckCircle2 size={12} /> MP3 + WAV
                     </span>
                     <span className="feature-item">
-                      <CheckCircle2 size={12} /> Unlimited
+                      <CheckCircle2 size={12} /> Ilimitado
                     </span>
                   </div>
                 </div>
@@ -237,7 +278,49 @@ const BeatDetailPage = () => {
                 {/* 2. ADMIN CONTROLS (Intacto) */}
                 {isOwner && (
                   <div className="admin-controls">
-                    <span className="admin-label">Owner Controls</span>
+                    <span className="admin-label">Controles del Propietario</span>
+                    
+                    {/* Promote Beat Button */}
+                    <Feature id="socialbeats-promotedBeat">
+                      <On>
+                        <Button
+                          variant={beat.promoted ? "secondary" : "primary"}
+                          size="medium"
+                          className="w-full justify-center mb-3"
+                          onClick={handleTogglePromotion}
+                          disabled={promoting}
+                        >
+                          <Star
+                            size={16}
+                            className="mr-2"
+                            fill={beat.promoted ? "currentColor" : "none"}
+                          />
+                          {promoting
+                            ? "Procesando..."
+                            : beat.promoted
+                              ? "Quitar Promoción"
+                              : "Promocionar Beat"}
+                        </Button>
+                      </On>
+                      <Default>
+                        <Button
+                          variant="secondary"
+                          size="medium"
+                          className="w-full justify-center mb-3"
+                          onClick={() => navigate("/app/pricing")}
+                        >
+                          <Star size={16} className="mr-2" />
+                          Promocionar (Add-on)
+                        </Button>
+                      </Default>
+                      <Loading>
+                        <span className="text-sm text-muted">Comprobando add-on...</span>
+                      </Loading>
+                      <ErrorFallback>
+                        <span className="text-sm text-danger">Error al verificar add-on</span>
+                      </ErrorFallback>
+                    </Feature>
+
                     <div className="admin-buttons-row">
                       <Button
                         variant="secondary"
@@ -245,7 +328,7 @@ const BeatDetailPage = () => {
                         className="flex-1 justify-center"
                         onClick={() => navigate(`/app/beats/${beat._id}/edit`)}
                       >
-                        <Edit size={16} className="mr-2" /> Edit
+                        <Edit size={16} className="mr-2" /> Editar
                       </Button>
 
                       <Button
@@ -255,7 +338,7 @@ const BeatDetailPage = () => {
                         onClick={() => setShowDeleteModal(true)}
                         disabled={deleting}
                       >
-                        <Trash2 size={16} className="mr-2" /> Delete
+                        <Trash2 size={16} className="mr-2" /> Eliminar
                       </Button>
                     </div>
                   </div>
@@ -275,10 +358,10 @@ const BeatDetailPage = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteBeat}
-        title="Delete Beat"
-        message={`Delete "${beat.title}"? This cannot be undone.`}
-        confirmText="Yes, Delete"
-        cancelText="Cancel"
+        title="Eliminar Beat"
+        message={`¿Eliminar "${beat.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Sí, Eliminar"
+        cancelText="Cancelar"
         variant="danger"
       />
     </div>

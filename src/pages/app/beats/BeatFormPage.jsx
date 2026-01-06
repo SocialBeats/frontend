@@ -28,8 +28,8 @@ const BeatFormPage = () => {
           const beat = await getBeatById(id);
           setBeatData(beat);
         } catch (err) {
-          setError('Error loading beat data');
-          console.error(err);
+          const errorMessage = err.response?.data?.message || 'Error al cargar los datos del beat';
+          setError(errorMessage);
         } finally {
           setLoading(false);
         }
@@ -114,8 +114,8 @@ const BeatFormPage = () => {
         setShowCreatedModal(true);
       }
     } catch (err) {
-      setError(`Error ${isEditing ? 'updating' : 'creating'} beat. Please try again.`);
-      console.error(err);
+      const errorMessage = err.response?.data?.message || `Error al ${isEditing ? 'actualizar' : 'crear'} el beat. Por favor, inténtalo de nuevo.`;
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -124,7 +124,7 @@ const BeatFormPage = () => {
   if (loading) {
     return (
       <div className="beat-form-loading">
-        <div className="text-xl text-muted">Loading beat data...</div>
+        <div className="text-xl text-muted">Cargando datos del beat...</div>
       </div>
     );
   }
@@ -135,11 +135,11 @@ const BeatFormPage = () => {
       <div className="beat-form-header">
         <button onClick={() => navigate(-1)} className="back-button">
           <IconButton variant="ghost" size="medium">
-            ← Back
+            ← Volver
           </IconButton>
         </button>
         <h1 className="beat-form-title">
-          {isEditing ? 'Edit Beat' : 'Create New Beat'}
+          {isEditing ? 'Editar Beat' : 'Crear Nuevo Beat'}
         </h1>
       </div>
 

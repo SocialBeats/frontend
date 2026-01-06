@@ -21,6 +21,9 @@ import './styles/App.css';
 import DashboardsPage from './pages/app/dashboards/DashboardsPage';
 import CreateDashboards from './pages/app/dashboards/CreateDashboards';
 import EditDashboard from './pages/app/dashboards/EditDashboard';
+import Friends from './pages/app/social/Friends';
+import FriendRequests from './pages/app/social/FriendRequests';
+import UserSearch from './pages/app/social/UserSearch';
 import ViewDashboard from './pages/app/dashboards/ViewDashboard';
 import CreatePlaylist from './pages/app/beats-interaction/playlist/CreatePlaylist';
 import EditPlaylist from './pages/app/beats-interaction/playlist/EditPlaylist';
@@ -51,7 +54,6 @@ function App() {
         {/* Public Routes - Accessible to everyone */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
-          <Route path="/pricing" element={<Landing />} />
           <Route path="/about" element={<Landing />} />
           <Route path="/contact" element={<Landing />} />
         </Route>
@@ -95,6 +97,11 @@ function App() {
           <Route path="/app/playlists/:id" element={<PlaylistDetails />} />
           <Route path="/app/playlists/create" element={<CreatePlaylist />} />
           <Route path="/app/playlists/:id/edit" element={<EditPlaylist />} />
+
+          {/* Rutas del microservicio Social */}
+          <Route path="friends" element={<Friends />} />
+          <Route path="friend-requests" element={<FriendRequests />} />
+          <Route path="search-users" element={<UserSearch />} />
 
         </Route>
 

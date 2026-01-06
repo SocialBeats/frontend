@@ -40,13 +40,15 @@
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #f3f3f3 0%, #e57373 100%);
+  color: #222 !important;
+  border: 1px solid #e57373;
 }
 
 .btn-secondary:hover:not(.btn-disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #ffbdbd 0%, #e57373 100%);
+  color: #111 !important;
+  box-shadow: 0 8px 20px rgba(229, 115, 115, 0.25);
 }
 
 .btn-outline {

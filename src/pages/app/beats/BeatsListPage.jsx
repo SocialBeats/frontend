@@ -10,18 +10,18 @@ import { getBeats } from "../../../services/beatsService";
 import "./BeatsTable.css";
 
 const allColumns = [
-  { key: "artist", label: "Artist" },
-  { key: "genre", label: "Genre" },
+  { key: "artist", label: "Artista" },
+  { key: "genre", label: "Género" },
   { key: "bpm", label: "BPM" },
-  { key: "key", label: "Key" },
-  { key: "duration", label: "Duration" },
-  { key: "plays", label: "Plays" },
-  { key: "downloads", label: "Downloads" },
-  { key: "likes", label: "Likes" },
-  { key: "comments", label: "Comments" },
-  { key: "mood", label: "Mood" },
-  { key: "license", label: "License" },
-  { key: "createdAt", label: "Upload Date" },
+  { key: "key", label: "Tonalidad" },
+  { key: "duration", label: "Duración" },
+  { key: "plays", label: "Reproducciones" },
+  { key: "downloads", label: "Descargas" },
+  { key: "likes", label: "Me gusta" },
+  { key: "comments", label: "Comentarios" },
+  { key: "mood", label: "Estado de ánimo" },
+  { key: "license", label: "Licencia" },
+  { key: "createdAt", label: "Fecha de subida" },
 ];
 
 const BeatsListPage = () => {
@@ -90,7 +90,7 @@ const BeatsListPage = () => {
             : "-",
           formattedLikes: (beat.stats?.likes || 0).toLocaleString(),
           formattedComments: (beat.stats?.comments || 0).toLocaleString(),
-          formattedDate: beat.createdAt ? new Intl.DateTimeFormat("en-US", {
+          formattedDate: beat.createdAt ? new Intl.DateTimeFormat("es-ES", {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -98,8 +98,8 @@ const BeatsListPage = () => {
         }));
         setBeats(formattedBeats);
       } catch (err) {
-        setError("Error fetching beats. Please try again later.");
-        console.error(err);
+        const errorMessage = err.response?.data?.message || "Error al cargar los beats. Por favor, inténtalo más tarde.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -117,7 +117,7 @@ const BeatsListPage = () => {
   if (loading) {
     return (
       <div className="flex-center" style={{ minHeight: "50vh" }}>
-        <div className="text-xl text-muted">Loading beats...</div>
+        <div className="text-xl text-muted">Cargando beats...</div>
       </div>
     );
   }
@@ -190,31 +190,31 @@ const BeatsListPage = () => {
             <div className="beats-table-header-wrapper">
               <div className="beats-table-header" style={gridStyle}>
                 <div className="col-index">#</div>
-                <div className="col-title">Title</div>
+                <div className="col-title">Título</div>
                 {visibleColumns.artist && (
-                  <div className="col-artist">Artist</div>
+                  <div className="col-artist">Artista</div>
                 )}
-                {visibleColumns.genre && <div className="col-genre">Genre</div>}
+                {visibleColumns.genre && <div className="col-genre">Género</div>}
                 {visibleColumns.bpm && <div className="col-bpm">BPM</div>}
-                {visibleColumns.key && <div className="col-key">Key</div>}
+                {visibleColumns.key && <div className="col-key">Tonalidad</div>}
                 {visibleColumns.duration && (
-                  <div className="col-duration">Duration</div>
+                  <div className="col-duration">Duración</div>
                 )}
-                {visibleColumns.price && <div className="col-price">Price</div>}
-                {visibleColumns.plays && <div className="col-plays">Plays</div>}
+                {visibleColumns.price && <div className="col-price">Precio</div>}
+                {visibleColumns.plays && <div className="col-plays">Reproducciones</div>}
                 {visibleColumns.downloads && (
-                  <div className="col-downloads">Downloads</div>
+                  <div className="col-downloads">Descargas</div>
                 )}
-                {visibleColumns.likes && <div className="col-likes">Likes</div>}
+                {visibleColumns.likes && <div className="col-likes">Me gusta</div>}
                 {visibleColumns.comments && (
-                  <div className="col-comments">Comments</div>
+                  <div className="col-comments">Comentarios</div>
                 )}
-                {visibleColumns.mood && <div className="col-mood">Mood</div>}
+                {visibleColumns.mood && <div className="col-mood">Estado</div>}
                 {visibleColumns.license && (
-                  <div className="col-license">License</div>
+                  <div className="col-license">Licencia</div>
                 )}
                 {visibleColumns.createdAt && (
-                  <div className="col-created">Upload Date</div>
+                  <div className="col-created">Fecha de subida</div>
                 )}
                 {/* <div className="col-cover">Cover</div> */}
                 <div className="beats-table-settings">
@@ -252,12 +252,12 @@ const BeatsListPage = () => {
                       <div className="beat-info">
                         <span className="beat-title-text">{beat.title}</span>
                         <span className="beat-artist-mobile">
-                          {beat.createdBy?.username || "Unknown"}
+                          {beat.createdBy?.username || "Desconocido"}
                         </span>
                       </div>
                     </div>
                     {visibleColumns.artist && (
-                      <div className="col-artist">{beat.createdBy?.username || "Unknown"}</div>
+                      <div className="col-artist">{beat.createdBy?.username || "Desconocido"}</div>
                     )}
                     {visibleColumns.genre && (
                       <div className="col-genre">{beat.genre}</div>
