@@ -1,3 +1,30 @@
+# Release v1.1.3
+
+## Features
+- feat: feed and frienships completed
+- feat: frontend space implementation of beats upload features
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: translate pages and manage backend errors
+- fix: visual upgrades
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #75 from SocialBeats/develop
+- Merge pull request #73 from SocialBeats/feat/friendships
+- Merge pull request #72 from SocialBeats/feat/beats-upload-space
+- Merge branch 'main' of https://github.com/SocialBeats/frontend into feat/friendships
+- Merge branch 'develop' of https://github.com/SocialBeats/frontend into feat/friendships
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.1.2...v1.1.3).
+
 # Release v1.1.2
 
 ## Features
