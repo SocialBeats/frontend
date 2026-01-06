@@ -5,6 +5,7 @@ import SuccessModal from '../../../components/ui/SuccessModal';
 import './CreateDashboards.css';
 
 import { createDashboard, getAllDashboards } from '../../../services/analytics/dashboards';
+import { getBeatMetricsStatus } from '../../../services/analytics/beatMetrics';
 import { getMyBeats } from '../../../services/beatsService';
 import { useMetricsStatusContext } from '../../../contexts/MetricsStatusContext';
 import { logger } from '../../../logger';
@@ -79,13 +80,9 @@ const CreateDashboards = () => {
         // Check initial metrics status for each beat using new status endpoint
         if (beatsData.length > 0) {
           try {
-            const analyticsUrl = window.APP_CONFIG?.ANALYTICS_SERVICE_URL || 
-                               import.meta.env.VITE_ANALYTICS_SERVICE_URL || 
-                               'http://localhost:3003';
-            
-            const beatIds = beatsData.map(b => b._id).join(',');
-            const response = await fetch(`${analyticsUrl}/api/v1/analytics/beat-metrics-status?beatIds=${beatIds}`);
-            const { data } = await response.json();
+            const beatIds = beatsData.map(b => b._id);
+            const response = await getBeatMetricsStatus(beatIds);
+            const data = response.data.data;
             
             const statusMap = new Map();
             for (const beat of beatsData) {

@@ -1,0 +1,143 @@
+.feed-item-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.feed-item-wrapper:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.feed-item {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.feed-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+.feed-content {
+  flex: 1;
+  text-align: center;
+}
+
+.feed-content p {
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.feed-content p:last-child {
+  margin-bottom: 0;
+}
+
+.feed-thumbnail {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  margin: 12px 0;
+  display: block;
+}
+
+.feed-link {
+  color: #FF4500;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.feed-link:hover {
+  color: #CC3700;
+  text-decoration: underline;
+}
+
+.feed-user-link {
+  color: #7B68EE;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.feed-user-link:hover {
+  color: #6A5ACD;
+  text-decoration: underline;
+}
+
+.feed-friendship-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.feed-connector {
+  color: #666;
+  font-weight: 400;
+  margin: 0 4px;
+}
+
+.feed-action-text {
+  color: #666;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.feed-artist {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.feed-quote {
+  background: #f5f5f5;
+  border-left: 4px solid #FF4500;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 4px;
+  font-style: italic;
+  color: #333;
+}
+
+.feed-score {
+  color: #FF4500;
+  font-weight: 600;
+}
+
+.feed-item-time {
+  color: #999;
+  font-size: 0.875rem;
+  margin-top: 12px;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .feed-item-wrapper {
+    padding: 16px;
+  }
+  
+  .feed-item {
+    gap: 12px;
+  }
+  
+  .feed-icon {
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .feed-thumbnail {
+    max-width: 100%;
+  }
+}

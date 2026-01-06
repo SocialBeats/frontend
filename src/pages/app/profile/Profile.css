@@ -11,6 +11,13 @@
   background: #0f172a;
 }
 
+.profile-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin: 1rem;
+}
+
 /* =============================================
    BLOQUE HERO PRINCIPAL
    3 columnas: Avatar | Content+Beats | Certs
@@ -299,8 +306,6 @@
   margin-top: 0.25rem;
 }
 
-
-
 /* Columna derecha - Certificaciones */
 .profile-hero-right {
   display: flex;
@@ -544,8 +549,6 @@
   .profile-fullname {
     font-size: 1.5rem;
   }
-
-
 
   .profile-section-block {
     margin: 0.5rem;

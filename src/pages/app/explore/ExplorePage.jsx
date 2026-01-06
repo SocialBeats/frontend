@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import BeatsExploreSection from './components/BeatsExploreSection';
+import UsersExploreSection from './components/UsersExploreSection';
 import Button from '@/components/ui/Button';
 import './ExplorePage.css';
 
@@ -42,6 +43,7 @@ export default function ExplorePage() {
     const sections = [
         { id: 'all', label: 'Todo', icon: '🎵' },
         { id: 'beats', label: 'Beats', icon: '🎹' },
+        { id: 'users', label: 'Usuarios', icon: '👥' },
         // Futuras secciones de otros microservicios:
         // { id: 'playlists', label: 'Playlists', icon: '📋' },
         // { id: 'artists', label: 'Artistas', icon: '🎤' },
@@ -57,11 +59,14 @@ export default function ExplorePage() {
         switch (activeSection) {
             case 'beats':
                 return <BeatsExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} />;
+            case 'users':
+                return <UsersExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} />;
             case 'all':
             default:
                 return (
                     <>
                         <BeatsExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} />
+                        <UsersExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} />
                         {/* Aquí se añadirán más secciones de otros microservicios */}
                         {/* <PlaylistsExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} /> */}
                         {/* <ArtistsExploreSection searchTerm={debouncedSearch} onClearSearch={handleClearSearch} /> */}

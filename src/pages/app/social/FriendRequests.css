@@ -1,0 +1,281 @@
+/* Contenedor principal de solicitudes de amistad */
+.friend-requests-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Cabecera de la página */
+.requests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.requests-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a1a1a);
+}
+
+.requests-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary, #666);
+}
+
+.requests-actions {
+  flex: 0 1 300px;
+  min-width: 200px;
+}
+
+/* Contenido principal */
+.requests-main {
+  background: var(--color-bg-card, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Lista de solicitudes */
+.requests-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fila de solicitud individual */
+.request-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid #e0e7ff;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 60%, #f5d0fe 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.request-row:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,249,251,1) 100%);
+  border-color: var(--color-border-hover, #d1d5db);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.request-row-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.request-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.request-row-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-text-primary, #1a1a1a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+}
+
+.request-row-sub {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #666);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-row-date {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary, #999);
+  margin-top: 0.125rem;
+}
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #666);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-row-date {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #999);
+}
+
+/* Acciones de la solicitud */
+.request-row-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Forzar visibilidad del botón Rechazar en solicitudes */
+.request-row-actions .button--secondary, .request-row-actions .btn-secondary {
+  background: linear-gradient(135deg, #ffeaea 0%, #ff6b6b 100%) !important;
+  color: #222 !important;
+  border: 1px solid #ff6b6b !important;
+  font-weight: 700;
+  opacity: 1 !important;
+}
+
+.request-row-actions .button--secondary:hover, .request-row-actions .btn-secondary:hover {
+  background: linear-gradient(135deg, #ffd6d6 0%, #ff6b6b 100%) !important;
+  color: #111 !important;
+}
+
+/* Tarjeta de estado (error, vacío) */
+.state-card {
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.state-card p {
+  margin: 0;
+  color: var(--color-text-secondary, #666);
+  font-size: 1rem;
+}
+
+.state-card.error p {
+  color: var(--color-error, #dc2626);
+}
+
+/* Skeletons de carga */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton.avatar-medium {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton.line {
+  height: 14px;
+  width: 180px;
+}
+
+.skeleton.line.short {
+  width: 120px;
+}
+
+.skeleton.line.tiny {
+  width: 90px;
+  height: 12px;
+}
+
+.skeleton.btn {
+  height: 32px;
+  width: 80px;
+  border-radius: 6px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Toast de notificación */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  background: var(--color-bg-card, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.95rem;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast-success {
+  border-left: 4px solid var(--color-success, #10b981);
+  color: var(--color-success, #10b981);
+}
+
+.toast-error {
+  border-left: 4px solid var(--color-error, #dc2626);
+  color: var(--color-error, #dc2626);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .friend-requests-page {
+    padding: 1rem 0.5rem;
+  }
+
+  .requests-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .requests-actions {
+    width: 100%;
+    flex: 1;
+  }
+
+  .request-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .request-row-left {
+    width: 100%;
+  }
+
+  .request-row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .toast {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
