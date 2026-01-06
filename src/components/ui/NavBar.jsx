@@ -47,7 +47,6 @@ export default function NavBar() {
     { path: '/app/feed', icon: '🏠', label: 'Inicio' },
     { path: '/app/my-beats', icon: '🎵', label: 'Mis Beats' },
     { path: '/app/explore', icon: '🔍', label: 'Explorar' },
-    { path: '/app/upload', icon: '⬆️', label: 'Subir' },
     { path: '/app/playlists/me', icon: '📚', label: 'Biblioteca' },
     { path: '/app/messages', icon: '💬', label: 'Mensajes' },
     { path: '/app/dashboards', icon: '📊', label: 'Dashboards' },
