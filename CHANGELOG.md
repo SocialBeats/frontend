@@ -1,3 +1,24 @@
+# Release v2.0.0
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+No fixes added.
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #77 from SocialBeats/develop
+- Merge pull request #76 from SocialBeats/main
+- style: remove unused button
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v1.1.3...v2.0.0).
+
 # Release v1.1.3
 
 ## Features
