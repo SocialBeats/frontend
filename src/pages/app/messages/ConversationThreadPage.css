@@ -1,0 +1,350 @@
+/* src/pages/app/messages/ConversationThreadPage.css */
+
+.sb-thread-scope,
+.sb-thread-scope * {
+  box-sizing: border-box;
+}
+
+.sb-thread-scope h2,
+.sb-thread-scope p {
+  margin: 0;
+}
+
+/* Scrollbar discreta */
+.sb-thread-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.sb-thread-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+}
+
+/* Layout principal */
+.ctp-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  position: relative;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.ctp-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ctp-centered {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 18px 22px 28px;
+  box-sizing: border-box;
+}
+
+.ctp-card {
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  box-shadow: 0 26px 85px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  max-height: calc(100vh - 120px);
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.ctp-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.18));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 0 0 auto;
+}
+
+.ctp-backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+  flex: 0 0 auto;
+}
+
+.ctp-backIcon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+.ctp-headerAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 950;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
+  flex: 0 0 auto;
+}
+
+.ctp-headerTitleWrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctp-headerTitle {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 950;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.ctp-headerSub {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Error */
+.ctp-errorBox {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ctp-errorBtn {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* Mensajes */
+.ctp-messagesWrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: rgb(232, 238, 251);
+}
+
+.ctp-chatBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: rgba(30, 41, 59, 1);
+  mix-blend-mode: multiply;
+}
+
+.ctp-scroller {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow-y: auto;
+  padding: 18px 18px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Cargar anteriores */
+.ctp-loadOlderWrap {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.ctp-loadOlderBtn {
+  padding: 9px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255,  255, 255, 0.85);
+  color: rgba(10, 10, 10, 0.86);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Separador día */
+.ctp-daySeparatorWrap {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 2px;
+}
+
+.ctp-daySeparator {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(10, 10, 10, 0.7);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+}
+
+/* Filas y burbujas */
+.ctp-row {
+  display: flex;
+  width: 100%;
+}
+
+.ctp-rowLeft {
+  justify-content: flex-start;
+}
+
+.ctp-rowRight {
+  justify-content: flex-end;
+}
+
+.ctp-msgStack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: min(760px, 82%);
+}
+
+.ctp-timeAbove {
+  font-size: 13.5px;
+  font-weight: 900;
+  opacity: 0.72;
+  margin: 0 8px 6px;
+  letter-spacing: 0.2px;
+  user-select: none;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ctp-timeAboveLeft {
+  text-align: left;
+}
+
+.ctp-timeAboveRight {
+  text-align: right;
+}
+
+.ctp-bubbleBase {
+  border-radius: 22px;
+  padding: 14px 26px;
+  min-height: 54px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.ctp-bubbleLeft {
+  background: rgba(255, 255, 255, 0.88);
+  color: rgba(10, 10, 10, 0.88);
+}
+
+.ctp-bubbleRight {
+  background: linear-gradient(180deg, rgba(253, 230, 138, 0.92), rgba(252, 211, 77, 0.88));
+  color: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ctp-text {
+  font-size: 16.5px;
+  line-height: 1.38;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ctp-empty {
+  opacity: 0.75;
+  text-align: center;
+  padding: 22px 0;
+}
+
+/* Composer */
+.ctp-composer {
+  flex: 0 0 auto;
+  padding: 12px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.1));
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ctp-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 16px;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.ctp-sendBtn {
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: linear-gradient(180deg, rgba(253, 230, 138, 0.98), rgba(252, 211, 77, 0.96));
+  color: rgba(10, 10, 10, 0.92);
+  font-weight: 950;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+  user-select: none;
+  white-space: nowrap;
+  transition: transform 140ms ease, filter 140ms ease;
+  font-size: 15.5px;
+}
+
+.ctp-sendCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.ctp-sendIcon {
+  width: 16px;
+  height: 16px;
+  color: rgba(10, 10, 10, 0.92);
+}

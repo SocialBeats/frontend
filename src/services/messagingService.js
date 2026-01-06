@@ -2,8 +2,6 @@
 import { client } from '../api/axiosClient';
 
 function withDevUserIdHeader(config = {}) {
-  // Si en runtime definís un usuario dev, lo enviamos.
-  // Si no existe, no inventamos nada y no enviamos el header.
   const devUserId =
     window.RUNTIME_CONFIG?.VITE_DEV_USER_ID || import.meta.env?.VITE_DEV_USER_ID;
 
