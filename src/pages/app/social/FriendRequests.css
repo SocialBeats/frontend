@@ -104,12 +104,6 @@
   color: var(--color-text-tertiary, #999);
   margin-top: 0.125rem;
 }
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #666);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .request-row-date {
   font-size: 0.8rem;
