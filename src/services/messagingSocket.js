@@ -12,18 +12,30 @@ function getWsUrl() {
   );
 }
 
-export function connectMessagingSocket() {
-  const wsUrl = getWsUrl();
-  const userId = getCurrentUserId();
-  const token = getAccessToken(); 
+function parseWsConfig(rawUrl) {
+  const url = new URL(rawUrl);
 
-  if (!wsUrl || !userId) return null;
+  return {
+    origin: `${url.protocol}//${url.host}`,
+    path: `${url.pathname.replace(/\/$/, '')}/socket.io`,
+  };
+}
+
+export function connectMessagingSocket() {
+  const rawUrl = getWsUrl();
+  const userId = getCurrentUserId();
+  const token = getAccessToken();
+
+  if (!rawUrl || !userId) return null;
   if (socket?.connected) return socket;
 
-  socket = io(wsUrl, {
+  const { origin, path } = parseWsConfig(rawUrl);
+
+  socket = io(origin, {
+    path,
     auth: { userId, token },
     autoConnect: true,
-    reconnection: true,
+    reconnection: true
   });
 
   return socket;
