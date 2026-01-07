@@ -3,6 +3,8 @@
   flex-direction: column;
   gap: 16px;
   padding: 16px;
+  background: #111827;
+  color: #f9fafb;
 }
 
 .friends-header {
@@ -14,7 +16,7 @@
 }
 
 .friends-sub {
-  color: #6b7280;
+  color: #9ca3af;
   margin: 4px 0 0;
 }
 
@@ -31,28 +33,31 @@
   width: 100%;
 }
 
+/* ================================
+   TOAST
+================================ */
 .friends-toast {
   position: fixed;
   right: 16px;
   bottom: 16px;
   padding: 12px 14px;
   border-radius: 10px;
-  color: #111827;
-  background: #ecfeff;
-  border: 1px solid #a5f3fc;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  color: #f9fafb;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   z-index: 30;
   animation: fadeIn 150ms ease-out;
 }
 
 .friends-toast-success {
-  background: #ecfdf3;
-  border-color: #bbf7d0;
+  border-color: #10b981;
+  color: #10b981;
 }
 
 .friends-toast-error {
-  background: #fef2f2;
-  border-color: #fecdd3;
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
 @keyframes fadeIn {
@@ -60,6 +65,9 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ================================
+   LISTA
+================================ */
 .friends-list {
   list-style: none;
   padding: 0;
@@ -69,26 +77,32 @@
   gap: 12px;
 }
 
-
+/* ================================
+   FILA DE AMIGO
+================================ */
 .friend-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 16px 18px;
-  border: 1px solid #e0e7ff;
+  border: 1px solid #4b5563;
   border-radius: 14px;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 60%, #f5d0fe 100%);
+  background: #374151;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
 }
 
 .friend-row:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #6366f1;
+  background: #4b5563;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   transform: translateY(-2px);
 }
 
+/* ================================
+   COLUMNA IZQUIERDA
+================================ */
 .friend-row-left {
   display: flex;
   align-items: center;
@@ -104,11 +118,14 @@
   min-width: 0;
 }
 
+/* ================================
+   TEXTOS
+================================ */
 .friend-row-name {
   font-weight: 800;
   font-size: 1.08rem;
-  color: #312e81;
-  text-shadow: 0 1px 6px #fff8, 0 1px 0 #fff8;
+  color: #f9fafb;
+  text-shadow: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -116,13 +133,16 @@
 }
 
 .friend-row-sub {
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 0.875rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ================================
+   ACCIONES
+================================ */
 .friend-row-actions {
   display: flex;
   align-items: center;
@@ -131,26 +151,41 @@
   justify-content: flex-end;
 }
 
+/* ================================
+   ESTADOS
+================================ */
 .state-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px;
   text-align: center;
+  border-radius: 12px;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  color: #9ca3af;
 }
 
 .state-card.error {
-  border: 1px solid #fca5a5;
-  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
 .state-card.empty {
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-color: #4b5563;
+  color: #9ca3af;
 }
 
+/* ================================
+   SKELETON
+================================ */
 .skeleton {
-  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background: linear-gradient(
+    90deg,
+    #2a2f3a 25%,
+    #3a3f4a 50%,
+    #2a2f3a 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
   border-radius: 8px;
@@ -182,7 +217,9 @@
   100% { background-position: 200% 0; }
 }
 
-/* Badge de notificación */
+/* ================================
+   BADGE
+================================ */
 .friends-badge {
   position: absolute;
   top: -6px;
@@ -198,7 +235,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 
 @media (max-width: 640px) {
@@ -206,6 +243,7 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
   .friend-row-actions {
     width: 100%;
     justify-content: flex-start;
