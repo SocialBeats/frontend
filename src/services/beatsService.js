@@ -78,25 +78,12 @@ export const getBeats = async (filters = {}) => {
 // 👇 CAMBIAR AQUÍ: QUITAR /api/v1
 export const getMyBeats = async (params = {}) => {
   try {
-    console.log('📡 Fetching my beats with params:', params);
-    console.log('🔑 Token presente:', localStorage.getItem('accessToken') ? 'SÍ' : 'NO');
-    console.log('🔗 Base URL:', client.defaults.baseURL);
-
     const { data } = await client.get('/beats/my-beats');
-
-    console.log('📦 My beats response:', data);
-    console.log('📊 data.data value:', data.data);
-    console.log('📊 data.data length:', data.data?.length);
-    console.log('📊 data.data is Array?:', Array.isArray(data.data));
-    console.log('📊 First beat if any:', data.data?.[0]);
 
     if (data.success && data.data) {
       const beatsArray = data.data;
-      console.log('✅ Returning my beats count:', beatsArray.length);
-      console.log('✅ Returning my beats:', beatsArray);
       return beatsArray;
     } else {
-      console.warn('⚠️ Unexpected API response structure:', data);
       return data;
     }
   } catch (error) {

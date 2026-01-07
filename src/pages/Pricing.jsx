@@ -13,7 +13,7 @@ import { logger } from '../logger';
 import PricingConfirmModal from './pricing/PricingConfirmModal';
 import './Pricing.css';
 
-// Plan configuration - matches backend plans.config.js
+// Plan configuration - matches backend plans.config.js and SocialBeats-1.1.yaml
 const plans = [
   {
     name: 'FREE',
@@ -27,11 +27,16 @@ const plans = [
     features: [
       { text: 'Escucha beats ilimitados', included: true },
       { text: 'Máximo 3 beats subidos', included: true },
-      { text: 'Perfil básico de artista', included: true },
-      { text: 'Estadísticas básicas', included: true },
+      { text: 'Tamaño máximo por beat: 10MB', included: true },
+      { text: 'Almacenamiento: 30MB', included: true },
+      { text: 'Hasta 5 certificaciones', included: true },
+      { text: '1 playlist', included: true },
+      { text: '3 dashboards de analíticas', included: true },
+      { text: 'Perfil avanzado de artista', included: true },
       { text: 'Banner personalizado', included: false },
       { text: 'Cover de perfil', included: false },
-      { text: 'Beats destacados', included: false },
+      { text: 'Decorativos de perfil', included: false },
+      { text: 'Descarga de beats', included: false },
     ],
   },
   {
@@ -45,12 +50,17 @@ const plans = [
     popular: true,
     features: [
       { text: 'Escucha beats ilimitados', included: true },
-      { text: 'Máximo 25 beats subidos', included: true },
-      { text: 'Perfil verificado de artista', included: true },
-      { text: 'Estadísticas avanzadas', included: true },
+      { text: 'Máximo 30 beats subidos', included: true },
+      { text: 'Tamaño máximo por beat: 25MB', included: true },
+      { text: 'Almacenamiento: 750MB', included: true },
+      { text: 'Hasta 10 certificaciones', included: true },
+      { text: '3 playlists', included: true },
+      { text: '30 dashboards de analíticas', included: true },
+      { text: 'Perfil avanzado de artista', included: true },
       { text: 'Banner personalizado', included: true },
       { text: 'Cover de perfil', included: true },
-      { text: 'Hasta 3 beats destacados', included: true },
+      { text: 'Decorativos de perfil', included: false },
+      { text: 'Descarga de beats', included: false },
     ],
   },
   {
@@ -64,12 +74,17 @@ const plans = [
     popular: false,
     features: [
       { text: 'Escucha beats ilimitados', included: true },
-      { text: 'Beats ilimitados subidos', included: true },
-      { text: 'Perfil verificado premium', included: true },
-      { text: 'Estadísticas completas + insights', included: true },
+      { text: 'Beats ilimitados', included: true },
+      { text: 'Tamaño máximo por beat: 50MB', included: true },
+      { text: 'Almacenamiento: 1GB', included: true },
+      { text: 'Certificaciones ilimitadas', included: true },
+      { text: '30 playlists', included: true },
+      { text: 'Dashboards ilimitados', included: true },
+      { text: 'Perfil avanzado de artista', included: true },
       { text: 'Banner personalizado', included: true },
       { text: 'Cover de perfil', included: true },
-      { text: 'Beats destacados ilimitados', included: true },
+      { text: 'Decorativos de perfil', included: true },
+      { text: 'Descarga de beats', included: true },
     ],
   }
 ];
