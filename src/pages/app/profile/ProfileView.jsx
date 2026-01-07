@@ -245,14 +245,16 @@ export default function ProfileView() {
         />
       )}
 
-      <div className="profile-actions-row">
-        <Button
-          variant="secondary"
-          onClick={() => navigate('/app/friends')}
-        >
-          Ver amigos
-        </Button>
-      </div>
+      {isOwnProfile && (
+        <div className="profile-actions-row">
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/app/friends')}
+          >
+            Ver amigos
+          </Button>
+        </div>
+      )}
       {/* Hero Section */}
       <div id="profile-hero">
         <ProfileHero
