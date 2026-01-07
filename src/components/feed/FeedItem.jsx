@@ -51,6 +51,33 @@ export default function FeedItem({ item }) {
     }
   }, [item.type, item.actorId, item.friendId]);
 
+  // Enrich actor username for other event types (comments, ratings, beats)
+  useEffect(() => {
+    if (item.type !== 'friendship' && item.actorId) {
+      const loadActor = async () => {
+        try {
+          const profile = await enrichWithProfile(item.actorId);
+          setUsernames(prev => ({ ...prev, actor: profile?.username || prev.actor }));
+        } catch (err) {
+          console.error('Error loading actor username:', err);
+        }
+      };
+      loadActor();
+    }
+  }, [item.type, item.actorId]);
+
+  const getActorUsername = () => item?.metadata?.actorUsername || usernames.actor;
+
+  const renderActorLink = () => {
+    const username = getActorUsername();
+    if (!username) return <strong>Usuario</strong>;
+    return (
+      <Link to={`/app/profile/${username}`} className="feed-user-link">
+        <strong>{username}</strong>
+      </Link>
+    );
+  };
+
   const renderContent = () => {
     switch (item.type) {
       case 'friendship':
@@ -81,7 +108,7 @@ export default function FeedItem({ item }) {
                 <img src={item.thumbnailUrl} alt={item.title} className="feed-thumbnail" />
               )}
               <p>
-                Nuevo beat:{' '}
+                {renderActorLink()} subió un beat:{' '}
                 <Link to={`/app/beats/${item.beatId}`} className="feed-link">
                   <strong>{item.title}</strong>
                 </Link>
@@ -97,7 +124,7 @@ export default function FeedItem({ item }) {
             <div className="feed-icon">💬</div>
             <div className="feed-content">
               <p>
-                <strong>{item.metadata?.actorUsername}</strong> comentó en{' '}
+                {renderActorLink()} comentó en{' '}
                 <Link to={`/app/beats/${item.beatId}`} className="feed-link">
                   {item.metadata?.beatTitle}
                 </Link>
@@ -113,7 +140,7 @@ export default function FeedItem({ item }) {
             <div className="feed-icon">⭐</div>
             <div className="feed-content">
               <p>
-                <strong>{item.metadata?.actorUsername}</strong> valoró{' '}
+                {renderActorLink()} valoró{' '}
                 <Link to={`/app/beats/${item.beatId}`} className="feed-link">
                   {item.metadata?.beatTitle}
                 </Link>
