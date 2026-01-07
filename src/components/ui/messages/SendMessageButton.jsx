@@ -5,6 +5,7 @@ import './SendMessageButton.css';
 
 export default function SendMessageButton({
   otherUserId,
+  otherUsername, // opcional
   label = 'Enviar mensaje',
   className = '',
 }) {
@@ -23,10 +24,14 @@ export default function SendMessageButton({
       const conversationId = res?.conversation?._id;
 
       if (conversationId) {
-        navigate(`/app/messages/${conversationId}`);
+        navigate(`/app/messages/${conversationId}`, {
+          state: {
+            otherUserId,
+            otherUsername,
+          },
+        });
       }
     } catch (e) {
-      // Manejo mínimo de error por ahora
       console.error('Error al abrir o crear la conversación', e);
     } finally {
       setLoading(false);

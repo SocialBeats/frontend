@@ -15,32 +15,16 @@ function getWsUrl() {
 export function connectMessagingSocket() {
   const wsUrl = getWsUrl();
   const userId = getCurrentUserId();
-  const token = getAccessToken(); // opcional para futuro
-
-    console.log("[socket] connectMessagingSocket called", {
-    wsUrl,
-    userId,
-    hasToken: !!token,
-    runtimeWs: window.RUNTIME_CONFIG?.VITE_SOCIAL_WS_URL,
-    envWs: import.meta.env?.VITE_SOCIAL_WS_URL,
-  });
-  
+  const token = getAccessToken(); 
 
   if (!wsUrl || !userId) return null;
   if (socket?.connected) return socket;
 
   socket = io(wsUrl, {
-    // Nota: por ahora NO fuerces websocket; deja que Socket.IO negocie.
-    // transports: ['websocket'],
     auth: { userId, token },
     autoConnect: true,
     reconnection: true,
   });
-
-  // Logs de diagnóstico (muy recomendables mientras estabilizas)
-  socket.on('connect', () => console.log('[socket] connected', socket.id));
-  socket.on('disconnect', (reason) => console.log('[socket] disconnected', reason));
-  socket.on('connect_error', (err) => console.error('[socket] connect_error', err?.message || err));
 
   return socket;
 }

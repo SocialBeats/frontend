@@ -1,6 +1,6 @@
 // src/pages/app/messages/ConversationThreadPage.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { listMessages, sendMessage } from '@/services/messagingService';
 import { onMessageNew, offMessageNew } from '@/services/messagingSocket';
 import { getProfileInfoByUserId } from '@/services/profileService';
@@ -56,6 +56,11 @@ function hashToHue(input) {
 export default function ConversationThreadPage() {
   const { id: conversationId } = useParams();
 
+  const location = useLocation();
+  const navState = location.state || {};
+  const navOtherUserId = normalizeId(navState.otherUserId);
+  const navOtherUsername = navState.otherUsername;
+
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [before, setBefore] = useState(null);
@@ -84,15 +89,24 @@ export default function ConversationThreadPage() {
   }, [items]);
 
   const otherUserId = useMemo(() => {
+    if (navOtherUserId) return navOtherUserId; 
+
     const mine = normalizeId(myUserId);
     if (!mine) return uniqueSenderIds[0] || '';
 
     const other = uniqueSenderIds.find((id) => normalizeId(id) !== mine);
     return other || '';
-  }, [myUserId, uniqueSenderIds]);
+  }, [navOtherUserId, myUserId, uniqueSenderIds]);
+
+  useEffect(() => {
+    if (otherUserId) {
+      ensureProfilesFor([otherUserId]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otherUserId]);
 
   const otherProfile = otherUserId ? profiles?.[otherUserId]?.data : null;
-  const otherName = pickDisplayName(otherProfile);
+  const otherName = navOtherUsername || pickDisplayName(otherProfile);
 
   async function ensureProfilesFor(userIds) {
     const ids = Array.from(new Set((userIds || []).filter(Boolean).map((x) => String(x))));

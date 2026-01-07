@@ -40,10 +40,10 @@ function FriendRow({ friend, onRemove, isRemoving }) {
       <div className="friend-row-actions">
         <SendMessageButton
           otherUserId={friendId}
+          otherUsername={name}
           className="friend-message-btn"
           label="Enviar mensaje"
         />
-
         <Button
           variant="danger"
           size="small"
