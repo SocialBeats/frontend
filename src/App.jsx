@@ -34,6 +34,9 @@ import PlaylistDetails from './pages/app/beats-interaction/playlist/PlaylistDeta
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import VerifyEmail from './pages/auth/VerifyEmail';
+import MessagingLayout from './pages/app/messages/MessagingLayout';
+import ConversationsPage from './pages/app/messages/ConversationsPage.jsx';
+import ConversationThreadPage from './pages/app/messages/ConversationThreadPage.jsx';
 
 function App() {
   const spaceClient = useSpaceClient();
@@ -81,9 +84,14 @@ function App() {
           <Route path="explore" element={<ExplorePage />} />
           <Route path="upload" element={<Feed />} />
           <Route path="library" element={<Feed />} />
-          <Route path="messages" element={<Feed />} />
           <Route path="profile" element={<ProfileView />} />
           <Route path="profile/:username" element={<ProfileView />} />
+
+          {/* Rutas de Mensajería */}
+          <Route path="messages" element={<MessagingLayout />}>
+            <Route index element={<ConversationsPage />} />
+            <Route path=":id" element={<ConversationThreadPage />} />
+          </Route>
 
           {/* Rutas del microservicio Dashboards */}
           <Route path="/app/dashboards" element={<DashboardsPage />} />
