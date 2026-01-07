@@ -1,3 +1,23 @@
+# Release v2.0.2
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: fix problem in WsConfig definition
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #83 from SocialBeats/develop
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v2.0.1...v2.0.2).
+
 # Release v2.0.1
 
 ## Features
