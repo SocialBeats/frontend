@@ -1,3 +1,38 @@
+# Release v2.0.1
+
+## Features
+- feat: changes to load the username when using de SengMessageButton and comments and logs cleanup
+- feat: add send message button to friends list
+- feat: enhanced conversations inbox and messages views and added ws-url into config file
+- feat: add messaging views, socket integration, and services
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: friend button and feed user fix
+- fix: minnor changes and upgrades on beats and pricing
+- fix: unused code and comments cleanup
+- fix: fixed the preview icon and name when loading the profile username
+- fix: added missing imports
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #82 from SocialBeats/develop
+- Merge pull request #80 from SocialBeats/feat/realtime-messaging
+- Merge pull request #81 from SocialBeats/fix/friendsbutton
+- Merge pull request #79 from SocialBeats/hotfix/beats-pricing
+- chore: integrate friendships feature for realtime-messaging
+- feature: add send message button to start direct conversations
+- refactor: extract styles to css and normalize otherUserId usage
+- chore: install socket dependencies
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v2.0.0...v2.0.1).
+
 # Release v2.0.0
 
 ## Features
