@@ -1,3 +1,24 @@
+# Release v2.0.3
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+No fixes added.
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge branch 'develop' into main
+- style: upgrade social css
+- style: remove merge problem in CSS file
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v2.0.2...v2.0.3).
+
 # Release v2.0.2
 
 ## Features
