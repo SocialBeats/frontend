@@ -36,27 +36,101 @@ export default function Footer() {
             <li><Link to="/artists">Artistas</Link></li>
             <li><Link to="/producers">Productores</Link></li>
             <li><Link to="/contests">Concursos</Link></li>
-            <li><Link to="/blog">Blog</Link></li>
+            <li>
+              <a
+                href="https://github.com/orgs/SocialBeats/discussions"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Blog
+              </a>
+            </li>
           </ul>
         </div>
 
         <div className="footer-section">
           <h4 className="footer-title">Recursos</h4>
           <ul className="footer-links">
-            <li><Link to="/help">Centro de Ayuda</Link></li>
-            <li><Link to="/about">Acerca de</Link></li>
-            <li><Link to="/contact">Contacto</Link></li>
-            <li><Link to="/api">API</Link></li>
+            <li>
+              <a
+                href="https://github.com/orgs/SocialBeats/discussions"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Centro de ayuda
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/SocialBeats"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Acerca de
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/orgs/SocialBeats/discussions"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contacto
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://api.socialbeats.es/socialbeats-api/api-docs/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                API
+              </a>
+            </li>
           </ul>
         </div>
 
         <div className="footer-section">
           <h4 className="footer-title">Legal</h4>
           <ul className="footer-links">
-            <li><Link to="/terms">Términos de Uso</Link></li>
-            <li><Link to="/privacy">Privacidad</Link></li>
-            <li><Link to="/cookies">Cookies</Link></li>
-            <li><Link to="/copyright">Copyright</Link></li>
+            <li>
+              <a
+                href="https://github.com/SocialBeats/docs/blob/main/legal/agreement.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Términos de Uso
+              </a>
+            </li>
+            <li>
+            <li>
+              <a
+                href="https://github.com/SocialBeats/docs/blob/main/legal/privacy.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacidad
+              </a>
+            </li>
+            </li>
+            <li>
+              <a
+                href="https://github.com/SocialBeats/docs/blob/main/legal/privacy.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cookies
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/SocialBeats/docs/blob/main/legal/sla.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                SLA
+              </a>
+            </li>
           </ul>
         </div>
       </div>
