@@ -1,3 +1,23 @@
+# Release v2.2.0
+
+## Features
+No new features.
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+- fix: fix API docs endpoint link in footer
+
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #86 from SocialBeats/develop
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v2.1.0...v2.2.0).
+
 # Release v2.1.0
 
 ## Features
