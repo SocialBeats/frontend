@@ -1,3 +1,24 @@
+# Release v2.1.0
+
+## Features
+- feat: add working links in Footer
+
+## Tests
+No test changes.
+## Documentation
+No documentation changes.
+## Fixes
+No fixes added.
+## Continuous integration (CI)
+No CI changes.
+## Other changes
+- Merge pull request #85 from SocialBeats/develop
+- Merge pull request #84 from SocialBeats/main
+
+## Full commit history
+
+For full commit history, see [here](https://github.com/SocialBeats/frontend/compare/v2.0.3...v2.1.0).
+
 # Release v2.0.3
 
 ## Features
