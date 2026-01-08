@@ -80,7 +80,7 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="https://api.socialbeats.es/socialbeats-api/api-docs/"
+                href="https://api.socialbeats.es/socialbeats-api/api/v1/docs/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
